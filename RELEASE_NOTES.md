@@ -15,6 +15,8 @@ Recorded local environment: Windows, Node 24.19.0, pnpm 11.19.0, TypeScript 5.9.
 
 After the security correction, the fresh external consumer installation and all 18 browser cases were repeated successfully on September 10, 2026. The intentional regression demonstration was also repeated with the corrected generator.
 
+The first [GitHub Linux CI run](https://github.com/agammann/latch/actions/runs/34552048479) passed for source commit `84e1c68f490e99a01d7510d906419c22d283d141`: installation, build, all 23 unit/integration tests and the handler browser lane. This is separate from native verification on Windows.
+
 ## Installation and operation
 
 The [security review correction](docs/security-review.md) records the original scan finding and the ownership controls added before the public push. The sealed original audit and later regression evidence remain distinct.
@@ -30,7 +32,7 @@ The generated manifest records ownership and complete original/proposed componen
 - CLI-generated integrations support route/mount preconditions. Custom runtime predicates require direct runtime integration; the generator rejects unsupported predicates rather than silently ignoring them.
 - Asynchronous handlers must check `assertActive` before committing. Cancellation does not undo effects already committed. Human/agent coordination must use application-owned shared state, as the examples demonstrate.
 - Direct source inspection is contained within the selected project. Type checking uses normal TypeScript dependency resolution; browser tests execute the configured local application. Neither is a sandbox for hostile project code.
-- Node 22 and React 18 are declared compatibility targets; the recorded local run used Node 24 and React 19. macOS and Linux usage is documented; consult actual CI results before claiming a completed platform run.
+- Node 22 passed Linux CI; the recorded local run used Node 24 and React 19. React 18 is a declared peer compatibility target without a separate execution record. macOS remains unverified.
 - No hosted account, telemetry service, paid resource, deployment or package publication was created. The public GitHub repository is source distribution. Local package identifiers are not claimed to be available on a registry.
 - No open-source license was selected. `UNLICENSED` leaves the licensing decision with the owner. Third-party terms are preserved in [notices](THIRD_PARTY_NOTICES.md).
 

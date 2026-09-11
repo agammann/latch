@@ -24,7 +24,7 @@ Then use the two `pnpm add` commands in the README with the same absolute paths.
 
 Node 22+ required. TypeScript-aware generation ships with TypeScript 5.9.3. Generated examples were compiled with TypeScript 5.9.3; older compiler compatibility is not claimed. React peer range is 18.2 through 19.x; the actual recorded React version is 19.2.4. Vite 7.3.1 is tested. Vite's ES module and top-level-await support is required for the development integration. Other bundlers and frameworks are deferred.
 
-Windows, Node 24.19.0 and pnpm 11.19.0 were exercised. macOS/Linux commands and Node 22 are documented targets but unverified here. Public CI is provided for future verification, not represented as a completed platform run. `--ignore-scripts` works for this pinned dependency set because the platform esbuild package includes its executable. It also avoids interactive build-script approval differences between pnpm versions.
+Windows, Node 24.19.0 and pnpm 11.19.0 were exercised locally, including artifact installation and native browser checks. The [GitHub Linux CI run](https://github.com/agammann/latch/actions/runs/34552048479) passed dependency installation, build, all 23 unit/integration tests and the handler browser lane using Node 22 and pnpm 10.17.1. macOS remains unverified. Linux CI does not establish native WebMCP support or a Linux tarball consumer run. `--ignore-scripts` works for this pinned dependency set because the platform esbuild package includes its executable. It also avoids interactive build-script approval differences between pnpm versions.
 
 ## Native configuration
 

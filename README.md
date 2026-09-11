@@ -8,7 +8,7 @@ Version **0.1.0** is a local developer release. No account, hosted service, tele
 
 ## Start with the examples
 
-Use Node 22 or later and pnpm 10.17.1 or later. The recorded verification used Node 24.19.0, pnpm 11.19.0 and Windows. Commands are the same in PowerShell, macOS and Linux terminals; the latter two platforms have not been executed in this release environment.
+Use Node 22 or later and pnpm 10.17.1 or later. Local verification used Node 24.19.0, pnpm 11.19.0 and Windows. The [GitHub Linux CI run](https://github.com/agammann/latch/actions/runs/34552048479) also passed using Node 22 and pnpm 10.17.1. Commands are the same in PowerShell, macOS and Linux terminals; macOS has not been executed for this release.
 
 ```sh
 git clone https://github.com/agammann/latch.git
