@@ -1,0 +1,14 @@
+passing contract
+Latch regression report · 153.0.8010.37
+PASSED exported search updates shared UI [Handler test]
+1 passed, 0 failed, 0 blocked
+
+intentional handler result break
+Latch regression report · 153.0.8010.37
+FAILED exported search updates shared UI [Handler test] — RESULT_CONTRACT: $.query: expected string
+0 passed, 1 failed, 0 blocked
+
+corrected mapping to searchDocsCompatible adapter
+Latch regression report · 153.0.8010.37
+PASSED exported search updates shared UI [Handler test]
+1 passed, 0 failed, 0 blocked

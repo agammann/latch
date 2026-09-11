@@ -1,0 +1,1 @@
+{"verifiedAt":"2026-09-08","platform":"win32","browser":"153.0.8010.37","runs":[{"args":[],"featureDetected":false,"registration":"not run","invocation":"not run"},{"args":["--enable-features=WebMCPTesting"],"featureDetected":true,"registration":"verified","invocation":"verified","result":{"echo":"verified"},"abortCleanup":"verified"}]}

@@ -1,0 +1,22 @@
+{
+  "name": "latch-example-docs",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5174 --strictPort",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@latch-local/contracts": "workspace:*",
+    "@latch-local/react": "workspace:*",
+    "@latch-local/runtime": "workspace:*",
+    "@latch-local/browser": "workspace:*",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@latch-local/test": "workspace:*",
+    "vite": "7.3.1"
+  }
+}

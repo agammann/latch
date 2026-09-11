@@ -1,0 +1,248 @@
+{
+  "formatVersion": 1,
+  "startedAt": "2026-09-09T05:13:04.051Z",
+  "browser": "153.0.8010.37",
+  "target": "http://127.0.0.1:5174",
+  "cases": [
+    {
+      "name": "exported search updates shared UI",
+      "mode": "handler",
+      "status": "passed",
+      "handler": "tested",
+      "ui": "verified",
+      "nativeRegistration": "not run",
+      "nativeInvocation": "not run",
+      "results": [
+        {
+          "channel": "latch:response:v1",
+          "id": "7bff2178-d7f0-43aa-bad5-231b24678ab6",
+          "ok": true,
+          "result": {
+            "query": "regression",
+            "matches": [
+              {
+                "id": "tests",
+                "title": "Regression tests",
+                "body": "Verify handlers and visible state after a change."
+              }
+            ],
+            "openedId": ""
+          }
+        }
+      ],
+      "durationMs": 2128
+    },
+    {
+      "name": "human query is returned by exported reader",
+      "mode": "handler",
+      "status": "passed",
+      "handler": "tested",
+      "ui": "verified",
+      "nativeRegistration": "not run",
+      "nativeInvocation": "not run",
+      "results": [
+        {
+          "channel": "latch:response:v1",
+          "id": "ec75bb29-ab1d-48b6-8646-e6b6756f0059",
+          "ok": true,
+          "result": {
+            "query": "React",
+            "matches": [
+              {
+                "id": "state",
+                "title": "Shared state",
+                "body": "Connect React callbacks to existing application state."
+              }
+            ],
+            "openedId": ""
+          }
+        }
+      ],
+      "durationMs": 1652
+    },
+    {
+      "name": "invalid docs input",
+      "mode": "handler",
+      "status": "passed",
+      "handler": "tested",
+      "ui": "verified",
+      "nativeRegistration": "not run",
+      "nativeInvocation": "not run",
+      "results": [
+        {
+          "channel": "latch:response:v1",
+          "id": "20aeca16-a32e-4f24-8b62-90a53ec70be4",
+          "ok": false,
+          "error": {
+            "code": "VALIDATION",
+            "message": "$.text: expected string"
+          }
+        }
+      ],
+      "durationMs": 1229
+    },
+    {
+      "name": "open documentation detail",
+      "mode": "handler",
+      "status": "passed",
+      "handler": "tested",
+      "ui": "verified",
+      "nativeRegistration": "not run",
+      "nativeInvocation": "not run",
+      "results": [
+        {
+          "channel": "latch:response:v1",
+          "id": "d6ef9322-df50-49b6-8d9e-e977ed90c510",
+          "ok": true,
+          "result": {
+            "query": "",
+            "matches": [
+              {
+                "id": "start",
+                "title": "Getting started",
+                "body": "Install the local packages and initialize a contract."
+              },
+              {
+                "id": "state",
+                "title": "Shared state",
+                "body": "Connect React callbacks to existing application state."
+              },
+              {
+                "id": "tests",
+                "title": "Regression tests",
+                "body": "Verify handlers and visible state after a change."
+              }
+            ],
+            "openedId": "state"
+          }
+        }
+      ],
+      "durationMs": 1010
+    },
+    {
+      "name": "invalid document leaves state unchanged",
+      "mode": "handler",
+      "status": "passed",
+      "handler": "tested",
+      "ui": "verified",
+      "nativeRegistration": "not run",
+      "nativeInvocation": "not run",
+      "results": [
+        {
+          "channel": "latch:response:v1",
+          "id": "baeef2e4-0247-46f4-9ef6-a02b058eae19",
+          "ok": false,
+          "error": {
+            "code": "HANDLER",
+            "message": "Application handler failed; inspect application diagnostics locally"
+          }
+        },
+        {
+          "channel": "latch:response:v1",
+          "id": "3626cb4f-2d2d-4292-9b73-100e44323492",
+          "ok": true,
+          "result": {
+            "query": "",
+            "matches": [
+              {
+                "id": "start",
+                "title": "Getting started",
+                "body": "Install the local packages and initialize a contract."
+              },
+              {
+                "id": "state",
+                "title": "Shared state",
+                "body": "Connect React callbacks to existing application state."
+              },
+              {
+                "id": "tests",
+                "title": "Regression tests",
+                "body": "Verify handlers and visible state after a change."
+              }
+            ],
+            "openedId": ""
+          }
+        }
+      ],
+      "durationMs": 1411
+    },
+    {
+      "name": "docs empty and reset",
+      "mode": "handler",
+      "status": "passed",
+      "handler": "tested",
+      "ui": "verified",
+      "nativeRegistration": "not run",
+      "nativeInvocation": "not run",
+      "results": [
+        {
+          "channel": "latch:response:v1",
+          "id": "830d9513-4416-4cb7-ad88-755b768f2643",
+          "ok": true,
+          "result": {
+            "query": "unfindable",
+            "matches": [],
+            "openedId": ""
+          }
+        },
+        {
+          "channel": "latch:response:v1",
+          "id": "514b52ad-2d34-4f1d-806b-7823969fa251",
+          "ok": true,
+          "result": {
+            "query": "",
+            "matches": [
+              {
+                "id": "start",
+                "title": "Getting started",
+                "body": "Install the local packages and initialize a contract."
+              },
+              {
+                "id": "state",
+                "title": "Shared state",
+                "body": "Connect React callbacks to existing application state."
+              },
+              {
+                "id": "tests",
+                "title": "Regression tests",
+                "body": "Verify handlers and visible state after a change."
+              }
+            ],
+            "openedId": ""
+          }
+        }
+      ],
+      "durationMs": 1134
+    },
+    {
+      "name": "native exported search",
+      "mode": "native",
+      "status": "passed",
+      "handler": "not run",
+      "ui": "verified",
+      "nativeRegistration": "verified",
+      "nativeInvocation": "verified",
+      "results": [
+        {
+          "ok": true,
+          "result": {
+            "query": "regression",
+            "matches": [
+              {
+                "id": "tests",
+                "title": "Regression tests",
+                "body": "Verify handlers and visible state after a change."
+              }
+            ],
+            "openedId": ""
+          }
+        }
+      ],
+      "durationMs": 985
+    }
+  ],
+  "passed": 7,
+  "failed": 0,
+  "blocked": 0,
+  "sourceHash": "001610be1e5df4659837aeec85ee88576d34f621eb0f1d45e675c78ef1911ff3"
+}

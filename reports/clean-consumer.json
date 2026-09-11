@@ -1,0 +1,131 @@
+{
+  "formatVersion": 1,
+  "platform": "win32",
+  "node": "v24.19.0",
+  "installation": "passed",
+  "installedArtifacts": [
+    {
+      "name": "contracts",
+      "sha256": "02d85b8030c741b7d63f8e96653487cff158c1f9209c34eae0be35d9d7fda829"
+    },
+    {
+      "name": "browser",
+      "sha256": "2b47c3440c1f80bff01c095ffa94aaff510ff444fdeea07ff3bd144743781413"
+    },
+    {
+      "name": "runtime",
+      "sha256": "9157c881fd87b7cc1980a3908e3b1ebd4aefbc1f1c01f085f5d0f0e92ac6996c"
+    },
+    {
+      "name": "react",
+      "sha256": "536ecea842896cb718742e3aecb678d326c354ee0bf6241efdaf57bf05dd15c9"
+    },
+    {
+      "name": "test",
+      "sha256": "0cc3c6daf1920d6e05fc54a523ba5bcb42777abdbd74acb0ce5d0dfc514ceb6d"
+    },
+    {
+      "name": "cli",
+      "sha256": "90584f9de0c826bb726eaefbb08ad62c4445b0030c0f048d72b9d1930a78b971"
+    }
+  ],
+  "cases": [
+    {
+      "name": "Installed latch bin entry point",
+      "exitCode": 0,
+      "output": "0.1.0\n"
+    },
+    {
+      "name": "catalog: installed CLI init",
+      "exitCode": 0,
+      "output": "Created latch.config.json. Add an explicit handler mapping, contract and test; add // @latch:mount inside its owning component. See docs/integration.md. Empty mappings intentionally fail check.\n"
+    },
+    {
+      "name": "catalog: installed CLI inspect",
+      "exitCode": 0,
+      "output": "[\n  {\n    \"file\": \"src/main.tsx\",\n    \"line\": 6,\n    \"name\": \"Catalog\",\n    \"kind\": \"react-or-local-callback\",\n    \"evidence\": \"function Catalog\",\n    \"inputs\": [],\n    \"unresolved\": [\n      \"Side effects and authorization require developer review\",\n      \"Asynchronous commit and result semantics are not inferred\"\n    ],\n    \"adapterRequirements\": [\n      \"Pass existing callback through a React binding; not a module export\"\n    ]\n  },\n  {\n    \"file\": \"src/main.tsx\",\n    \"line\": 13,\n    \"name\": \"act\",\n    \"kind\": \"react-or-local-callback\",\n    \"evidence\": \"callback act\",\n    \"inputs\": [\n      \"input: SearchInput\"\n    ],\n    \"unresolved\": [\n      \"Side effects and authorization require developer review\",\n      \"Asynchronous commit and result semantics are not inferred\"\n    ],\n    \"adapterRequirements\": [\n      \"Pass existing callback through a React binding; not a module export\"\n    ]\n  },\n  {\n    \"file\": \"src/main.tsx\",\n    \"line\": 23,\n    \"name\": \"onSubmit\",\n    \"kind\": \"form-or-handler-reference\",\n    \"evidence\": \"onSubmit\",\n    \"inputs\": [\n      \"{(e) => e.preventDefault()}\"\n    ],\n    \"unresolved\": [\n      \"UI constraints do not establish a complete contract or safety\"\n    ],\n    \"adapterRequirements\": [\n      \"Explicit handler mapping and input schema required\"\n    ]\n  },\n  {\n    \"file\": \"src/main.tsx\",\n    \"line\": 29,\n    \"name\": \"onChange\",\n    \"kind\": \"form-or-handler-reference\",\n    \"evidence\": \"onChange\",\n    \"inputs\": [\n      \"{(e) => act({ query: e.target.value })}\"\n    ],\n    \"unresolved\": [\n      \"UI constraints do not establish a complete contract or safety\"\n    ],\n    \"adapterRequirements\": [\n      \"Explicit handler mapping and input schema required\"\n    ]\n  },\n  {\n    \"file\": \"src/main.tsx\",\n    \"line\": 30,\n    \"name\": \"maxLength\",\n    \"kind\": \"form-or-handler-reference\",\n    \"evidence\": \"maxLength\",\n    \"inputs\": [\n      \"{120}\"\n    ],\n    \"unresolved\": [\n      \"UI constraints do not establish a complete contract or safety\"\n    ],\n    \"adapterRequirements\": [\n      \"Explicit handler mapping and input schema required\"\n    ]\n  },\n  {\n    \"file\": \"src/main.tsx\",\n    \"line\": 38,\n    \"name\": \"onChange\",\n    \"kind\": \"form-or-handler-reference\",\n    \"evidence\": \"onChange\",\n    \"inputs\": [\n      \"{(e) => act({ category: e.target.value as SearchInput['category'] })}\"\n    ],\n    \"unresolved\": [\n      \"UI constraints do not establish a complete contract or safety\"\n    ],\n    \"adapterRequirements\": [\n      \"Explicit handler mapping and input schema required\"\n    ]\n  },\n  {\n    \"file\": \"src/main.tsx\",\n    \"line\": 50,\n    \"name\": \"onChange\",\n    \"kind\": \"form-or-handler-reference\",\n    \"evidence\": \"onChange\",\n    \"inputs\": [\n      \"{(e) => act({ sort: e.target.value as SearchInput['sort'] })}\"\n    ],\n    \"unresolved\": [\n      \"UI constraints do not establish a complete contract or safety\"\n    ],\n    \"adapterRequirements\": [\n      \"Explicit handler mapping and input schema required\"\n    ]\n  },\n  {\n    \"file\": \"src/main.tsx\",\n    \"line\": 57,\n    \"name\": \"onClick\",\n    \"kind\": \"form-or-handler-reference\",\n    \"evidence\": \"onClick\",\n    \"inputs\": [\n      \"{() => act({ query: '', category: 'all', sort: 'name' })}\"\n    ],\n    \"unresolved\": [\n      \"UI constraints do not establish a complete contract or safety\"\n    ],\n    \"adapterRequirements\": [\n      \"Explicit handler mapping and input schema required\"\n    ]\n  },\n  {\n    \"file\": \"src/main.tsx\",\n    \"line\": 74,\n    \"name\": \"onClick\",\n    \"kind\": \"form-or-handler-reference\",\n    \"evidence\": \"onClick\",\n    \"inputs\": [\n      \"{() =>\\n                void store.details({ id: i.id }).catch(() => setError('Details unavailable'))\\n              }\"\n    ],\n    \"unresolved\": [\n      \"UI constraints do not establish a complete contract or safety\"\n    ],\n    \"adapterRequirements\": [\n      \"Explicit handler mapping and input schema required\"\n    ]\n  },\n  {\n    \"file\": \"src/main.tsx\",\n    \"line\": 92,\n    \"name\": \"itemsName\",\n    \"kind\": \"react-or-local-callback\",\n    \"evidence\": \"function itemsName\",\n    \"inputs\": [\n      \"id: string\"\n    ],\n    \"unresolved\": [\n      \"Side effects and authorization require developer review\",\n      \"Asynchronous commit and result semantics are not inferred\"\n    ],\n    \"adapterRequirements\": [\n      \"Pass existing callback through a React binding; not a module export\"\n    ]\n  },\n  {\n    \"file\": \"src/main.tsx\",\n    \"line\": 95,\n    \"name\": \"App\",\n    \"kind\": \"react-or-local-callback\",\n    \"evidence\": \"function App\",\n    \"inputs\": [],\n    \"unresolved\": [\n      \"Side effects and authorization require developer review\",\n      \"Asynchronous commit and result semantics are not inferred\"\n    ],\n    \"adapterRequirements\": [\n      \"Pass existing callback through a React binding; not a module export\"\n    ]\n  },\n  {\n    \"file\": \"src/main.tsx\",\n    \"line\": 98,\n    \"name\": \"listener\",\n    \"kind\": \"react-or-local-callback\",\n    \"evidence\": \"callback listener\",\n    \"inputs\": [],\n    \"unresolved\": [\n      \"Side effects and authorization require developer review\",\n      \"Asynchronous commit and result semantics are not inferred\"\n    ],\n    \"adapterRequirements\": [\n      \"Pass existing callback through a React binding; not a module export\"\n    ]\n  },\n  {\n    \"file\": \"src/main.tsx\",\n    \"line\": 99,\n    \"name\": \"click\",\n    \"kind\": \"react-or-local-callback\",\n    \"evidence\": \"callback click\",\n    \"inputs\": [\n      \"e: MouseEvent\"\n    ],\n    \"unresolved\": [\n      \"Side effects and authorization require developer review\",\n      \"Asynchronous commit and result semantics are not inferred\"\n    ],\n    \"adapterRequirements\": [\n      \"Pass existing callback through a React binding; not a module export\"\n    ]\n  },\n  {\n    \"file\": \"src/store.ts\",\n    \"line\": 21,\n    \"name\": \"createCatalog\",\n    \"kind\": \"exported-function\",\n    \"evidence\": \"export function createCatalog\",\n    \"inputs\": [],\n    \"unresolved\": [\n      \"Side effects and authorization require developer review\",\n      \"Asynchronous commit and result semantics are not inferred\"\n    ],\n    \"adapterRequirements\": [\n      \"Map exported function explicitly\"\n    ]\n  },\n  {\n    \"file\": \"src/store.ts\",\n    \"line\": 31,\n    \"name\": \"commit\",\n    \"kind\": \"react-or-local-callback\",\n    \"evidence\": \"callback commit\",\n    \"inputs\": [\n      \"next: CatalogState\"\n    ],\n    \"unresolved\": [\n      \"Side effects and authorization require developer review\",\n      \"Asynchronous commit and result semantics are not inferred\"\n    ],\n    \"adapterRequirements\": [\n      \"Pass existing callback through a React binding; not a module export\"\n    ]\n  },\n  {\n    \"file\": \"src/store.ts\",\n    \"line\": 35,\n    \"name\": \"search\",\n    \"kind\": \"react-or-local-callback\",\n    \"evidence\": \"function search\",\n    \"inputs\": [\n      \"input: SearchInput\",\n      \"context: ExecutionContext\"\n    ],\n    \"unresolved\": [\n      \"Side effects and authorization require developer review\",\n      \"Asynchronous commit and result semantics are not inferred\"\n    ],\n    \"adapterRequirements\": [\n      \"Pass existing callback through a React binding; not a module export\"\n    ]\n  }\n]\n"
+    },
+    {
+      "name": "catalog: installed CLI generate",
+      "exitCode": 0,
+      "output": "{\n  \"files\": [\n    \"src/latch.generated/integration.ts\",\n    \"src/latch.generated/env.d.ts\"\n  ],\n  \"installation\": \"src/main.tsx\",\n  \"status\": \"Generated and type-checked; run latch apply\"\n}\n"
+    },
+    {
+      "name": "catalog: installed CLI check",
+      "exitCode": 0,
+      "output": "{\n  \"contract\": \"validated\",\n  \"bindings\": \"validated\",\n  \"generatedTypes\": \"compiled\",\n  \"installation\": \"pending\",\n  \"nativeRegistration\": \"not run\",\n  \"nativeInvocation\": \"not run\"\n}\n"
+    },
+    {
+      "name": "catalog: installed CLI apply",
+      "exitCode": 0,
+      "output": "Applied src/main.tsx\n"
+    },
+    {
+      "name": "catalog: production consumer build",
+      "exitCode": 0,
+      "output": "vite v7.3.1 building client environment for production...\ntransforming...\n✓ 34 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                   0.41 kB │ gzip:  0.28 kB\ndist/assets/index-D2HwREpq.css    1.46 kB │ gzip:  0.69 kB\ndist/assets/index-dX-eRPCE.js   207.76 kB │ gzip: 65.28 kB\n✓ built in 1.85s\n"
+    },
+    {
+      "name": "catalog: production bridge exclusion",
+      "exitCode": 0
+    },
+    {
+      "name": "catalog: installed CLI regression tests",
+      "exitCode": 0,
+      "output": "Latch regression report · 153.0.8010.37\nPASSED search updates results and input [Handler test]\nPASSED human search is visible to handler [Handler test]\nPASSED omission preserves filters and explicit reset clears [Handler test]\nPASSED empty results [Handler test]\nPASSED invalid input does not change UI [Handler test]\nPASSED unknown fields rejected [Handler test]\nPASSED invalid detail ID does not select [Handler test]\nPASSED details uses visible results [Handler test]\nPASSED FIFO overlapping searches [Handler test]\nPASSED agent then human reset [Handler test]\nPASSED native search and cleanup [Native invocation]\n11 passed, 0 failed, 0 blocked\n"
+    },
+    {
+      "name": "catalog: browser summary",
+      "passed": 11,
+      "failed": 0,
+      "blocked": 0,
+      "browser": "153.0.8010.37"
+    },
+    {
+      "name": "docs: installed CLI init",
+      "exitCode": 0,
+      "output": "Created latch.config.json. Add an explicit handler mapping, contract and test; add // @latch:mount inside its owning component. See docs/integration.md. Empty mappings intentionally fail check.\n"
+    },
+    {
+      "name": "docs: installed CLI inspect",
+      "exitCode": 0,
+      "output": "[\n  {\n    \"file\": \"src/library.ts\",\n    \"line\": 26,\n    \"name\": \"commit\",\n    \"kind\": \"react-or-local-callback\",\n    \"evidence\": \"function commit\",\n    \"inputs\": [\n      \"next: DocState\"\n    ],\n    \"unresolved\": [\n      \"Side effects and authorization require developer review\",\n      \"Asynchronous commit and result semantics are not inferred\"\n    ],\n    \"adapterRequirements\": [\n      \"Pass existing callback through a React binding; not a module export\"\n    ]\n  },\n  {\n    \"file\": \"src/library.ts\",\n    \"line\": 31,\n    \"name\": \"subscribe\",\n    \"kind\": \"exported-function\",\n    \"evidence\": \"export callback subscribe\",\n    \"inputs\": [\n      \"l: () => void\"\n    ],\n    \"unresolved\": [\n      \"Side effects and authorization require developer review\",\n      \"Asynchronous commit and result semantics are not inferred\"\n    ],\n    \"adapterRequirements\": [\n      \"Map exported function explicitly\"\n    ]\n  },\n  {\n    \"file\": \"src/library.ts\",\n    \"line\": 37,\n    \"name\": \"readDocs\",\n    \"kind\": \"exported-function\",\n    \"evidence\": \"export function readDocs\",\n    \"inputs\": [],\n    \"unresolved\": [\n      \"Side effects and authorization require developer review\",\n      \"Asynchronous commit and result semantics are not inferred\"\n    ],\n    \"adapterRequirements\": [\n      \"Map exported function explicitly\"\n    ]\n  },\n  {\n    \"file\": \"src/library.ts\",\n    \"line\": 40,\n    \"name\": \"searchDocs\",\n    \"kind\": \"exported-function\",\n    \"evidence\": \"export function searchDocs\",\n    \"inputs\": [\n      \"{ text }: { text?: string }\",\n      \"context: ExecutionContext\"\n    ],\n    \"unresolved\": [\n      \"Side effects and authorization require developer review\",\n      \"Asynchronous commit and result semantics are not inferred\"\n    ],\n    \"adapterRequirements\": [\n      \"Map exported function explicitly\"\n    ]\n  },\n  {\n    \"file\": \"src/library.ts\",\n    \"line\": 54,\n    \"name\": \"openDoc\",\n    \"kind\": \"exported-function\",\n    \"evidence\": \"export function openDoc\",\n    \"inputs\": [\n      \"{ id }: { id: string }\",\n      \"context: ExecutionContext\"\n    ],\n    \"unresolved\": [\n      \"Side effects and authorization require developer review\",\n      \"Asynchronous commit and result semantics are not inferred\"\n    ],\n    \"adapterRequirements\": [\n      \"Map exported function explicitly\"\n    ]\n  },\n  {\n    \"file\": \"src/main.tsx\",\n    \"line\": 5,\n    \"name\": \"App\",\n    \"kind\": \"react-or-local-callback\",\n    \"evidence\": \"function App\",\n    \"inputs\": [],\n    \"unresolved\": [\n      \"Side effects and authorization require developer review\",\n      \"Asynchronous commit and result semantics are not inferred\"\n    ],\n    \"adapterRequirements\": [\n      \"Pass existing callback through a React binding; not a module export\"\n    ]\n  },\n  {\n    \"file\": \"src/main.tsx\",\n    \"line\": 23,\n    \"name\": \"onChange\",\n    \"kind\": \"form-or-handler-reference\",\n    \"evidence\": \"onChange\",\n    \"inputs\": [\n      \"{(e) => void searchDocs({ text: e.target.value })}\"\n    ],\n    \"unresolved\": [\n      \"UI constraints do not establish a complete contract or safety\"\n    ],\n    \"adapterRequirements\": [\n      \"Explicit handler mapping and input schema required\"\n    ]\n  },\n  {\n    \"file\": \"src/main.tsx\",\n    \"line\": 36,\n    \"name\": \"onClick\",\n    \"kind\": \"form-or-handler-reference\",\n    \"evidence\": \"onClick\",\n    \"inputs\": [\n      \"{() => void openDoc({ id: d.id })}\"\n    ],\n    \"unresolved\": [\n      \"UI constraints do not establish a complete contract or safety\"\n    ],\n    \"adapterRequirements\": [\n      \"Explicit handler mapping and input schema required\"\n    ]\n  },\n  {\n    \"file\": \"src/main.tsx\",\n    \"line\": 46,\n    \"name\": \"onClick\",\n    \"kind\": \"form-or-handler-reference\",\n    \"evidence\": \"onClick\",\n    \"inputs\": [\n      \"{() => void searchDocs({ text: '' })}\"\n    ],\n    \"unresolved\": [\n      \"UI constraints do not establish a complete contract or safety\"\n    ],\n    \"adapterRequirements\": [\n      \"Explicit handler mapping and input schema required\"\n    ]\n  }\n]\n"
+    },
+    {
+      "name": "docs: installed CLI generate",
+      "exitCode": 0,
+      "output": "{\n  \"files\": [\n    \"src/latch.generated/integration.ts\",\n    \"src/latch.generated/env.d.ts\"\n  ],\n  \"installation\": \"src/main.tsx\",\n  \"status\": \"Generated and type-checked; run latch apply\"\n}\n"
+    },
+    {
+      "name": "docs: installed CLI check",
+      "exitCode": 0,
+      "output": "{\n  \"contract\": \"validated\",\n  \"bindings\": \"validated\",\n  \"generatedTypes\": \"compiled\",\n  \"installation\": \"pending\",\n  \"nativeRegistration\": \"not run\",\n  \"nativeInvocation\": \"not run\"\n}\n"
+    },
+    {
+      "name": "docs: installed CLI apply",
+      "exitCode": 0,
+      "output": "Applied src/main.tsx\n"
+    },
+    {
+      "name": "docs: production consumer build",
+      "exitCode": 0,
+      "output": "vite v7.3.1 building client environment for production...\ntransforming...\n✓ 34 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                   0.41 kB │ gzip:  0.28 kB\ndist/assets/index-D2HwREpq.css    1.46 kB │ gzip:  0.69 kB\ndist/assets/index-Wvislaak.js   205.13 kB │ gzip: 64.52 kB\n✓ built in 768ms\n"
+    },
+    {
+      "name": "docs: production bridge exclusion",
+      "exitCode": 0
+    },
+    {
+      "name": "docs: installed CLI regression tests",
+      "exitCode": 0,
+      "output": "Latch regression report · 153.0.8010.37\nPASSED exported search updates shared UI [Handler test]\nPASSED human query is returned by exported reader [Handler test]\nPASSED invalid docs input [Handler test]\nPASSED open documentation detail [Handler test]\nPASSED invalid document leaves state unchanged [Handler test]\nPASSED docs empty and reset [Handler test]\nPASSED native exported search [Native invocation]\n7 passed, 0 failed, 0 blocked\n"
+    },
+    {
+      "name": "docs: browser summary",
+      "passed": 7,
+      "failed": 0,
+      "blocked": 0,
+      "browser": "153.0.8010.37"
+    }
+  ]
+}

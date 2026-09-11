@@ -1,0 +1,30 @@
+{
+  "name": "@latch-local/react",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Latch react: Connect your site. Verify every action.",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "sideEffects": false,
+  "dependencies": {
+    "@latch-local/runtime": "workspace:*",
+    "@latch-local/contracts": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": ">=18.2.0 <20"
+  }
+}

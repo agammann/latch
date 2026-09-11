@@ -1,0 +1,43 @@
+{
+  "browser": "153.0.8010.37",
+  "method": "Codex in-app browser used for initial console inspection and Run regression tests; Playwright used for reproducible control checks and screenshots",
+  "results": [
+    {
+      "control": "Contracts",
+      "status": "passed"
+    },
+    {
+      "control": "Source evidence",
+      "status": "passed"
+    },
+    {
+      "control": "Generated changes",
+      "status": "passed"
+    },
+    {
+      "control": "Regression reports",
+      "status": "passed"
+    },
+    {
+      "control": "Contract selector",
+      "status": "passed"
+    },
+    {
+      "control": "Mobile layout has no horizontal overflow",
+      "status": "passed"
+    },
+    {
+      "control": "catalog human search and mobile layout",
+      "status": "passed"
+    },
+    {
+      "control": "docs human search and mobile layout",
+      "status": "passed"
+    },
+    {
+      "control": "Page JavaScript errors",
+      "status": "passed",
+      "errors": []
+    }
+  ]
+}

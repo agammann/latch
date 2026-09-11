@@ -1,0 +1,673 @@
+{
+  "version": 1,
+  "project": "Catalog fixture",
+  "baseUrl": "http://127.0.0.1:5173",
+  "browser": {
+    "channel": "chrome",
+    "native": true
+  },
+  "installation": {
+    "file": "src/main.tsx"
+  },
+  "tools": [
+    {
+      "name": "catalog.search",
+      "description": "Search visible catalog items. Omitted fields preserve current values; empty query, all category and name sort reset them. Await completion before reading state.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "category": {
+            "type": "string",
+            "enum": ["all", "workspace", "outdoors"]
+          },
+          "sort": {
+            "type": "string",
+            "enum": ["name", "price-asc", "price-desc"]
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "resultSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "sort": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "category": {
+                  "type": "string"
+                },
+                "price": {
+                  "type": "number"
+                }
+              },
+              "required": ["id", "name", "category", "price"],
+              "additionalProperties": false
+            },
+            "maxItems": 100
+          },
+          "selectedId": {
+            "type": "string"
+          }
+        },
+        "required": ["query", "category", "sort", "items", "selectedId"],
+        "additionalProperties": false
+      },
+      "binding": {
+        "kind": "react",
+        "module": "src/main.tsx",
+        "reference": "search"
+      },
+      "scope": {
+        "route": "/",
+        "component": "Catalog"
+      },
+      "preconditions": [],
+      "sideEffects": "ui"
+    },
+    {
+      "name": "catalog.read",
+      "description": "Read the currently visible catalog results and selected item without changing state.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "resultSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "sort": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "category": {
+                  "type": "string"
+                },
+                "price": {
+                  "type": "number"
+                }
+              },
+              "required": ["id", "name", "category", "price"],
+              "additionalProperties": false
+            },
+            "maxItems": 100
+          },
+          "selectedId": {
+            "type": "string"
+          }
+        },
+        "required": ["query", "category", "sort", "items", "selectedId"],
+        "additionalProperties": false
+      },
+      "binding": {
+        "kind": "react",
+        "module": "src/main.tsx",
+        "reference": "read"
+      },
+      "scope": {
+        "route": "/",
+        "component": "Catalog"
+      },
+      "preconditions": [],
+      "sideEffects": "none"
+    },
+    {
+      "name": "catalog.details",
+      "description": "Open details for a currently visible item; unknown or hidden IDs fail without changes.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": ["id"],
+        "additionalProperties": false
+      },
+      "resultSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "sort": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "category": {
+                  "type": "string"
+                },
+                "price": {
+                  "type": "number"
+                }
+              },
+              "required": ["id", "name", "category", "price"],
+              "additionalProperties": false
+            },
+            "maxItems": 100
+          },
+          "selectedId": {
+            "type": "string"
+          }
+        },
+        "required": ["query", "category", "sort", "items", "selectedId"],
+        "additionalProperties": false
+      },
+      "binding": {
+        "kind": "react",
+        "module": "src/main.tsx",
+        "reference": "details"
+      },
+      "scope": {
+        "route": "/",
+        "component": "Catalog"
+      },
+      "preconditions": [],
+      "sideEffects": "ui"
+    }
+  ],
+  "tests": [
+    {
+      "name": "search updates results and input",
+      "route": "/",
+      "fixture": "fresh-page",
+      "mode": "handler",
+      "timeoutMs": 15000,
+      "calls": [
+        {
+          "tool": "catalog.search",
+          "input": {
+            "query": "lamp"
+          },
+          "result": [
+            {
+              "path": ["items", "0", "id"],
+              "equals": "lamp"
+            },
+            {
+              "path": ["query"],
+              "equals": "lamp"
+            }
+          ]
+        }
+      ],
+      "ui": [
+        {
+          "target": {
+            "testId": "count"
+          },
+          "kind": "text",
+          "equals": "1 results"
+        },
+        {
+          "target": {
+            "label": "Search catalog"
+          },
+          "kind": "value",
+          "equals": "lamp"
+        }
+      ]
+    },
+    {
+      "name": "human search is visible to handler",
+      "route": "/",
+      "fixture": "fresh-page",
+      "mode": "handler",
+      "timeoutMs": 15000,
+      "calls": [
+        {
+          "tool": "catalog.read",
+          "input": {},
+          "result": [
+            {
+              "path": ["query"],
+              "equals": "pack"
+            },
+            {
+              "path": ["items", "0", "id"],
+              "equals": "pack"
+            }
+          ]
+        }
+      ],
+      "before": [
+        {
+          "kind": "fill",
+          "target": {
+            "label": "Search catalog"
+          },
+          "value": "pack"
+        }
+      ],
+      "ui": [
+        {
+          "target": {
+            "testId": "count"
+          },
+          "kind": "text",
+          "equals": "1 results"
+        }
+      ]
+    },
+    {
+      "name": "omission preserves filters and explicit reset clears",
+      "route": "/",
+      "fixture": "fresh-page",
+      "mode": "handler",
+      "timeoutMs": 15000,
+      "calls": [
+        {
+          "tool": "catalog.search",
+          "input": {
+            "category": "outdoors"
+          },
+          "result": []
+        },
+        {
+          "tool": "catalog.search",
+          "input": {
+            "sort": "price-desc"
+          },
+          "result": [
+            {
+              "path": ["category"],
+              "equals": "outdoors"
+            },
+            {
+              "path": ["items", "0", "id"],
+              "equals": "pack"
+            }
+          ]
+        },
+        {
+          "tool": "catalog.search",
+          "input": {
+            "query": "",
+            "category": "all",
+            "sort": "name"
+          },
+          "result": [
+            {
+              "path": ["items", "length"],
+              "equals": 4
+            }
+          ]
+        }
+      ],
+      "ui": [
+        {
+          "target": {
+            "testId": "count"
+          },
+          "kind": "text",
+          "equals": "4 results"
+        }
+      ]
+    },
+    {
+      "name": "empty results",
+      "route": "/",
+      "fixture": "fresh-page",
+      "mode": "handler",
+      "timeoutMs": 15000,
+      "calls": [
+        {
+          "tool": "catalog.search",
+          "input": {
+            "query": "no-such-object"
+          },
+          "result": [
+            {
+              "path": ["items", "length"],
+              "equals": 0
+            }
+          ]
+        }
+      ],
+      "ui": [
+        {
+          "target": {
+            "testId": "count"
+          },
+          "kind": "text",
+          "equals": "0 results"
+        }
+      ]
+    },
+    {
+      "name": "invalid input does not change UI",
+      "route": "/",
+      "fixture": "fresh-page",
+      "mode": "handler",
+      "timeoutMs": 15000,
+      "calls": [
+        {
+          "tool": "catalog.search",
+          "input": {
+            "query": 42
+          },
+          "result": [],
+          "expectError": "VALIDATION"
+        },
+        {
+          "tool": "catalog.read",
+          "input": {},
+          "result": [
+            {
+              "path": ["query"],
+              "equals": ""
+            },
+            {
+              "path": ["items", "length"],
+              "equals": 4
+            }
+          ]
+        }
+      ],
+      "ui": [
+        {
+          "target": {
+            "testId": "count"
+          },
+          "kind": "text",
+          "equals": "4 results"
+        }
+      ]
+    },
+    {
+      "name": "unknown fields rejected",
+      "route": "/",
+      "fixture": "fresh-page",
+      "mode": "handler",
+      "timeoutMs": 15000,
+      "calls": [
+        {
+          "tool": "catalog.search",
+          "input": {
+            "admin": true
+          },
+          "result": [],
+          "expectError": "VALIDATION"
+        }
+      ],
+      "ui": [
+        {
+          "target": {
+            "testId": "count"
+          },
+          "kind": "text",
+          "equals": "4 results"
+        }
+      ]
+    },
+    {
+      "name": "invalid detail ID does not select",
+      "route": "/",
+      "fixture": "fresh-page",
+      "mode": "handler",
+      "timeoutMs": 15000,
+      "calls": [
+        {
+          "tool": "catalog.details",
+          "input": {
+            "id": "missing"
+          },
+          "result": [],
+          "expectError": "HANDLER"
+        },
+        {
+          "tool": "catalog.read",
+          "input": {},
+          "result": [
+            {
+              "path": ["selectedId"],
+              "equals": ""
+            }
+          ]
+        }
+      ],
+      "ui": [
+        {
+          "target": {
+            "testId": "selected"
+          },
+          "kind": "count",
+          "equals": 0
+        }
+      ]
+    },
+    {
+      "name": "details uses visible results",
+      "route": "/",
+      "fixture": "fresh-page",
+      "mode": "handler",
+      "timeoutMs": 15000,
+      "calls": [
+        {
+          "tool": "catalog.details",
+          "input": {
+            "id": "lamp"
+          },
+          "result": [
+            {
+              "path": ["selectedId"],
+              "equals": "lamp"
+            }
+          ]
+        }
+      ],
+      "ui": [
+        {
+          "target": {
+            "testId": "selected"
+          },
+          "kind": "text",
+          "equals": "Selected: lamp"
+        }
+      ]
+    },
+    {
+      "name": "FIFO overlapping searches",
+      "route": "/",
+      "fixture": "fresh-page",
+      "mode": "handler",
+      "timeoutMs": 15000,
+      "calls": [
+        {
+          "tool": "catalog.search",
+          "input": {
+            "query": "lamp"
+          },
+          "result": [
+            {
+              "path": ["query"],
+              "equals": "lamp"
+            }
+          ]
+        },
+        {
+          "tool": "catalog.search",
+          "input": {
+            "query": "pack"
+          },
+          "result": [
+            {
+              "path": ["query"],
+              "equals": "pack"
+            }
+          ]
+        }
+      ],
+      "concurrent": true,
+      "ui": [
+        {
+          "target": {
+            "testId": "count"
+          },
+          "kind": "text",
+          "equals": "1 results"
+        },
+        {
+          "target": {
+            "label": "Search catalog"
+          },
+          "kind": "value",
+          "equals": "pack"
+        }
+      ]
+    },
+    {
+      "name": "agent then human reset",
+      "route": "/",
+      "fixture": "fresh-page",
+      "mode": "handler",
+      "timeoutMs": 15000,
+      "calls": [
+        {
+          "tool": "catalog.search",
+          "input": {
+            "query": "lamp"
+          },
+          "result": []
+        }
+      ],
+      "ui": [
+        {
+          "target": {
+            "testId": "count"
+          },
+          "kind": "text",
+          "equals": "1 results"
+        }
+      ],
+      "after": [
+        {
+          "kind": "click",
+          "target": {
+            "role": "button",
+            "name": "Reset"
+          }
+        }
+      ],
+      "afterUI": [
+        {
+          "target": {
+            "testId": "count"
+          },
+          "kind": "text",
+          "equals": "4 results"
+        },
+        {
+          "target": {
+            "label": "Search catalog"
+          },
+          "kind": "value",
+          "equals": ""
+        }
+      ]
+    },
+    {
+      "name": "native search and cleanup",
+      "route": "/",
+      "fixture": "fresh-page",
+      "mode": "native",
+      "timeoutMs": 15000,
+      "calls": [
+        {
+          "tool": "catalog.search",
+          "input": {
+            "query": "lamp"
+          },
+          "result": [
+            {
+              "path": ["items", "0", "id"],
+              "equals": "lamp"
+            }
+          ]
+        }
+      ],
+      "ui": [
+        {
+          "target": {
+            "testId": "count"
+          },
+          "kind": "text",
+          "equals": "1 results"
+        }
+      ],
+      "after": [
+        {
+          "kind": "click",
+          "target": {
+            "role": "link",
+            "name": "Leave catalog"
+          }
+        }
+      ],
+      "afterUI": [
+        {
+          "target": {
+            "role": "heading",
+            "name": "Outside catalog scope"
+          },
+          "kind": "visible",
+          "equals": true
+        }
+      ],
+      "absentTools": ["catalog.search", "catalog.read", "catalog.details"]
+    }
+  ]
+}

@@ -1,0 +1,148 @@
+TAP version 13
+# Subtest: bridge rejects remote origins and ignores forged origins/sources
+ok 1 - bridge rejects remote origins and ignores forged origins/sources
+  ---
+  duration_ms: 1.5167
+  type: 'test'
+  ...
+# Subtest: generation is idempotent; apply and rollback preserve original source
+ok 2 - generation is idempotent; apply and rollback preserve original source
+  ---
+  duration_ms: 4373.4345
+  type: 'test'
+  ...
+# Subtest: edited generated code prevents generation and rollback
+ok 3 - edited generated code prevents generation and rollback
+  ---
+  duration_ms: 761.6708
+  type: 'test'
+  ...
+# Subtest: later component edits are preserved during rollback refusal
+ok 4 - later component edits are preserved during rollback refusal
+  ---
+  duration_ms: 1411.6778
+  type: 'test'
+  ...
+# Subtest: invalid exported mapping fails without fake success generation
+ok 5 - invalid exported mapping fails without fake success generation
+  ---
+  duration_ms: 47.7697
+  type: 'test'
+  ...
+# Subtest: type-incompatible mapping does not write a broken integration
+ok 6 - type-incompatible mapping does not write a broken integration
+  ---
+  duration_ms: 671.9811
+  type: 'test'
+  ...
+# Subtest: inspection excludes secrets, huge files, dependencies and traversal
+ok 7 - inspection excludes secrets, huge files, dependencies and traversal
+  ---
+  duration_ms: 47.6818
+  type: 'test'
+  ...
+# Subtest: symlink or junction escape is refused
+ok 8 - symlink or junction escape is refused
+  ---
+  duration_ms: 30.6853
+  type: 'test'
+  ...
+# Subtest: crafted installation metadata cannot alter local Git configuration
+ok 9 - crafted installation metadata cannot alter local Git configuration
+  ---
+  duration_ms: 600.9136
+  type: 'test'
+  ...
+# Subtest: forged ownership keys and restoration bodies fail before any deletion
+ok 10 - forged ownership keys and restoration bodies fail before any deletion
+  ---
+  duration_ms: 604.0001
+  type: 'test'
+  ...
+# Subtest: unreviewed installation source is rejected by check, apply and rollback
+ok 11 - unreviewed installation source is rejected by check, apply and rollback
+  ---
+  duration_ms: 608.9433
+  type: 'test'
+  ...
+# Subtest: a syntactically valid stored hook must match the configured installation plan
+ok 12 - a syntactically valid stored hook must match the configured installation plan
+  ---
+  duration_ms: 859.1284
+  type: 'test'
+  ...
+# Subtest: invalid input is rejected before handler and result mismatch is detected
+ok 13 - invalid input is rejected before handler and result mismatch is detected
+  ---
+  duration_ms: 3.4806
+  type: 'test'
+  ...
+# Subtest: unknown keyword, unsafe properties and nonfinite input fail closed
+ok 14 - unknown keyword, unsafe properties and nonfinite input fail closed
+  ---
+  duration_ms: 0.2735
+  type: 'test'
+  ...
+# Subtest: FIFO results are stable and rejected call does not poison queue
+ok 15 - FIFO results are stable and rejected call does not poison queue
+  ---
+  duration_ms: 73.6958
+  type: 'test'
+  ...
+# Subtest: queued input is immutable and closures update without reregistering
+ok 16 - queued input is immutable and closures update without reregistering
+  ---
+  duration_ms: 0.8305
+  type: 'test'
+  ...
+# Subtest: navigation prevents cooperative late commits and cancels queued calls
+ok 17 - navigation prevents cooperative late commits and cancels queued calls
+  ---
+  duration_ms: 0.4635
+  type: 'test'
+  ...
+# Subtest: cancellation after a commit is not described as rollback
+ok 18 - cancellation after a commit is not described as rollback
+  ---
+  duration_ms: 0.2677
+  type: 'test'
+  ...
+# Subtest: partial registration failure aborts all owned registrations
+ok 19 - partial registration failure aborts all owned registrations
+  ---
+  duration_ms: 0.6142
+  type: 'test'
+  ...
+# Subtest: unresolved handlers and preconditions never register
+ok 20 - unresolved handlers and preconditions never register
+  ---
+  duration_ms: 0.1751
+  type: 'test'
+  ...
+# Subtest: preconditions are evaluated at execution time
+ok 21 - preconditions are evaluated at execution time
+  ---
+  duration_ms: 0.2912
+  type: 'test'
+  ...
+# Subtest: unsupported browser is a status, not a fake native API
+ok 22 - unsupported browser is a status, not a fake native API
+  ---
+  duration_ms: 0.2939
+  type: 'test'
+  ...
+# Subtest: management service rejects rebinding, cross-origin reads and unauthenticated writes
+ok 23 - management service rejects rebinding, cross-origin reads and unauthenticated writes
+  ---
+  duration_ms: 1557.6238
+  type: 'test'
+  ...
+1..23
+# tests 23
+# suites 0
+# pass 23
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 19193.2603

@@ -1,0 +1,50 @@
+[
+  {
+    "package": "@latch-local/contracts",
+    "version": "0.1.0",
+    "files": 8,
+    "status": "passed"
+  },
+  {
+    "package": "@latch-local/browser",
+    "version": "0.1.0",
+    "files": 8,
+    "status": "passed"
+  },
+  {
+    "package": "@latch-local/runtime",
+    "version": "0.1.0",
+    "files": 8,
+    "status": "passed"
+  },
+  {
+    "package": "@latch-local/react",
+    "version": "0.1.0",
+    "files": 8,
+    "status": "passed"
+  },
+  {
+    "package": "@latch-local/test",
+    "version": "0.1.0",
+    "files": 11,
+    "status": "passed"
+  },
+  {
+    "package": "@latch-local/cli",
+    "version": "0.1.0",
+    "files": 28,
+    "status": "passed"
+  },
+  {
+    "productionBundle": "catalog",
+    "developmentBridge": "absent",
+    "filesystemAndParser": "absent",
+    "status": "passed"
+  },
+  {
+    "productionBundle": "docs",
+    "developmentBridge": "absent",
+    "filesystemAndParser": "absent",
+    "status": "passed"
+  }
+]

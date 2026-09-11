@@ -1,0 +1,9 @@
+Latch regression report · 153.0.8010.37
+PASSED exported search updates shared UI [Handler test]
+PASSED human query is returned by exported reader [Handler test]
+PASSED invalid docs input [Handler test]
+PASSED open documentation detail [Handler test]
+PASSED invalid document leaves state unchanged [Handler test]
+PASSED docs empty and reset [Handler test]
+PASSED native exported search [Native invocation]
+7 passed, 0 failed, 0 blocked

@@ -1,0 +1,30 @@
+{
+  "name": "@latch-local/cli",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Latch cli: Connect your site. Verify every action.",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "main": "./dist/main.js",
+  "types": "./dist/main.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/main.d.ts",
+      "import": "./dist/main.js"
+    }
+  },
+  "dependencies": {
+    "@latch-local/contracts": "workspace:*",
+    "@latch-local/test": "workspace:*",
+    "typescript": "5.9.3"
+  },
+  "bin": {
+    "latch": "./dist/main.js"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "name": "@latch-local/test",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Latch test: Connect your site. Verify every action.",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./bridge": {
+      "types": "./dist/bridge.d.ts",
+      "import": "./dist/bridge.js"
+    }
+  },
+  "sideEffects": false,
+  "dependencies": {
+    "@latch-local/runtime": "workspace:*",
+    "@latch-local/contracts": "workspace:*",
+    "playwright": "1.58.2"
+  }
+}

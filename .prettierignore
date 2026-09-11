@@ -1,0 +1,9 @@
+node_modules
+**/dist
+work
+artifacts
+reports
+**/.latch
+**/latch.generated
+pnpm-lock.yaml
+THIRD_PARTY_NOTICES.md

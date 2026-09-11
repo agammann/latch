@@ -1,0 +1,122 @@
+[
+  {
+    "phase": "passing contract",
+    "report": {
+      "formatVersion": 1,
+      "startedAt": "2026-09-11T01:42:56.494Z",
+      "browser": "153.0.8010.37",
+      "target": "http://127.0.0.1:5174",
+      "cases": [
+        {
+          "name": "exported search updates shared UI",
+          "mode": "handler",
+          "status": "passed",
+          "handler": "tested",
+          "ui": "verified",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "results": [
+            {
+              "channel": "latch:response:v1",
+              "id": "f0986f00-8039-4d63-b837-b1a916a73777",
+              "ok": true,
+              "result": {
+                "query": "regression",
+                "matches": [
+                  {
+                    "id": "tests",
+                    "title": "Regression tests",
+                    "body": "Verify handlers and visible state after a change."
+                  }
+                ],
+                "openedId": ""
+              }
+            }
+          ],
+          "durationMs": 2076
+        }
+      ],
+      "passed": 1,
+      "failed": 0,
+      "blocked": 0
+    }
+  },
+  {
+    "phase": "intentional handler result break",
+    "report": {
+      "formatVersion": 1,
+      "startedAt": "2026-09-11T01:43:07.319Z",
+      "browser": "153.0.8010.37",
+      "target": "http://127.0.0.1:5174",
+      "cases": [
+        {
+          "name": "exported search updates shared UI",
+          "mode": "handler",
+          "status": "failed",
+          "handler": "not run",
+          "ui": "not run",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "results": [
+            {
+              "channel": "latch:response:v1",
+              "id": "95a12211-ae4f-4eef-b144-17c369656a82",
+              "ok": false,
+              "error": {
+                "code": "RESULT_CONTRACT",
+                "message": "$.query: expected string"
+              }
+            }
+          ],
+          "durationMs": 1108,
+          "error": "RESULT_CONTRACT: $.query: expected string"
+        }
+      ],
+      "passed": 0,
+      "failed": 1,
+      "blocked": 0
+    }
+  },
+  {
+    "phase": "corrected mapping to searchDocsCompatible adapter",
+    "report": {
+      "formatVersion": 1,
+      "startedAt": "2026-09-11T01:43:18.013Z",
+      "browser": "153.0.8010.37",
+      "target": "http://127.0.0.1:5174",
+      "cases": [
+        {
+          "name": "exported search updates shared UI",
+          "mode": "handler",
+          "status": "passed",
+          "handler": "tested",
+          "ui": "verified",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "results": [
+            {
+              "channel": "latch:response:v1",
+              "id": "dbf3121c-d5ee-446d-87b6-6b4969c35262",
+              "ok": true,
+              "result": {
+                "query": "regression",
+                "matches": [
+                  {
+                    "id": "tests",
+                    "title": "Regression tests",
+                    "body": "Verify handlers and visible state after a change."
+                  }
+                ],
+                "openedId": ""
+              }
+            }
+          ],
+          "durationMs": 1604
+        }
+      ],
+      "passed": 1,
+      "failed": 0,
+      "blocked": 0
+    }
+  }
+]

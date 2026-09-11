@@ -1,0 +1,13 @@
+Latch regression report · 153.0.8010.37
+PASSED search updates results and input [Handler test]
+PASSED human search is visible to handler [Handler test]
+PASSED omission preserves filters and explicit reset clears [Handler test]
+PASSED empty results [Handler test]
+PASSED invalid input does not change UI [Handler test]
+PASSED unknown fields rejected [Handler test]
+PASSED invalid detail ID does not select [Handler test]
+PASSED details uses visible results [Handler test]
+PASSED FIFO overlapping searches [Handler test]
+PASSED agent then human reset [Handler test]
+PASSED native search and cleanup [Native invocation]
+11 passed, 0 failed, 0 blocked

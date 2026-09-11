@@ -1,0 +1,23 @@
+{
+  "formatVersion": 1,
+  "startedAt": "2026-09-09T05:13:19.590Z",
+  "browser": "153.0.8010.37",
+  "target": "http://127.0.0.1:5173",
+  "cases": [
+    {
+      "name": "native search and cleanup",
+      "mode": "native",
+      "status": "blocked",
+      "handler": "not run",
+      "ui": "not run",
+      "nativeRegistration": "not run",
+      "nativeInvocation": "not run",
+      "results": [],
+      "durationMs": 2176,
+      "error": "Native document API unavailable; required native test not run"
+    }
+  ],
+  "passed": 0,
+  "failed": 0,
+  "blocked": 1
+}

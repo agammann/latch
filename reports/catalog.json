@@ -1,0 +1,493 @@
+{
+  "formatVersion": 1,
+  "startedAt": "2026-09-09T05:12:40.182Z",
+  "browser": "153.0.8010.37",
+  "target": "http://127.0.0.1:5173",
+  "cases": [
+    {
+      "name": "search updates results and input",
+      "mode": "handler",
+      "status": "passed",
+      "handler": "tested",
+      "ui": "verified",
+      "nativeRegistration": "not run",
+      "nativeInvocation": "not run",
+      "results": [
+        {
+          "channel": "latch:response:v1",
+          "id": "d591a9fa-b067-4df7-878d-3e7ccfa39f96",
+          "ok": true,
+          "result": {
+            "query": "lamp",
+            "category": "all",
+            "sort": "name",
+            "items": [
+              {
+                "id": "lamp",
+                "name": "Arc desk lamp",
+                "category": "workspace",
+                "price": 48
+              }
+            ],
+            "selectedId": ""
+          }
+        }
+      ],
+      "durationMs": 2753
+    },
+    {
+      "name": "human search is visible to handler",
+      "mode": "handler",
+      "status": "passed",
+      "handler": "tested",
+      "ui": "verified",
+      "nativeRegistration": "not run",
+      "nativeInvocation": "not run",
+      "results": [
+        {
+          "channel": "latch:response:v1",
+          "id": "1f07c234-79f5-411f-834d-39ce41c9ba34",
+          "ok": true,
+          "result": {
+            "query": "pack",
+            "category": "all",
+            "sort": "name",
+            "items": [
+              {
+                "id": "pack",
+                "name": "Day pack",
+                "category": "outdoors",
+                "price": 72
+              }
+            ],
+            "selectedId": ""
+          }
+        }
+      ],
+      "durationMs": 910
+    },
+    {
+      "name": "omission preserves filters and explicit reset clears",
+      "mode": "handler",
+      "status": "passed",
+      "handler": "tested",
+      "ui": "verified",
+      "nativeRegistration": "not run",
+      "nativeInvocation": "not run",
+      "results": [
+        {
+          "channel": "latch:response:v1",
+          "id": "3c35f649-0c5b-4c40-b2e0-8350edf22a92",
+          "ok": true,
+          "result": {
+            "query": "",
+            "category": "outdoors",
+            "sort": "name",
+            "items": [
+              {
+                "id": "pack",
+                "name": "Day pack",
+                "category": "outdoors",
+                "price": 72
+              },
+              {
+                "id": "bottle",
+                "name": "Trail bottle",
+                "category": "outdoors",
+                "price": 26
+              }
+            ],
+            "selectedId": ""
+          }
+        },
+        {
+          "channel": "latch:response:v1",
+          "id": "ecb42104-c2a2-4f10-b838-b775f44af60c",
+          "ok": true,
+          "result": {
+            "query": "",
+            "category": "outdoors",
+            "sort": "price-desc",
+            "items": [
+              {
+                "id": "pack",
+                "name": "Day pack",
+                "category": "outdoors",
+                "price": 72
+              },
+              {
+                "id": "bottle",
+                "name": "Trail bottle",
+                "category": "outdoors",
+                "price": 26
+              }
+            ],
+            "selectedId": ""
+          }
+        },
+        {
+          "channel": "latch:response:v1",
+          "id": "eb19913e-2f9d-42e9-863c-0974cbb18335",
+          "ok": true,
+          "result": {
+            "query": "",
+            "category": "all",
+            "sort": "name",
+            "items": [
+              {
+                "id": "lamp",
+                "name": "Arc desk lamp",
+                "category": "workspace",
+                "price": 48
+              },
+              {
+                "id": "pack",
+                "name": "Day pack",
+                "category": "outdoors",
+                "price": 72
+              },
+              {
+                "id": "notebook",
+                "name": "Field notebook",
+                "category": "workspace",
+                "price": 14
+              },
+              {
+                "id": "bottle",
+                "name": "Trail bottle",
+                "category": "outdoors",
+                "price": 26
+              }
+            ],
+            "selectedId": ""
+          }
+        }
+      ],
+      "durationMs": 1020
+    },
+    {
+      "name": "empty results",
+      "mode": "handler",
+      "status": "passed",
+      "handler": "tested",
+      "ui": "verified",
+      "nativeRegistration": "not run",
+      "nativeInvocation": "not run",
+      "results": [
+        {
+          "channel": "latch:response:v1",
+          "id": "6c95f1a0-caa0-4cd5-9424-b62ed3b40e89",
+          "ok": true,
+          "result": {
+            "query": "no-such-object",
+            "category": "all",
+            "sort": "name",
+            "items": [],
+            "selectedId": ""
+          }
+        }
+      ],
+      "durationMs": 926
+    },
+    {
+      "name": "invalid input does not change UI",
+      "mode": "handler",
+      "status": "passed",
+      "handler": "tested",
+      "ui": "verified",
+      "nativeRegistration": "not run",
+      "nativeInvocation": "not run",
+      "results": [
+        {
+          "channel": "latch:response:v1",
+          "id": "678c1866-c3b1-4990-b1a9-36aa2e84e3c4",
+          "ok": false,
+          "error": {
+            "code": "VALIDATION",
+            "message": "$.query: expected string"
+          }
+        },
+        {
+          "channel": "latch:response:v1",
+          "id": "55e19c48-848e-47bf-8a08-27095d6323ba",
+          "ok": true,
+          "result": {
+            "query": "",
+            "category": "all",
+            "sort": "name",
+            "items": [
+              {
+                "id": "lamp",
+                "name": "Arc desk lamp",
+                "category": "workspace",
+                "price": 48
+              },
+              {
+                "id": "pack",
+                "name": "Day pack",
+                "category": "outdoors",
+                "price": 72
+              },
+              {
+                "id": "notebook",
+                "name": "Field notebook",
+                "category": "workspace",
+                "price": 14
+              },
+              {
+                "id": "bottle",
+                "name": "Trail bottle",
+                "category": "outdoors",
+                "price": 26
+              }
+            ],
+            "selectedId": ""
+          }
+        }
+      ],
+      "durationMs": 875
+    },
+    {
+      "name": "unknown fields rejected",
+      "mode": "handler",
+      "status": "passed",
+      "handler": "tested",
+      "ui": "verified",
+      "nativeRegistration": "not run",
+      "nativeInvocation": "not run",
+      "results": [
+        {
+          "channel": "latch:response:v1",
+          "id": "28a2bc13-6b0d-4dc4-9b47-a314550bd6f2",
+          "ok": false,
+          "error": {
+            "code": "VALIDATION",
+            "message": "$: unexpected property admin"
+          }
+        }
+      ],
+      "durationMs": 864
+    },
+    {
+      "name": "invalid detail ID does not select",
+      "mode": "handler",
+      "status": "passed",
+      "handler": "tested",
+      "ui": "verified",
+      "nativeRegistration": "not run",
+      "nativeInvocation": "not run",
+      "results": [
+        {
+          "channel": "latch:response:v1",
+          "id": "b38d1292-b024-4926-8ca5-4114583c8b7c",
+          "ok": false,
+          "error": {
+            "code": "HANDLER",
+            "message": "Application handler failed; inspect application diagnostics locally"
+          }
+        },
+        {
+          "channel": "latch:response:v1",
+          "id": "e811a087-670c-4554-aa20-007004165983",
+          "ok": true,
+          "result": {
+            "query": "",
+            "category": "all",
+            "sort": "name",
+            "items": [
+              {
+                "id": "lamp",
+                "name": "Arc desk lamp",
+                "category": "workspace",
+                "price": 48
+              },
+              {
+                "id": "pack",
+                "name": "Day pack",
+                "category": "outdoors",
+                "price": 72
+              },
+              {
+                "id": "notebook",
+                "name": "Field notebook",
+                "category": "workspace",
+                "price": 14
+              },
+              {
+                "id": "bottle",
+                "name": "Trail bottle",
+                "category": "outdoors",
+                "price": 26
+              }
+            ],
+            "selectedId": ""
+          }
+        }
+      ],
+      "durationMs": 849
+    },
+    {
+      "name": "details uses visible results",
+      "mode": "handler",
+      "status": "passed",
+      "handler": "tested",
+      "ui": "verified",
+      "nativeRegistration": "not run",
+      "nativeInvocation": "not run",
+      "results": [
+        {
+          "channel": "latch:response:v1",
+          "id": "442af533-922a-4837-85d4-928ac6e67ece",
+          "ok": true,
+          "result": {
+            "query": "",
+            "category": "all",
+            "sort": "name",
+            "items": [
+              {
+                "id": "lamp",
+                "name": "Arc desk lamp",
+                "category": "workspace",
+                "price": 48
+              },
+              {
+                "id": "pack",
+                "name": "Day pack",
+                "category": "outdoors",
+                "price": 72
+              },
+              {
+                "id": "notebook",
+                "name": "Field notebook",
+                "category": "workspace",
+                "price": 14
+              },
+              {
+                "id": "bottle",
+                "name": "Trail bottle",
+                "category": "outdoors",
+                "price": 26
+              }
+            ],
+            "selectedId": "lamp"
+          }
+        }
+      ],
+      "durationMs": 823
+    },
+    {
+      "name": "FIFO overlapping searches",
+      "mode": "handler",
+      "status": "passed",
+      "handler": "tested",
+      "ui": "verified",
+      "nativeRegistration": "not run",
+      "nativeInvocation": "not run",
+      "results": [
+        {
+          "channel": "latch:response:v1",
+          "id": "39676691-11a6-4654-9f2b-939275448bce",
+          "ok": true,
+          "result": {
+            "query": "lamp",
+            "category": "all",
+            "sort": "name",
+            "items": [
+              {
+                "id": "lamp",
+                "name": "Arc desk lamp",
+                "category": "workspace",
+                "price": 48
+              }
+            ],
+            "selectedId": ""
+          }
+        },
+        {
+          "channel": "latch:response:v1",
+          "id": "a6aed429-f6a6-44ed-a704-6e014bdf0576",
+          "ok": true,
+          "result": {
+            "query": "pack",
+            "category": "all",
+            "sort": "name",
+            "items": [
+              {
+                "id": "pack",
+                "name": "Day pack",
+                "category": "outdoors",
+                "price": 72
+              }
+            ],
+            "selectedId": ""
+          }
+        }
+      ],
+      "durationMs": 883
+    },
+    {
+      "name": "agent then human reset",
+      "mode": "handler",
+      "status": "passed",
+      "handler": "tested",
+      "ui": "verified",
+      "nativeRegistration": "not run",
+      "nativeInvocation": "not run",
+      "results": [
+        {
+          "channel": "latch:response:v1",
+          "id": "48b049a8-96d8-4f23-a0ef-4b6f3ef63b84",
+          "ok": true,
+          "result": {
+            "query": "lamp",
+            "category": "all",
+            "sort": "name",
+            "items": [
+              {
+                "id": "lamp",
+                "name": "Arc desk lamp",
+                "category": "workspace",
+                "price": 48
+              }
+            ],
+            "selectedId": ""
+          }
+        }
+      ],
+      "durationMs": 996
+    },
+    {
+      "name": "native search and cleanup",
+      "mode": "native",
+      "status": "passed",
+      "handler": "not run",
+      "ui": "verified",
+      "nativeRegistration": "verified",
+      "nativeInvocation": "verified",
+      "results": [
+        {
+          "ok": true,
+          "result": {
+            "query": "lamp",
+            "category": "all",
+            "sort": "name",
+            "items": [
+              {
+                "id": "lamp",
+                "name": "Arc desk lamp",
+                "category": "workspace",
+                "price": 48
+              }
+            ],
+            "selectedId": ""
+          }
+        }
+      ],
+      "durationMs": 864
+    }
+  ],
+  "passed": 11,
+  "failed": 0,
+  "blocked": 0,
+  "sourceHash": "2c89b0b1d294ecc28360c6572018e5a4605e7bfd07a200ed8e31d1c2c93a3ab4"
+}

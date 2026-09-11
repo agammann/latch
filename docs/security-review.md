@@ -1,0 +1,11 @@
+# Security review and release correction
+
+A Standard Codex Security source review examined the initial local release revision `7f81120a2487a100258d1e85ac2e05dfa45f2ce7` before the public source push. It used an independent baseline reviewer, architecture review, focused manifest investigation and parent validation. The canonical scan identifier is `930d7b74-9091-437d-972b-512c768d2c49`.
+
+The review identified one medium severity issue: a committed rollback manifest could select local Git metadata as its restoration target. An operator had to invoke rollback, and the attacker had to predict the target's exact existing text or hash. The established impact was a write inside the project to a file Latch did not own. The review did not demonstrate downstream command execution.
+
+The release correction validates manifest structure at every consumer, restricts generated ownership to the fixed output files, forbids restoration bodies for generated files and rejects hidden or managed installation targets. It verifies that the full recorded installation transition contains only the supported import and callback hook. `check` and `apply` now compare that proposal with the configured installation, and apply writes the reconstructed proposal.
+
+Four focused regression tests exercise crafted Git metadata targets, forged ownership keys/restoration bodies, arbitrary stored installation changes and a syntactically valid hook that diverges from configuration. Each rejection checks preservation of original files. The ordinary generation, apply, idempotence and rollback tests remain part of the same suite. See [test source](../tests/generator.test.mjs) and [measured unit results](../reports/unit-tests.json).
+
+The original sealed security report remains an audit of the original revision. Release documentation was added while that scan ran, so its workbench warning records working tree changes. The correction and subsequent package verification are later evidence; this note does not rewrite the scan into a clean report. The scan excluded dependencies, built distributions, browser internals, host permissions and live CI. It is not a guarantee that all possible vulnerabilities were found.

@@ -1,0 +1,431 @@
+{
+  "version": 1,
+  "project": "Documentation fixture",
+  "baseUrl": "http://127.0.0.1:5174",
+  "browser": {
+    "channel": "chrome",
+    "native": true
+  },
+  "installation": {
+    "file": "src/main.tsx"
+  },
+  "tools": [
+    {
+      "name": "docs.search",
+      "description": "Search fixture documentation by text. Omitted text preserves the query; empty text resets.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 120
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "resultSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "matches": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "body": {
+                  "type": "string"
+                }
+              },
+              "required": ["id", "title", "body"],
+              "additionalProperties": false
+            },
+            "maxItems": 100
+          },
+          "openedId": {
+            "type": "string"
+          }
+        },
+        "required": ["query", "matches", "openedId"],
+        "additionalProperties": false
+      },
+      "binding": {
+        "kind": "export",
+        "module": "src/library.ts",
+        "export": "searchDocs"
+      },
+      "scope": {
+        "route": "/",
+        "component": "App"
+      },
+      "preconditions": [],
+      "sideEffects": "ui"
+    },
+    {
+      "name": "docs.read",
+      "description": "Read visible documentation matches and opened document.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "resultSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "matches": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "body": {
+                  "type": "string"
+                }
+              },
+              "required": ["id", "title", "body"],
+              "additionalProperties": false
+            },
+            "maxItems": 100
+          },
+          "openedId": {
+            "type": "string"
+          }
+        },
+        "required": ["query", "matches", "openedId"],
+        "additionalProperties": false
+      },
+      "binding": {
+        "kind": "export",
+        "module": "src/library.ts",
+        "export": "readDocs"
+      },
+      "scope": {
+        "route": "/",
+        "component": "App"
+      },
+      "preconditions": [],
+      "sideEffects": "none"
+    },
+    {
+      "name": "docs.open",
+      "description": "Open a currently visible document. Invalid IDs reject without a state change.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": ["id"],
+        "additionalProperties": false
+      },
+      "resultSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "matches": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "body": {
+                  "type": "string"
+                }
+              },
+              "required": ["id", "title", "body"],
+              "additionalProperties": false
+            },
+            "maxItems": 100
+          },
+          "openedId": {
+            "type": "string"
+          }
+        },
+        "required": ["query", "matches", "openedId"],
+        "additionalProperties": false
+      },
+      "binding": {
+        "kind": "export",
+        "module": "src/library.ts",
+        "export": "openDoc"
+      },
+      "scope": {
+        "route": "/",
+        "component": "App"
+      },
+      "preconditions": [],
+      "sideEffects": "ui"
+    }
+  ],
+  "tests": [
+    {
+      "name": "exported search updates shared UI",
+      "route": "/",
+      "fixture": "fresh-page",
+      "mode": "handler",
+      "timeoutMs": 15000,
+      "calls": [
+        {
+          "tool": "docs.search",
+          "input": {
+            "text": "regression"
+          },
+          "result": [
+            {
+              "path": ["matches", "0", "id"],
+              "equals": "tests"
+            }
+          ]
+        }
+      ],
+      "ui": [
+        {
+          "target": {
+            "testId": "count"
+          },
+          "kind": "text",
+          "equals": "1 documents"
+        },
+        {
+          "target": {
+            "label": "Search documentation"
+          },
+          "kind": "value",
+          "equals": "regression"
+        }
+      ]
+    },
+    {
+      "name": "human query is returned by exported reader",
+      "route": "/",
+      "fixture": "fresh-page",
+      "mode": "handler",
+      "timeoutMs": 15000,
+      "calls": [
+        {
+          "tool": "docs.read",
+          "input": {},
+          "result": [
+            {
+              "path": ["query"],
+              "equals": "React"
+            },
+            {
+              "path": ["matches", "0", "id"],
+              "equals": "state"
+            }
+          ]
+        }
+      ],
+      "before": [
+        {
+          "kind": "fill",
+          "target": {
+            "label": "Search documentation"
+          },
+          "value": "React"
+        }
+      ],
+      "ui": [
+        {
+          "target": {
+            "testId": "count"
+          },
+          "kind": "text",
+          "equals": "1 documents"
+        }
+      ]
+    },
+    {
+      "name": "invalid docs input",
+      "route": "/",
+      "fixture": "fresh-page",
+      "mode": "handler",
+      "timeoutMs": 15000,
+      "calls": [
+        {
+          "tool": "docs.search",
+          "input": {
+            "text": false
+          },
+          "result": [],
+          "expectError": "VALIDATION"
+        }
+      ],
+      "ui": [
+        {
+          "target": {
+            "testId": "count"
+          },
+          "kind": "text",
+          "equals": "3 documents"
+        }
+      ]
+    },
+    {
+      "name": "open documentation detail",
+      "route": "/",
+      "fixture": "fresh-page",
+      "mode": "handler",
+      "timeoutMs": 15000,
+      "calls": [
+        {
+          "tool": "docs.open",
+          "input": {
+            "id": "state"
+          },
+          "result": [
+            {
+              "path": ["openedId"],
+              "equals": "state"
+            }
+          ]
+        }
+      ],
+      "ui": [
+        {
+          "target": {
+            "testId": "selected"
+          },
+          "kind": "text",
+          "equals": "Opened: state"
+        }
+      ]
+    },
+    {
+      "name": "invalid document leaves state unchanged",
+      "route": "/",
+      "fixture": "fresh-page",
+      "mode": "handler",
+      "timeoutMs": 15000,
+      "calls": [
+        {
+          "tool": "docs.open",
+          "input": {
+            "id": "missing"
+          },
+          "result": [],
+          "expectError": "HANDLER"
+        },
+        {
+          "tool": "docs.read",
+          "input": {},
+          "result": [
+            {
+              "path": ["openedId"],
+              "equals": ""
+            }
+          ]
+        }
+      ],
+      "ui": [
+        {
+          "target": {
+            "testId": "count"
+          },
+          "kind": "text",
+          "equals": "3 documents"
+        }
+      ]
+    },
+    {
+      "name": "docs empty and reset",
+      "route": "/",
+      "fixture": "fresh-page",
+      "mode": "handler",
+      "timeoutMs": 15000,
+      "calls": [
+        {
+          "tool": "docs.search",
+          "input": {
+            "text": "unfindable"
+          },
+          "result": [
+            {
+              "path": ["matches", "length"],
+              "equals": 0
+            }
+          ]
+        },
+        {
+          "tool": "docs.search",
+          "input": {
+            "text": ""
+          },
+          "result": [
+            {
+              "path": ["matches", "length"],
+              "equals": 3
+            }
+          ]
+        }
+      ],
+      "ui": [
+        {
+          "target": {
+            "testId": "count"
+          },
+          "kind": "text",
+          "equals": "3 documents"
+        }
+      ]
+    },
+    {
+      "name": "native exported search",
+      "route": "/",
+      "fixture": "fresh-page",
+      "mode": "native",
+      "timeoutMs": 15000,
+      "calls": [
+        {
+          "tool": "docs.search",
+          "input": {
+            "text": "regression"
+          },
+          "result": [
+            {
+              "path": ["matches", "0", "id"],
+              "equals": "tests"
+            }
+          ]
+        }
+      ],
+      "ui": [
+        {
+          "target": {
+            "testId": "count"
+          },
+          "kind": "text",
+          "equals": "1 documents"
+        }
+      ]
+    }
+  ]
+}
