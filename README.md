@@ -2,9 +2,17 @@
 
 **Connect your site. Verify every action.**
 
+**[Open Latch Studio](https://latch-studio.alx21.chatgpt.site)**
+
 Latch connects selected React application functions to native WebMCP and checks that those integrations still work after the application changes. It generates typed wrappers around your actual callbacks or exported functions, validates inputs and results, manages mounted tool lifetimes, and runs handler, visible UI, and native regression tests.
 
-Version **0.1.0** is a local developer release. No account, hosted service, telemetry or model API key is needed. Package names under `@latch-local` are local distribution identifiers; registry availability is not claimed. No packages have been published to a registry.
+The CLI and runtime packages in version **0.1.0** run locally. They require no account, hosted service, telemetry or model API key. Package names under `@latch-local` are local distribution identifiers; registry availability is not claimed. No packages have been published to a registry.
+
+## Use Latch in your browser
+
+Visit **[Latch Studio](https://latch-studio.alx21.chatgpt.site)** to define WebMCP contracts, map exported functions or React callbacks, check sample inputs and expected results, and download typed integration previews, configuration files, and runtime packages. The public website is hosted on OpenAI Sites and requires no account or API key.
+
+Contract editing and generation happen in your browser. Save a draft to keep unfinished work. Follow the downloaded installation instructions to apply and test the integration in your own React project; the website does not execute your application handlers or verify native browser invocation.
 
 ## Start with the examples
 
