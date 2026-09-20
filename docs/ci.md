@@ -1,9 +1,29 @@
-# CI lanes
+# CI and verification lanes
 
-The workflow under `.github/workflows/ci.yml` builds, runs unit tests, audits production bundles and tests both examples in a deterministic Chromium handler lane. It is provided as executable CI configuration; local reports do not claim that GitHub Actions has already run it.
+[Documentation index](README.md) · [Development guide](../CONTRIBUTING.md)
 
-Run `pnpm install --frozen-lockfile --ignore-scripts`, `pnpm build`, `pnpm test` and `node scripts/ci-handler.mjs`. Install the pinned Playwright Chromium first with `pnpm exec playwright install --with-deps chromium` on Linux. The script explicitly derives a handler-only test project for this lane and labels native checks not run.
+The [GitHub workflow](../.github/workflows/ci.yml) builds the packages, runs unit tests, and exercises both examples in an ordinary Chromium Handler lane. The [recorded Linux release run](https://github.com/agammann/latch/actions/runs/34552048479) passed; consult the repository's Actions page for newer revisions.
 
-Native release verification remains a separate required local/managed-runner lane: install the target Chrome version, use the unchanged example configs, run `pnpm verify`, and retain the JSON reports containing its exact version. If Chrome or its API is unavailable, native cases must be blocked and exit nonzero. Do not reinterpret the handler lane as native interoperability evidence.
+## Ordinary Chromium lane
 
-The intentional regression demo requires the docs development server at port 5174. `pnpm regression:demo` saves a passing baseline, changes the real handler to return an invalid result shape, verifies `RESULT_CONTRACT` failure, restores the implementation in `finally`, and verifies the corrected behavior. The full verify command orchestrates that demonstration.
+From the repository root:
+
+```sh
+pnpm install --frozen-lockfile --ignore-scripts
+pnpm build
+pnpm test
+pnpm exec playwright install chromium
+node scripts/ci-handler.mjs
+```
+
+On Linux, use `pnpm exec playwright install --with-deps chromium` when system dependencies are required. Keep ports 5173 and 5174 free. The script starts both apps, derives a Handler test configuration in memory, and leaves the checked-in native configurations unchanged. It labels native cases as not run, writes `reports/ci-catalog.json` and `reports/ci-docs.json`, and stops its servers.
+
+The workflow uploads the report directory even when a check fails. This lane does not establish native interoperability or run the separate consumer production bundle audit.
+
+## Native release lane
+
+Use the target Chrome installation described in the [compatibility record](compatibility-2026-09-08.md), keep the unchanged example configurations, and run `pnpm verify`. Retain reports that record the actual browser version. If Chrome or its API is unavailable, the native case must remain blocked with a nonzero exit. A passing Handler lane does not substitute for this evidence.
+
+Full verification also runs the intentional regression demonstration. That script requires the documentation development server on port 5174 when run separately as `pnpm regression:demo`. It detects a wrong handler result shape, verifies the corrected mapping, and restores the original source and configuration in `finally`.
+
+The separate [fresh consumer check](../CONTRIBUTING.md#package-and-verify-a-fresh-consumer) verifies installation and production development bridge exclusion. Reports from an older source revision remain historical evidence.

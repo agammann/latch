@@ -1,0 +1,223 @@
+{
+  "formatVersion": 1,
+  "startedAt": "2026-09-20T01:02:59.165Z",
+  "browser": "153.0.8010.53",
+  "target": "http://127.0.0.1:5279",
+  "cases": [
+    {
+      "name": "catalog.search expected result",
+      "mode": "handler",
+      "status": "passed",
+      "handler": "tested",
+      "ui": "verified",
+      "nativeRegistration": "not run",
+      "nativeInvocation": "not run",
+      "results": [
+        {
+          "channel": "latch:response:v1",
+          "id": "37fb4925-590f-4582-adc7-0ca9d084252e",
+          "ok": true,
+          "result": {
+            "query": "keyboard",
+            "results": [
+              {
+                "id": "keyboard",
+                "title": "Mechanical keyboard"
+              }
+            ]
+          }
+        }
+      ],
+      "durationMs": 904
+    },
+    {
+      "name": "catalog.component_search expected result",
+      "mode": "handler",
+      "status": "passed",
+      "handler": "tested",
+      "ui": "verified",
+      "nativeRegistration": "not run",
+      "nativeInvocation": "not run",
+      "results": [
+        {
+          "channel": "latch:response:v1",
+          "id": "4f143f32-bf68-48b3-8190-3f63d4b8e592",
+          "ok": true,
+          "result": {
+            "query": "keyboard",
+            "results": [
+              {
+                "id": "keyboard",
+                "title": "Mechanical keyboard"
+              }
+            ]
+          }
+        }
+      ],
+      "durationMs": 791
+    },
+    {
+      "name": "Invalid input leaves initial UI unchanged",
+      "mode": "handler",
+      "status": "passed",
+      "handler": "tested",
+      "ui": "verified",
+      "nativeRegistration": "not run",
+      "nativeInvocation": "not run",
+      "results": [
+        {
+          "channel": "latch:response:v1",
+          "id": "3978aa75-256b-428c-9a4e-234ddae02de5",
+          "ok": false,
+          "error": {
+            "code": "VALIDATION",
+            "message": "$.text: expected string"
+          }
+        }
+      ],
+      "durationMs": 829
+    },
+    {
+      "name": "Unknown properties rejected",
+      "mode": "handler",
+      "status": "passed",
+      "handler": "tested",
+      "ui": "verified",
+      "nativeRegistration": "not run",
+      "nativeInvocation": "not run",
+      "results": [
+        {
+          "channel": "latch:response:v1",
+          "id": "8193d414-3e15-4c8c-af5d-3bc315c66d95",
+          "ok": false,
+          "error": {
+            "code": "VALIDATION",
+            "message": "$: unexpected property admin"
+          }
+        }
+      ],
+      "durationMs": 797
+    },
+    {
+      "name": "Empty search restores all results",
+      "mode": "handler",
+      "status": "passed",
+      "handler": "tested",
+      "ui": "verified",
+      "nativeRegistration": "not run",
+      "nativeInvocation": "not run",
+      "results": [
+        {
+          "channel": "latch:response:v1",
+          "id": "680433a3-233e-4006-9583-71fa2c96b51f",
+          "ok": true,
+          "result": {
+            "query": "mouse",
+            "results": [
+              {
+                "id": "mouse",
+                "title": "Wireless mouse"
+              }
+            ]
+          }
+        },
+        {
+          "channel": "latch:response:v1",
+          "id": "cacdd8f0-8779-4e22-a428-570cc408cd49",
+          "ok": true,
+          "result": {
+            "query": "",
+            "results": [
+              {
+                "id": "keyboard",
+                "title": "Mechanical keyboard"
+              },
+              {
+                "id": "mouse",
+                "title": "Wireless mouse"
+              },
+              {
+                "id": "lamp",
+                "title": "Desk lamp"
+              }
+            ]
+          }
+        }
+      ],
+      "durationMs": 805
+    },
+    {
+      "name": "No matching products clears results",
+      "mode": "handler",
+      "status": "passed",
+      "handler": "tested",
+      "ui": "verified",
+      "nativeRegistration": "not run",
+      "nativeInvocation": "not run",
+      "results": [
+        {
+          "channel": "latch:response:v1",
+          "id": "399d0b0e-f020-47f4-8e44-4d07df7cc8ad",
+          "ok": true,
+          "result": {
+            "query": "nonexistent",
+            "results": []
+          }
+        }
+      ],
+      "durationMs": 814
+    },
+    {
+      "name": "Native catalog.search expected result",
+      "mode": "native",
+      "status": "passed",
+      "handler": "not run",
+      "ui": "verified",
+      "nativeRegistration": "verified",
+      "nativeInvocation": "verified",
+      "results": [
+        {
+          "ok": true,
+          "result": {
+            "query": "keyboard",
+            "results": [
+              {
+                "id": "keyboard",
+                "title": "Mechanical keyboard"
+              }
+            ]
+          }
+        }
+      ],
+      "durationMs": 853
+    },
+    {
+      "name": "Native catalog.component_search expected result",
+      "mode": "native",
+      "status": "passed",
+      "handler": "not run",
+      "ui": "verified",
+      "nativeRegistration": "verified",
+      "nativeInvocation": "verified",
+      "results": [
+        {
+          "ok": true,
+          "result": {
+            "query": "keyboard",
+            "results": [
+              {
+                "id": "keyboard",
+                "title": "Mechanical keyboard"
+              }
+            ]
+          }
+        }
+      ],
+      "durationMs": 925
+    }
+  ],
+  "passed": 8,
+  "failed": 0,
+  "blocked": 0,
+  "sourceHash": "04580357d15636eb0212d31e580b346c269a25c6e3b2acabfd4576849f86917e"
+}

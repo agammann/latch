@@ -6,6 +6,7 @@ node_modules/
 artifacts/
 playwright-report/
 test-results/
+reports/ci-*.json
 work/
 *.latch-tmp
 .env*

@@ -2,6 +2,8 @@
 
 Latch v1 supports explicit functions in local TypeScript/React projects. Start with one real search function. Source inspection is optional and never executes application code.
 
+Complete the [installation guide](installation.md) first. Run the commands in this guide from your application's root using `pnpm exec latch`. If you downloaded a Studio configuration, adapt that file instead of running `init` again.
+
 ## React callback binding
 
 Your existing component should expose a function that accepts one input object and resolves with the committed visible state. Put a single marker after its handler declarations, at the top level of the owning component (never inside a conditional):
@@ -67,7 +69,7 @@ The configuration below describes a minimal search returning a visible count. Ad
 
 The configured fixture must actually contain a lamp. Latch will not invent that result. Tests use a new browser context and page for each case, so local storage, cookies and memory begin fresh. For application-specific state, use your existing deterministic fixture route and the predefined fill/select/click setup steps. No arbitrary fixture script is supported in v1.
 
-Run `latch generate`, review `src/latch.generated/integration.ts` and `.latch/installation.diff`, then run `latch check` and `latch apply`. The installer adds a generated import and passes the in-scope callback to `useProjectTools`. TypeScript verifies the callback's argument and awaited return type. Component-local functions are never imported as module exports. The installer deliberately requires one explicit marker to avoid guessing where a hook belongs. Ordinary React Hooks rules remain authoritative.
+Run `pnpm exec latch generate`, review `src/latch.generated/integration.ts` and `.latch/installation.diff`, then run `pnpm exec latch check` and `pnpm exec latch apply`. The installer adds a generated import and passes the in-scope callback to `useProjectTools`. TypeScript verifies the callback's argument and awaited return type. Component-local functions are never imported as module exports. The installer deliberately requires one explicit marker to avoid guessing where a hook belongs. Ordinary React Hooks rules remain authoritative.
 
 ## Exported function binding
 

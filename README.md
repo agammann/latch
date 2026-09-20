@@ -2,120 +2,53 @@
 
 **Connect your site. Verify every action.**
 
-**[Open Latch Studio](https://latch-studio.alx21.chatgpt.site)**
+**[Open Latch Studio](https://latch-studio.alx21.chatgpt.site)** · [Documentation](docs/README.md) · [Try the examples](docs/quickstart.md)
 
-Latch connects selected React application functions to native WebMCP and checks that those integrations still work after the application changes. It generates typed wrappers around your actual callbacks or exported functions, validates inputs and results, manages mounted tool lifetimes, and runs handler, visible UI, and native regression tests.
+Latch turns selected functions in an existing React/Vite application into typed WebMCP tools. You define a contract, connect a real handler, and verify its results and visible behavior as your application changes.
 
-The CLI and runtime packages in version **0.1.0** run locally. They require no account, hosted service, telemetry or model API key. Package names under `@latch-local` are local distribution identifiers; registry availability is not claimed. No packages have been published to a registry.
+## Choose your starting point
 
-## Use Latch in your browser
+| I want to…                                                 | Start here                                 |
+| ---------------------------------------------------------- | ------------------------------------------ |
+| Define contracts and download an integration in my browser | [Latch Studio guide](docs/studio.md)       |
+| Try a working application before integrating my own        | [Example quickstart](docs/quickstart.md)   |
+| Add Latch to an existing React/Vite application            | [Installation guide](docs/installation.md) |
+| Understand bindings, schemas, and regression cases         | [Integration guide](docs/integration.md)   |
+| Work on the CLI or runtime                                 | [Development guide](CONTRIBUTING.md)       |
 
-Visit **[Latch Studio](https://latch-studio.alx21.chatgpt.site)** to define WebMCP contracts, map exported functions or React callbacks, check sample inputs and expected results, and download typed integration previews, configuration files, and runtime packages. The public website is hosted on OpenAI Sites and requires no account or API key.
+## Start in your browser
 
-Contract editing and generation happen in your browser. Save a draft to keep unfinished work. Follow the downloaded installation instructions to apply and test the integration in your own React project; the website does not execute your application handlers or verify native browser invocation.
+1. Open [Latch Studio](https://latch-studio.alx21.chatgpt.site).
+2. Connect an exported function or React callback that exists in your application.
+3. Define input and result schemas, then check your sample values.
+4. Select **Download integration**. In **Project setup**, also select **Download runtime packages**.
+5. Follow the [installation guide](docs/installation.md) to generate, review, apply, and test the integration in your own project.
 
-## Start with the examples
+No account or API key is required. Editing and generation happen in the browser. Use **Save draft** before closing the tab; drafts are not saved automatically. The downloaded `preview/` files are for review. The CLI generates the files and ownership record used for an actual installation.
 
-Use Node 22 or later and pnpm 10.17.1 or later. Local verification used Node 24.19.0, pnpm 11.19.0 and Windows. The [GitHub Linux CI run](https://github.com/agammann/latch/actions/runs/34552048479) also passed using Node 22 and pnpm 10.17.1. Commands are the same in PowerShell, macOS and Linux terminals; macOS has not been executed for this release.
+## What is verified
 
-```sh
-git clone https://github.com/agammann/latch.git
-cd latch
-pnpm install --frozen-lockfile --ignore-scripts
-pnpm build
-node packages/cli/dist/main.js generate --root examples/catalog
-node packages/cli/dist/main.js apply --root examples/catalog
-pnpm --dir examples/catalog dev
-```
+| Check                             | What it establishes                                                                                                    |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Studio contract and sample checks | Schemas and example values are valid. Your handler has not run.                                                        |
+| CLI `generate` and `check`        | Explicit mappings resolve and the generated integration passes TypeScript checks in your application.                  |
+| Handler and UI tests              | The validated wrapper returns expected results and configured UI assertions pass against your running development app. |
+| Native tests                      | A compatible browser registers, discovers, and invokes the tools, with cleanup checked where configured.               |
 
-In another terminal:
+Native WebMCP support is experimental. The original release target was Chrome **153.0.8010.37** with `WebMCPTesting` enabled. The [September 19 acceptance check](reports/acceptance-2026-09-19.md) also verified a downloaded integration and both native binding types in Chrome **153.0.8010.53**. An absent API or blocked native case is not a passing result. See the [dated compatibility record](docs/compatibility-2026-09-08.md) and the acceptance report before claiming support for another browser or version.
 
-```sh
-node packages/cli/dist/main.js test --root examples/catalog
-node packages/cli/dist/main.js dev --root examples/catalog
-```
+## Requirements and distribution
 
-Open the console at **http://127.0.0.1:4545**. The catalog uses port 5173. The documentation fixture uses port 5174; generate/apply it with `--root examples/docs` and start it with `pnpm --dir examples/docs dev`.
+The local CLI requires **Node 22+** and **pnpm 10.17.1+**. Integration targets an existing React, TypeScript, and Vite application. The [installation guide](docs/installation.md) lists tested versions and browser setup.
 
-Both examples use original synthetic data. Their generated files and ownership manifests are included for review. Fresh clones can rerun `latch generate` safely; edited files cause a conflict.
+Version **0.1.0** is distributed as six package tarballs. The `@latch-local/*` names are local distribution identifiers; packages have not been published to a registry. The public Studio runs on OpenAI Sites. This repository contains the CLI, runtime, local console, examples, and release evidence; the Studio website source is maintained separately.
 
-## Install into your own React/Vite project
+## Documentation and project status
 
-Build and package this checkout:
+[Documentation index](docs/README.md) · [Troubleshooting](docs/troubleshooting.md) · [Updates and removal](docs/maintenance.md) · [Release notes](RELEASE_NOTES.md) · [Changelog](CHANGELOG.md)
 
-```sh
-pnpm build
-pnpm pack:local
-```
+The [release reports](reports) record specific runs and browser versions. They are historical evidence, not a claim that every later revision has passed those checks. The [development guide](CONTRIBUTING.md) explains how to run current checks and keep native verification separate from ordinary Chromium tests.
 
-Install the four browser packages as application dependencies and the CLI/test packages as development dependencies. Use absolute paths to the six files produced in `artifacts/`:
+## License
 
-First add the local tarball overrides shown in the [installation instructions](docs/installation.md) to your project's `pnpm-workspace.yaml`. These unpublished package identifiers need the overrides before the following install commands can resolve their transitive dependencies.
-
-```sh
-pnpm add /path/to/latch/artifacts/latch-local-contracts-0.1.0.tgz /path/to/latch/artifacts/latch-local-browser-0.1.0.tgz /path/to/latch/artifacts/latch-local-runtime-0.1.0.tgz /path/to/latch/artifacts/latch-local-react-0.1.0.tgz
-pnpm add -D /path/to/latch/artifacts/latch-local-test-0.1.0.tgz /path/to/latch/artifacts/latch-local-cli-0.1.0.tgz
-pnpm exec latch init
-```
-
-Local artifact dependencies need **pnpm overrides** pointing each `@latch-local/*` package to its absolute tarball path so that transitive packages resolve locally. See the complete [installation instructions](docs/installation.md) and the clean-consumer verification script, which creates these overrides automatically. Do not substitute unverified registry package names.
-
-Configure your real search handler and test cases in `latch.config.json`, add `// @latch:mount` inside the owning component, then:
-
-```sh
-pnpm exec latch inspect
-pnpm exec latch generate
-pnpm exec latch check
-pnpm exec latch apply
-# Run your normal Vite development server in another terminal.
-pnpm exec latch test
-pnpm exec latch dev
-```
-
-The [integration guide](docs/integration.md) includes a complete contract and both binding patterns. Empty or unresolved mappings fail checks. Generated code does not fabricate handlers.
-
-## Verification levels
-
-| Evidence                     | Meaning                                                                                   |
-| ---------------------------- | ----------------------------------------------------------------------------------------- |
-| Contract validated           | Configuration and bounded schema definitions pass validation.                             |
-| Handler tested               | A development harness invokes the same validated wrapper used by production registration. |
-| UI behavior verified         | Structured browser assertions verify visible state following calls and human controls.    |
-| Native registration verified | The configured tool is discovered through the browser's documented API.                   |
-| Native invocation verified   | The browser itself invokes the registered tool and its result assertions pass.            |
-
-An absent browser API or unavailable required native check is **blocked**, never passed. The verified native target is Chrome **153.0.8010.37**, with the `WebMCPTesting` flag enabled. The unflagged browser had no native API. Read the [dated compatibility record](docs/compatibility-2026-09-08.md) before claiming support for another browser or revision.
-
-## Project layout
-
-| Package     | Responsibility                                                                           |
-| ----------- | ---------------------------------------------------------------------------------------- |
-| `contracts` | Dependency-free bounded schemas, contracts and validation                                |
-| `browser`   | Isolated Chrome document API adapter                                                     |
-| `runtime`   | Validated execution, scope queue, lifecycle and status                                   |
-| `react`     | Commit-phase callback updates and mount cleanup                                          |
-| `test`      | Playwright runner and a separate opt-in DEV bridge entry point                           |
-| `cli`       | Configuration, AST inspection, generation, apply/rollback, diagnostics and local service |
-| `console`   | React/Vite console compiled into CLI distribution                                        |
-
-Production apps depend only on the first four packages. Test runner, local filesystem access, source inspection and console code are not part of the production browser runtime.
-
-## Development and release checks
-
-```sh
-pnpm build
-pnpm test
-# Stop existing example servers before the full verification command.
-pnpm verify
-node scripts/consumer.mjs /absolute/path/outside/latch-checkout
-```
-
-`pnpm verify` builds and checks both examples, executes unit and browser regressions, demonstrates an intentional result-contract break, and packs the release. The external consumer script installs artifacts into a new folder, invokes the installed CLI, builds both generated examples, and tests them. It refuses to reuse an existing consumer folder.
-
-Reports are in [reports](reports). The [release notes](RELEASE_NOTES.md) distinguish measured results and remaining limitations. The [CI example](docs/ci.md) uses a deterministic handler lane and a separately required native lane.
-
-See also: [runtime semantics](docs/runtime.md), [upgrades/removal](docs/maintenance.md), [troubleshooting](docs/troubleshooting.md), [changelog](CHANGELOG.md), and [third-party notices](THIRD_PARTY_NOTICES.md).
-
-## License decision
-
-No open-source license has been selected. Package metadata uses `UNLICENSED` to prevent an accidental permission grant. Public repository visibility does not establish reuse rights. Ownership and licensing remain decisions for the repository owner.
+No open source license has been selected. Package metadata uses `UNLICENSED`. Public repository visibility does not grant reuse rights. See [third party notices](THIRD_PARTY_NOTICES.md) for bundled dependency terms.
