@@ -33,9 +33,13 @@ try {
     children.push(child);
     let ready = false;
     let started = false;
+    let startupOutput = '';
     let startupError = '';
     child.stdout.on('data', (chunk) => {
-      if (chunk.toString().includes(c.baseUrl)) started = true;
+      startupOutput += chunk.toString();
+      // Vite colors parts of its URL in CI and output may span chunks.
+      const plainOutput = startupOutput.replace(/\u001b\[[0-9;]*m/g, '');
+      if (plainOutput.includes(c.baseUrl)) started = true;
     });
     child.stderr.on('data', (chunk) => {
       startupError += chunk.toString();
@@ -56,7 +60,8 @@ try {
         await new Promise((r) => setTimeout(r, 100));
       }
     }
-    if (!ready) throw Error(`Failed to start ${example}`);
+    if (!ready)
+      throw Error(`Failed to start ${example}: ${startupError.trim() || startupOutput.trim()}`);
     const report = await runTests(c);
     fs.writeFileSync(
       `reports/ci-${native ? 'native-' : ''}${example}.json`,
