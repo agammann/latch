@@ -106,53 +106,57 @@ async function ui(page: Page, assertions: UIAssertion[]) {
       );
   }
 }
-async function invoke(page: Page, call: Call, mode: string, timeout: number) {
+async function invoke(page: Page, call: Call | Call[], mode: string, timeout: number) {
   return page.evaluate(
     async ({ call, mode, timeout }) => {
-      if (mode === 'native') {
-        const mc = (document as any).modelContext;
-        const tool = (await mc.getTools()).find((t: any) => t.name === call.tool);
-        if (!tool) throw Error('NATIVE_TOOL_MISSING');
-        try {
-          const raw = await mc.executeTool(tool, JSON.stringify(call.input));
-          if (raw === null) throw Error('Native invocation navigated without a result');
-          return { ok: true, result: JSON.parse(raw) };
-        } catch {
-          return {
-            ok: false,
-            error: { code: 'NATIVE_ERROR', message: 'Native execution rejected' },
-          };
+      const invokeOne = async (call: Call) => {
+        if (mode === 'native') {
+          const mc = (document as any).modelContext;
+          const tool = (await mc.getTools()).find((t: any) => t.name === call.tool);
+          if (!tool) throw Error('NATIVE_TOOL_MISSING');
+          try {
+            const raw = await mc.executeTool(tool, JSON.stringify(call.input));
+            if (raw === null) throw Error('Native invocation navigated without a result');
+            return { ok: true, result: JSON.parse(raw) };
+          } catch {
+            return {
+              ok: false,
+              error: { code: 'NATIVE_ERROR', message: 'Native execution rejected' },
+            };
+          }
         }
-      }
-      return new Promise<any>((resolve, reject) => {
-        const id = crypto.randomUUID();
-        const origin = location.origin;
-        const timer = setTimeout(() => {
-          window.removeEventListener('message', onMessage);
-          reject(
-            Error(
-              'Handler test bridge timed out; enable the generated DEV integration on this local origin',
-            ),
+        return new Promise<any>((resolve, reject) => {
+          const id = crypto.randomUUID();
+          const origin = location.origin;
+          const timer = setTimeout(() => {
+            window.removeEventListener('message', onMessage);
+            reject(
+              Error(
+                'Handler test bridge timed out; enable the generated DEV integration on this local origin',
+              ),
+            );
+          }, timeout);
+          function onMessage(e: MessageEvent) {
+            if (
+              e.source !== window ||
+              e.origin !== origin ||
+              e.data?.channel !== 'latch:response:v1' ||
+              e.data.id !== id
+            )
+              return;
+            clearTimeout(timer);
+            window.removeEventListener('message', onMessage);
+            resolve(e.data);
+          }
+          window.addEventListener('message', onMessage);
+          window.postMessage(
+            { channel: 'latch:request:v1', id, tool: call.tool, input: call.input },
+            origin,
           );
-        }, timeout);
-        function onMessage(e: MessageEvent) {
-          if (
-            e.source !== window ||
-            e.origin !== origin ||
-            e.data?.channel !== 'latch:response:v1' ||
-            e.data.id !== id
-          )
-            return;
-          clearTimeout(timer);
-          window.removeEventListener('message', onMessage);
-          resolve(e.data);
-        }
-        window.addEventListener('message', onMessage);
-        window.postMessage(
-          { channel: 'latch:request:v1', id, tool: call.tool, input: call.input },
-          origin,
-        );
-      });
+        });
+      };
+      const responses = await Promise.all((Array.isArray(call) ? call : [call]).map(invokeOne));
+      return Array.isArray(call) ? responses : responses[0];
     },
     { call, mode, timeout },
   );
@@ -241,8 +245,7 @@ export async function runTests(project: TestProject): Promise<Report> {
               r.nativeRegistration = 'verified';
             }
             for (const a of t.before ?? []) await action(page, a);
-            const one = async (call: Call) => {
-              const response = await invoke(page, call, t.mode, t.timeoutMs);
+            const checkResponse = (call: Call, response: any) => {
               r.results.push(response);
               if (call.expectError) {
                 if (
@@ -263,8 +266,11 @@ export async function runTests(project: TestProject): Promise<Report> {
                 }
               }
             };
-            if (t.concurrent) await Promise.all(t.calls.map(one));
-            else for (const c of t.calls) await one(c);
+            if (t.concurrent) {
+              const responses = await invoke(page, t.calls, t.mode, t.timeoutMs);
+              t.calls.forEach((call, index) => checkResponse(call, responses[index]));
+            } else
+              for (const c of t.calls) checkResponse(c, await invoke(page, c, t.mode, t.timeoutMs));
             if (t.mode === 'handler') r.handler = 'tested';
             else r.nativeInvocation = 'verified';
             await ui(page, t.ui ?? []);

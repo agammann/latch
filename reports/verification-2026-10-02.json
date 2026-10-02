@@ -494,27 +494,27 @@
     "artifacts": [
       {
         "name": "contracts",
-        "sha256": "1e84b9f8e58bb5f31f6b69c209d15d7f82d3c1acb830fb64f622b5c5cb728839"
+        "sha256": "bc4e8c4f0abe240b9773a868d34c6c5dddecea17704ae1928bc859e47e35d89d"
       },
       {
         "name": "browser",
-        "sha256": "85d714a48dc8056462643edb88f2c4e97e0fe6b9e0ee5518b24c8086fbd825ac"
+        "sha256": "a345f12cd7d51c871b3346beb29d6bb07ab82ba891613dd4f97c603c21dc491a"
       },
       {
         "name": "runtime",
-        "sha256": "dcb3bc4332730e2a7e15e11580d3932bcfafce973bb2b157073387191feddef5"
+        "sha256": "79f4d221ff8aeada6bb7261a10450243f19c8334b9dd6471ae3ac583760d67c6"
       },
       {
         "name": "react",
-        "sha256": "74864dd964670c1ffbdd81c064fa52c8c83dc6dd7a050727e901f21d39147150"
+        "sha256": "000d4317bda5dfef8d43bff3a76b552a5dce6e0658456f8ec1816d4731a6caf6"
       },
       {
         "name": "test",
-        "sha256": "fd75bb724300a87db590c1e4f758d7c7fd9d119b582cb0cc08d23214d42a6a00"
+        "sha256": "4e08b1a18c1f9b3d6b93f088f808733982250bb9c7f0172cf6155dd716a352b6"
       },
       {
         "name": "cli",
-        "sha256": "cc413b2b40994806d7ccf89464f17e4cfdaf236cdfe48ec66dc52d7370b14278"
+        "sha256": "544680a69786cee1b233da22677aa5c088f1604ebbdf8e5b6f72b2402ffd91f4"
       }
     ],
     "cases": [
@@ -614,5 +614,12 @@
       "blocked": 0
     }
   ],
-  "scope": "Local repository and independent consumer applications; hosted Studio is checked separately; no polyfills"
+  "scope": "Local repository and independent consumer applications; hosted Studio is checked separately; no polyfills",
+  "concurrencyBatch": {
+    "browser": "153.0.8010.12",
+    "passed": 25,
+    "failed": 0,
+    "blocked": 0
+  },
+  "occupiedPortRefusal": "Verified against a separate owned loopback HTTP server; no browser cases run"
 }

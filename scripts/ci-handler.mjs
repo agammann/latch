@@ -32,9 +32,24 @@ try {
     );
     children.push(child);
     let ready = false;
+    let started = false;
+    let startupError = '';
+    child.stdout.on('data', (chunk) => {
+      if (chunk.toString().includes(c.baseUrl)) started = true;
+    });
+    child.stderr.on('data', (chunk) => {
+      startupError += chunk.toString();
+    });
+    child.on('error', (error) => {
+      startupError = error.message;
+    });
     for (let i = 0; i < 100; i++) {
+      if (child.exitCode !== null || startupError.includes('already in use'))
+        throw Error(`Failed to start ${example}: ${startupError.trim()}`);
       try {
-        await fetch(c.baseUrl);
+        if (!started) throw Error('Waiting for owned development server');
+        const response = await fetch(c.baseUrl);
+        if (!response.ok) throw Error('Development server returned an error');
         ready = true;
         break;
       } catch {
