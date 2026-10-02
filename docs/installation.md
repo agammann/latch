@@ -109,7 +109,7 @@ Choose a browser setup:
 For Chromium in a consumer application, add the CLI directly so `pnpm exec playwright` is available:
 
 ```sh
-pnpm add -D --ignore-scripts playwright@1.58.2
+pnpm add -D --ignore-scripts playwright@1.63.0
 pnpm exec playwright install chromium
 ```
 
