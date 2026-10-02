@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import { spawn } from 'node:child_process';
 import { runTests, formatReport } from '../packages/test/dist/index.js';
 const children = [];
+const native = process.argv.includes('--native');
 fs.mkdirSync('reports', { recursive: true });
 try {
   for (const [example, port] of [
@@ -9,11 +10,13 @@ try {
     ['docs', 5174],
   ]) {
     const c = JSON.parse(fs.readFileSync(`examples/${example}/latch.config.json`));
-    const nativeCases = c.tests
-      .filter((t) => t.mode === 'native')
-      .map((t) => ({ name: t.name, status: 'not run in handler-only CI lane' }));
-    c.browser = { channel: 'chromium', native: false };
-    c.tests = c.tests.filter((t) => t.mode === 'handler');
+    const nativeCases = native
+      ? []
+      : c.tests
+          .filter((t) => t.mode === 'native')
+          .map((t) => ({ name: t.name, status: 'not run in handler-only CI lane' }));
+    c.browser = { channel: 'chromium', native };
+    if (!native) c.tests = c.tests.filter((t) => t.mode === 'handler');
     const child = spawn(
       process.execPath,
       [
@@ -29,19 +32,39 @@ try {
     );
     children.push(child);
     let ready = false;
+    let started = false;
+    let startupOutput = '';
+    let startupError = '';
+    child.stdout.on('data', (chunk) => {
+      startupOutput += chunk.toString();
+      // Vite colors parts of its URL in CI and output may span chunks.
+      const plainOutput = startupOutput.replace(/\u001b\[[0-9;]*m/g, '');
+      if (plainOutput.includes(c.baseUrl)) started = true;
+    });
+    child.stderr.on('data', (chunk) => {
+      startupError += chunk.toString();
+    });
+    child.on('error', (error) => {
+      startupError = error.message;
+    });
     for (let i = 0; i < 100; i++) {
+      if (child.exitCode !== null || startupError.includes('already in use'))
+        throw Error(`Failed to start ${example}: ${startupError.trim()}`);
       try {
-        await fetch(c.baseUrl);
+        if (!started) throw Error('Waiting for owned development server');
+        const response = await fetch(c.baseUrl);
+        if (!response.ok) throw Error('Development server returned an error');
         ready = true;
         break;
       } catch {
         await new Promise((r) => setTimeout(r, 100));
       }
     }
-    if (!ready) throw Error(`Failed to start ${example}`);
+    if (!ready)
+      throw Error(`Failed to start ${example}: ${startupError.trim() || startupOutput.trim()}`);
     const report = await runTests(c);
     fs.writeFileSync(
-      `reports/ci-${example}.json`,
+      `reports/ci-${native ? 'native-' : ''}${example}.json`,
       JSON.stringify({ ...report, nativeCases }, null, 2),
     );
     console.log(formatReport(report));

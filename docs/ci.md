@@ -2,7 +2,7 @@
 
 [Documentation index](README.md) · [Development guide](../CONTRIBUTING.md)
 
-The [GitHub workflow](../.github/workflows/ci.yml) builds the packages, runs unit tests, and exercises both examples in an ordinary Chromium Handler lane. The [recorded Linux release run](https://github.com/agammann/latch/actions/runs/34552048479) passed; consult the repository's Actions page for newer revisions.
+The [GitHub workflow](../.github/workflows/ci.yml) checks the dependency audit, builds the packages, runs unit tests, and exercises both examples in ordinary and native Chromium lanes on Linux and Windows. The [recorded Linux release run](https://github.com/agammann/latch/actions/runs/34552048479) is historical evidence; consult the repository's Actions page for newer revisions.
 
 ## Ordinary Chromium lane
 
@@ -18,7 +18,11 @@ node scripts/ci-handler.mjs
 
 On Linux, use `pnpm exec playwright install --with-deps chromium` when system dependencies are required. Keep ports 5173 and 5174 free. The script starts both apps, derives a Handler test configuration in memory, and leaves the checked-in native configurations unchanged. It labels native cases as not run, writes `reports/ci-catalog.json` and `reports/ci-docs.json`, and stops its servers.
 
-The workflow uploads the report directory even when a check fails. This lane does not establish native interoperability or run the separate consumer production bundle audit.
+The workflow uploads the report directory even when a check fails. This ordinary lane does not establish native interoperability or run the separate consumer production bundle audit.
+
+## Native Chromium CI lane
+
+After the same build and browser installation, run `node scripts/ci-handler.mjs --native`. This runs all 11 catalog and 7 documentation cases with `WebMCPTesting` enabled, including both required native cases. It writes `reports/ci-native-catalog.json` and `reports/ci-native-docs.json`. Both configurations are derived in memory; the shipped examples remain unchanged. A missing browser API or any blocked case produces a nonzero exit. No native API is simulated.
 
 ## Native release lane
 

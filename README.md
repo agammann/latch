@@ -37,6 +37,8 @@ No account or API key is required. Editing and generation happen in the browser.
 
 Native WebMCP support is experimental. The original release target was Chrome **153.0.8010.37** with `WebMCPTesting` enabled. The [September 19 acceptance check](reports/acceptance-2026-09-19.md) also verified a downloaded integration and both native binding types in Chrome **153.0.8010.53**. An absent API or blocked native case is not a passing result. See the [dated compatibility record](docs/compatibility-2026-09-08.md) and the acceptance report before claiming support for another browser or version.
 
+The [October 2 verification](reports/verification-2026-10-02.json) passed all 18 example cases, including both native bindings and catalog cleanup, in Chrome **154.0.8037.95** and Chromium **153.0.8010.12** with `WebMCPTesting`. It also covers 23 unit tests, an independent six-package consumer installation, production bridge exclusion, and a failing contract followed by its correction. CI runs ordinary and native Chromium checks on Linux and Windows; missing native support fails the native lane.
+
 ## Requirements and distribution
 
 The local CLI requires **Node 22+** and **pnpm 10.17.1+**. Integration targets an existing React, TypeScript, and Vite application. The [installation guide](docs/installation.md) lists tested versions and browser setup.

@@ -1,0 +1,625 @@
+{
+  "checkedAt": "2026-10-02T02:33:33.923Z",
+  "platform": "win32",
+  "node": "v24.19.0",
+  "pnpm": "10.17.1",
+  "dependencies": {
+    "vite": "7.3.5",
+    "esbuild": "0.28.2",
+    "playwright": "1.63.0"
+  },
+  "unitTests": {
+    "passed": 23,
+    "failed": 0
+  },
+  "dependencyAudit": {
+    "vulnerabilities": 0
+  },
+  "nativeInstalledChrome": {
+    "catalog": {
+      "browser": "154.0.8037.95",
+      "startedAt": "2026-10-02T02:28:05.552Z",
+      "passed": 11,
+      "failed": 0,
+      "blocked": 0,
+      "cases": [
+        {
+          "name": "search updates results and input",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "human search is visible to handler",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "omission preserves filters and explicit reset clears",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "empty results",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "invalid input does not change UI",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "unknown fields rejected",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "invalid detail ID does not select",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "details uses visible results",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "FIFO overlapping searches",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "agent then human reset",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "native search and cleanup",
+          "mode": "native",
+          "status": "passed",
+          "nativeRegistration": "verified",
+          "nativeInvocation": "verified",
+          "ui": "verified"
+        }
+      ]
+    },
+    "docs": {
+      "browser": "154.0.8037.95",
+      "startedAt": "2026-10-02T02:28:15.748Z",
+      "passed": 7,
+      "failed": 0,
+      "blocked": 0,
+      "cases": [
+        {
+          "name": "exported search updates shared UI",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "human query is returned by exported reader",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "invalid docs input",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "open documentation detail",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "invalid document leaves state unchanged",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "docs empty and reset",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "native exported search",
+          "mode": "native",
+          "status": "passed",
+          "nativeRegistration": "verified",
+          "nativeInvocation": "verified",
+          "ui": "verified"
+        }
+      ]
+    }
+  },
+  "ciEquivalentChromium": {
+    "handlerCatalog": {
+      "browser": "153.0.8010.12",
+      "startedAt": "2026-10-02T02:32:26.886Z",
+      "passed": 10,
+      "failed": 0,
+      "blocked": 0,
+      "cases": [
+        {
+          "name": "search updates results and input",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "human search is visible to handler",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "omission preserves filters and explicit reset clears",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "empty results",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "invalid input does not change UI",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "unknown fields rejected",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "invalid detail ID does not select",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "details uses visible results",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "FIFO overlapping searches",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "agent then human reset",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        }
+      ]
+    },
+    "handlerDocs": {
+      "browser": "153.0.8010.12",
+      "startedAt": "2026-10-02T02:32:34.108Z",
+      "passed": 6,
+      "failed": 0,
+      "blocked": 0,
+      "cases": [
+        {
+          "name": "exported search updates shared UI",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "human query is returned by exported reader",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "invalid docs input",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "open documentation detail",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "invalid document leaves state unchanged",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "docs empty and reset",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        }
+      ]
+    },
+    "nativeCatalog": {
+      "browser": "153.0.8010.12",
+      "startedAt": "2026-10-02T02:32:38.800Z",
+      "passed": 11,
+      "failed": 0,
+      "blocked": 0,
+      "cases": [
+        {
+          "name": "search updates results and input",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "human search is visible to handler",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "omission preserves filters and explicit reset clears",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "empty results",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "invalid input does not change UI",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "unknown fields rejected",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "invalid detail ID does not select",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "details uses visible results",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "FIFO overlapping searches",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "agent then human reset",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "native search and cleanup",
+          "mode": "native",
+          "status": "passed",
+          "nativeRegistration": "verified",
+          "nativeInvocation": "verified",
+          "ui": "verified"
+        }
+      ]
+    },
+    "nativeDocs": {
+      "browser": "153.0.8010.12",
+      "startedAt": "2026-10-02T02:32:46.628Z",
+      "passed": 7,
+      "failed": 0,
+      "blocked": 0,
+      "cases": [
+        {
+          "name": "exported search updates shared UI",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "human query is returned by exported reader",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "invalid docs input",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "open documentation detail",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "invalid document leaves state unchanged",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "docs empty and reset",
+          "mode": "handler",
+          "status": "passed",
+          "nativeRegistration": "not run",
+          "nativeInvocation": "not run",
+          "ui": "verified"
+        },
+        {
+          "name": "native exported search",
+          "mode": "native",
+          "status": "passed",
+          "nativeRegistration": "verified",
+          "nativeInvocation": "verified",
+          "ui": "verified"
+        }
+      ]
+    }
+  },
+  "freshConsumer": {
+    "installation": "passed",
+    "artifacts": [
+      {
+        "name": "contracts",
+        "sha256": "bc4e8c4f0abe240b9773a868d34c6c5dddecea17704ae1928bc859e47e35d89d"
+      },
+      {
+        "name": "browser",
+        "sha256": "a345f12cd7d51c871b3346beb29d6bb07ab82ba891613dd4f97c603c21dc491a"
+      },
+      {
+        "name": "runtime",
+        "sha256": "79f4d221ff8aeada6bb7261a10450243f19c8334b9dd6471ae3ac583760d67c6"
+      },
+      {
+        "name": "react",
+        "sha256": "000d4317bda5dfef8d43bff3a76b552a5dce6e0658456f8ec1816d4731a6caf6"
+      },
+      {
+        "name": "test",
+        "sha256": "4e08b1a18c1f9b3d6b93f088f808733982250bb9c7f0172cf6155dd716a352b6"
+      },
+      {
+        "name": "cli",
+        "sha256": "544680a69786cee1b233da22677aa5c088f1604ebbdf8e5b6f72b2402ffd91f4"
+      }
+    ],
+    "cases": [
+      {
+        "name": "Installed latch bin entry point",
+        "exitCode": 0
+      },
+      {
+        "name": "catalog: installed CLI init",
+        "exitCode": 0
+      },
+      {
+        "name": "catalog: installed CLI inspect",
+        "exitCode": 0
+      },
+      {
+        "name": "catalog: installed CLI generate",
+        "exitCode": 0
+      },
+      {
+        "name": "catalog: installed CLI check",
+        "exitCode": 0
+      },
+      {
+        "name": "catalog: installed CLI apply",
+        "exitCode": 0
+      },
+      {
+        "name": "catalog: production consumer build",
+        "exitCode": 0
+      },
+      {
+        "name": "catalog: production bridge exclusion",
+        "exitCode": 0
+      },
+      {
+        "name": "catalog: installed CLI regression tests",
+        "exitCode": 0
+      },
+      {
+        "name": "catalog: browser summary"
+      },
+      {
+        "name": "docs: installed CLI init",
+        "exitCode": 0
+      },
+      {
+        "name": "docs: installed CLI inspect",
+        "exitCode": 0
+      },
+      {
+        "name": "docs: installed CLI generate",
+        "exitCode": 0
+      },
+      {
+        "name": "docs: installed CLI check",
+        "exitCode": 0
+      },
+      {
+        "name": "docs: installed CLI apply",
+        "exitCode": 0
+      },
+      {
+        "name": "docs: production consumer build",
+        "exitCode": 0
+      },
+      {
+        "name": "docs: production bridge exclusion",
+        "exitCode": 0
+      },
+      {
+        "name": "docs: installed CLI regression tests",
+        "exitCode": 0
+      },
+      {
+        "name": "docs: browser summary"
+      }
+    ]
+  },
+  "intentionalRegression": [
+    {
+      "phase": "passing contract",
+      "passed": 1,
+      "failed": 0,
+      "blocked": 0
+    },
+    {
+      "phase": "intentional handler result break",
+      "passed": 0,
+      "failed": 1,
+      "blocked": 0
+    },
+    {
+      "phase": "corrected mapping to searchDocsCompatible adapter",
+      "passed": 1,
+      "failed": 0,
+      "blocked": 0
+    }
+  ],
+  "scope": "Local repository and independent consumer applications; hosted Studio is checked separately; no polyfills",
+  "concurrencyBatch": {
+    "browser": "153.0.8010.12",
+    "passed": 25,
+    "failed": 0,
+    "blocked": 0
+  },
+  "occupiedPortRefusal": "Verified against a separate owned loopback HTTP server; no browser cases run"
+}
