@@ -6,7 +6,11 @@ permissions:
   contents: read
 jobs:
   handler-and-unit:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -18,12 +22,14 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm audit --audit-level=low
       - run: pnpm build
       - run: pnpm test
       - run: pnpm exec playwright install --with-deps chromium
       - run: node scripts/ci-handler.mjs
+      - run: node scripts/ci-handler.mjs --native
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: latch-handler-reports
+          name: latch-reports-${{ matrix.os }}
           path: reports/

@@ -54,7 +54,7 @@ This builds and generates both examples, runs unit and browser tests, demonstrat
 ```sh
 pnpm build
 pnpm pack:local
-pnpm exec node scripts/consumer.mjs ../latch-consumer-check
+pnpm verify:consumer ../latch-consumer-check
 ```
 
 Choose a destination that does not exist and is outside the repository. Keep ports 5273 and 5274 free. The consumer script installs the six local tarballs into a new project, generates and applies both examples, builds production bundles, checks development bridge exclusion, and runs the configured browser tests. It uses the unchanged native example settings and therefore needs the native browser target. It writes `reports/clean-consumer.json` and leaves the consumer directory for inspection.

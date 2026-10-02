@@ -8,7 +8,7 @@ Use this guide after downloading an integration from Studio, or when configuring
 
 You need Node 22+, pnpm 10.17.1+, and an existing React/TypeScript/Vite project that already builds. Keep React, React DOM, TypeScript, their type declarations, and Vite in that project's dependencies. Latch does not create an application or replace your build configuration.
 
-The generator compiles against your `tsconfig.json`. The tested setup uses TypeScript 5.9.3, React 19.2.4, and Vite 7.3.1. Generated code uses `import.meta.env` and top level await; use Vite client types and an ES2022 or newer build target if your application's configuration requires those settings explicitly. Other frameworks and bundlers are not covered by this release.
+The generator compiles against your `tsconfig.json`. The tested setup uses TypeScript 5.9.3, React 19.2.4, and Vite 7.3.5. Generated code uses `import.meta.env` and top level await; use Vite client types and an ES2022 or newer build target if your application's configuration requires those settings explicitly. Other frameworks and bundlers are not covered by this release.
 
 ## 1. Obtain the six packages
 

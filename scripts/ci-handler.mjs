@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import { spawn } from 'node:child_process';
 import { runTests, formatReport } from '../packages/test/dist/index.js';
 const children = [];
+const native = process.argv.includes('--native');
 fs.mkdirSync('reports', { recursive: true });
 try {
   for (const [example, port] of [
@@ -9,11 +10,13 @@ try {
     ['docs', 5174],
   ]) {
     const c = JSON.parse(fs.readFileSync(`examples/${example}/latch.config.json`));
-    const nativeCases = c.tests
-      .filter((t) => t.mode === 'native')
-      .map((t) => ({ name: t.name, status: 'not run in handler-only CI lane' }));
-    c.browser = { channel: 'chromium', native: false };
-    c.tests = c.tests.filter((t) => t.mode === 'handler');
+    const nativeCases = native
+      ? []
+      : c.tests
+          .filter((t) => t.mode === 'native')
+          .map((t) => ({ name: t.name, status: 'not run in handler-only CI lane' }));
+    c.browser = { channel: 'chromium', native };
+    if (!native) c.tests = c.tests.filter((t) => t.mode === 'handler');
     const child = spawn(
       process.execPath,
       [
@@ -41,7 +44,7 @@ try {
     if (!ready) throw Error(`Failed to start ${example}`);
     const report = await runTests(c);
     fs.writeFileSync(
-      `reports/ci-${example}.json`,
+      `reports/ci-${native ? 'native-' : ''}${example}.json`,
       JSON.stringify({ ...report, nativeCases }, null, 2),
     );
     console.log(formatReport(report));

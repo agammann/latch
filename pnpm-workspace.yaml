@@ -3,5 +3,5 @@ packages:
   - examples/*
 onlyBuiltDependencies:
   - esbuild
-allowBuilds:
-  esbuild: set this to true or false
+overrides:
+  vite>esbuild: 0.28.2

@@ -21,7 +21,7 @@ const pkg = {
   dependencies: { ...local, react: '19.2.4', 'react-dom': '19.2.4' },
   devDependencies: {
     typescript: '5.9.3',
-    vite: '7.3.1',
+    vite: '7.3.5',
     '@types/react': '19.2.14',
     '@types/react-dom': '19.2.3',
     '@types/node': '22.19.11',
@@ -30,7 +30,7 @@ const pkg = {
 fs.writeFileSync(path.join(destination, 'package.json'), JSON.stringify(pkg, null, 2));
 fs.writeFileSync(
   path.join(destination, 'pnpm-workspace.yaml'),
-  'overrides:\n' +
+  'overrides:\n  vite>esbuild: 0.28.2\n' +
     Object.entries(local)
       .map(([k, v]) => `  ${JSON.stringify(k)}: ${JSON.stringify(v)}`)
       .join('\n') +
@@ -55,7 +55,7 @@ if (!pnpm || !pnpm.includes('pnpm')) {
     else {
       const guessed = path.resolve(path.dirname(executable), '../node_modules/pnpm/bin/pnpm.cjs');
       if (fs.existsSync(guessed)) pnpm = guessed;
-      else throw Error('Run through pnpm: pnpm exec node scripts/consumer.mjs <destination>');
+      else throw Error('Run through pnpm: pnpm verify:consumer <destination>');
     }
   } else pnpm = fs.realpathSync(executable);
 }
