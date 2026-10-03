@@ -49,3 +49,13 @@ Continue with [Installation](installation.md). Copy the configuration into your 
 **Open config** accepts Studio drafts and Latch v1 configurations. Studio creates one Handler test per tool from its sample values. Other imported test steps, UI assertions, and native browser settings are not retained; the editor shows a notice. Keep your original configuration if you need those tests. Configurations with custom preconditions cannot be edited in Studio.
 
 For an advanced test suite, edit `latch.config.json` in your project and use the CLI directly.
+
+## Production Studio check — October 3, 2026 (UTC)
+
+Studio version 4 passed 40 browser and asset checks in Chrome **154.0.8037.98**, including validation failures, both binding patterns, sample checks with the handler-not-executed notice, draft recovery, keyboard navigation, and actual integration and runtime downloads. The three editor tabs had no page-level horizontal overflow at 1440, 390, and 320 px.
+
+The downloads passed 31 checks covering the six integration files, ZIP integrity, all six runtime package checksums, and agreement with the current package artifacts and compiled source. All **57 package files** also matched the installed final consumer whose earlier October 2 runs passed 11 catalog and 7 documentation cases. Those consumer tests were not rerun for this download check.
+
+An older Studio consumer archive did not match the current bundle: its test runner predates the concurrent-call fix. That mismatch remains part of the historical record; current package parity was established against the later final consumer installation.
+
+This follow-up verified the public editor and downloads. It did not execute visitor handlers or make new native WebMCP calls. The separate [October 2 verification](../reports/verification-2026-10-02.json) records the earlier native execution and consumer checks. Packages remain local tarballs, and these results do not establish compatibility with arbitrary applications or browsers.
