@@ -1,5 +1,7 @@
 # Upgrades, ownership and removal
 
+The [v1 stability contract](stability.md) defines supported CLI/schema behavior and the upgrade from 0.1.0. Valid 0.1.0 manifests remain readable; regenerate with matching v1 packages before checking/applying the integration.
+
 ## Version policy
 
 Packages use SemVer and are versioned together for the initial release. `latch.config.json` has a separate integer format version (`1`). Unknown versions and fields fail closed. `latch migrate --to 1` validates the supported version; there is no older incompatible Latch format to migrate yet. A future incompatible release must add a documented migration with before/after fixtures and must preserve a backup before writing. No automatic forward migration or schema downgrade is claimed.

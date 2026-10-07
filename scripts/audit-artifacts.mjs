@@ -2,9 +2,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { names, version } from './release-version.mjs';
 const reports = [];
-for (const name of ['contracts', 'browser', 'runtime', 'react', 'test', 'cli']) {
-  const file = `artifacts/latch-local-${name}-0.1.0.tgz`;
+for (const name of names) {
+  const file = `artifacts/latch-local-${name}-${version}.tgz`;
+  const sum = createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+  const line = `${sum}  ${path.basename(file)}\n`;
+  assert.equal(fs.readFileSync(file + '.sha256', 'utf8'), line);
+  assert.ok(fs.readFileSync('artifacts/SHA256SUMS', 'utf8').includes(line));
   const listing = spawnSync('tar', ['-tzf', file], { encoding: 'utf8' });
   assert.equal(listing.status, 0);
   const files = listing.stdout.trim().split(/\r?\n/);
@@ -16,12 +22,15 @@ for (const name of ['contracts', 'browser', 'runtime', 'react', 'test', 'cli']) 
     'package/package.json',
     'package/README.md',
     'package/THIRD_PARTY_NOTICES.md',
+    'package/LICENSE',
   ])
     assert.ok(files.includes(entry));
   const pkg = JSON.parse(
     spawnSync('tar', ['-xOzf', file, 'package/package.json'], { encoding: 'utf8' }).stdout,
   );
   assert.ok(!JSON.stringify(pkg).includes('workspace:'));
+  assert.equal(pkg.version, version);
+  assert.equal(pkg.license, 'MIT');
   const entry = name === 'cli' ? 'main' : 'index';
   assert.ok(files.includes(`package/dist/${entry}.js`));
   assert.ok(files.includes(`package/dist/${entry}.d.ts`));

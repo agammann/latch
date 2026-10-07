@@ -1,0 +1,19 @@
+# Latch v1 stability contract
+
+Version 1.0.0 covers the six `@latch-local/*` packages, the local CLI/console and the documented React/TypeScript/Vite integration. Packages share one SemVer version. Use all six tarballs from the same release and retain local overrides; registry publication is not claimed. Node 22+ and pnpm 10.17.1+ are required. React 19.2.4, TypeScript 5.9.3 and Vite 7.3.5 are the measured application versions. The declared React peer range is 18.2 through 19.x; other frameworks and bundlers require separate verification.
+
+Within v1, documented CLI commands (`init`, `inspect`, `generate`, `check`, `apply`, `rollback`, `test`, `dev`, `doctor`, `migrate --to 1`) and their documented options remain supported. Successful checks exit 0. Invalid mappings/configuration, conflicts, failed tests and blocked required native tests exit 1. `init` refuses an existing configuration. Generation and application remain explicit steps; source inspection never executes application modules. Human console text and timing fields are not machine parsing contracts.
+
+Configuration, ownership manifests and regression reports retain format version 1. The contract schema is the bounded subset in the [integration guide](integration.md), with unknown versions/fields rejected. Public TypeScript contract, scope and React binding interfaces follow SemVer. Scope calls use one FIFO queue; input/result validation, route/precondition checks and disposal remain enforced. Cancellation does not roll back an already committed application change. Handlers must honor their execution signal and coordinate with human callbacks.
+
+Generated ownership remains limited to the two fixed integration outputs and the reviewed component import/hook transition. Later source or generated edits cause refusal instead of silent replacement. Regeneration is deterministic for the same version/configuration. Individual files are replaced atomically; a multi-file transaction is not guaranteed. Preserve the ownership manifest for upgrades and removal.
+
+Native WebMCP remains experimental and browser-version specific. The [current compatibility record](compatibility-2026-10-06.md) identifies measured browser builds and invocation forms. Native version changes require a new real-browser check; unsupported native targets produce a blocked result. Ordinary application UI and handler tests remain usable without a native API. Browser-agent interoperability, cross-origin exposure, production origin trials and unmeasured browsers are outside this release's promise.
+
+Studio is maintained separately and requires no account for its documented editing workflow. Its runtime download has not been established as the matching v1.0.0 package set. Obtain the six v1 packages from the GitHub release or matching source checkout, then check any downloaded integration with the installed CLI.
+
+## Upgrade from 0.1.0
+
+Keep a backup of your source, configuration and `.latch/manifest.json`. Replace all six tarballs/overrides with v1.0.0 and install them as described in [installation](installation.md). Schema 1 is unchanged. A valid 0.1.0 ownership manifest is accepted; `latch generate` verifies existing hashes, rewrites the generator version/output, and retains the recorded component transition. Review the diff, run `latch check`, apply if needed, and rerun handler/native tests. Rollback and conflict refusal still protect later edits. Run rollback before changing installed React callback references, as described in [maintenance](maintenance.md).
+
+Chrome 155 uses object input for native execution. The test runner selects the previously measured JSON-string input only for browser majors 153/154 and object input for 155 before a call; it never retries a rejected mutation with another form. Unknown native browser versions block pending verification. Custom browser integration code must use the API form of its measured target.

@@ -1,0 +1,213 @@
+{
+  "checkedAt": "2026-10-06",
+  "sourceBaseCommit": "e1463f39567239a1d7c39d71a82b193c0276e59b",
+  "version": "1.0.0",
+  "environment": {
+    "platform": "Windows amd64",
+    "node": "24.19.0",
+    "pnpm": "11.19.0",
+    "react": "19.2.4",
+    "vite": "7.3.5",
+    "typescript": "5.9.3",
+    "playwright": "1.63.0"
+  },
+  "checks": {
+    "frozenInstall": 0,
+    "fullVerify": 0,
+    "unitTests": {
+      "passed": 24,
+      "failed": 0
+    },
+    "dependencyAudit": {
+      "vulnerabilities": 0
+    },
+    "artifactAudit": 0,
+    "intentionalRegression": {
+      "passing": 0,
+      "wrongResultShape": 1,
+      "correctedMapping": 0
+    }
+  },
+  "nativeInstalledChrome": {
+    "catalog": {
+      "browser": "155.0.8059.39",
+      "passed": 11,
+      "failed": 0,
+      "blocked": 0
+    },
+    "docs": {
+      "browser": "155.0.8059.39",
+      "passed": 7,
+      "failed": 0,
+      "blocked": 0
+    }
+  },
+  "ordinaryBundledChromium": {
+    "catalog": {
+      "browser": "153.0.8010.12",
+      "passed": 10,
+      "failed": 0,
+      "blocked": 0
+    },
+    "docs": {
+      "browser": "153.0.8010.12",
+      "passed": 6,
+      "failed": 0,
+      "blocked": 0
+    }
+  },
+  "nativeBundledChromium": {
+    "catalog": {
+      "browser": "153.0.8010.12",
+      "passed": 11,
+      "failed": 0,
+      "blocked": 0
+    },
+    "docs": {
+      "browser": "153.0.8010.12",
+      "passed": 7,
+      "failed": 0,
+      "blocked": 0
+    }
+  },
+  "freshConsumer": {
+    "installation": "passed",
+    "location": "new directory outside source workspace",
+    "cliVersion": "1.0.0",
+    "cases": [
+      {
+        "name": "Installed latch bin entry point",
+        "exitCode": 0
+      },
+      {
+        "name": "catalog: installed CLI init",
+        "exitCode": 0
+      },
+      {
+        "name": "catalog: installed CLI inspect",
+        "exitCode": 0
+      },
+      {
+        "name": "catalog: installed CLI generate",
+        "exitCode": 0
+      },
+      {
+        "name": "catalog: installed CLI check",
+        "exitCode": 0
+      },
+      {
+        "name": "catalog: installed CLI apply",
+        "exitCode": 0
+      },
+      {
+        "name": "catalog: production consumer build",
+        "exitCode": 0
+      },
+      {
+        "name": "catalog: production bridge exclusion",
+        "exitCode": 0
+      },
+      {
+        "name": "catalog: installed CLI regression tests",
+        "exitCode": 0
+      },
+      {
+        "name": "catalog: browser summary",
+        "passed": 11,
+        "failed": 0,
+        "blocked": 0,
+        "browser": "155.0.8059.39"
+      },
+      {
+        "name": "docs: installed CLI init",
+        "exitCode": 0
+      },
+      {
+        "name": "docs: installed CLI inspect",
+        "exitCode": 0
+      },
+      {
+        "name": "docs: installed CLI generate",
+        "exitCode": 0
+      },
+      {
+        "name": "docs: installed CLI check",
+        "exitCode": 0
+      },
+      {
+        "name": "docs: installed CLI apply",
+        "exitCode": 0
+      },
+      {
+        "name": "docs: production consumer build",
+        "exitCode": 0
+      },
+      {
+        "name": "docs: production bridge exclusion",
+        "exitCode": 0
+      },
+      {
+        "name": "docs: installed CLI regression tests",
+        "exitCode": 0
+      },
+      {
+        "name": "docs: browser summary",
+        "passed": 7,
+        "failed": 0,
+        "blocked": 0,
+        "browser": "155.0.8059.39"
+      }
+    ]
+  },
+  "unsupportedBrowser": {
+    "ordinaryControls": "passed",
+    "desktopAndMobile": "passed",
+    "pageErrors": 0,
+    "requiredNativeCase": {
+      "browser": "155.0.8059.39",
+      "passed": 0,
+      "failed": 0,
+      "blocked": 1
+    }
+  },
+  "artifacts": [
+    {
+      "file": "latch-local-contracts-1.0.0.tgz",
+      "sha256": "f60c121bee8f108e1ffa38daba32e97320877b24befc30aa2757d24e0cc159c7",
+      "bytes": 23210,
+      "license": "MIT"
+    },
+    {
+      "file": "latch-local-browser-1.0.0.tgz",
+      "sha256": "7c5d7c19463f3b507f9aefea9846172b373e25e9b75e2b69cde0dd29c5cca1f2",
+      "bytes": 20201,
+      "license": "MIT"
+    },
+    {
+      "file": "latch-local-runtime-1.0.0.tgz",
+      "sha256": "2ec4471b63ef3bb83543cd6573a8808fd395ef45d4c98dc737545ec5238804ca",
+      "bytes": 22697,
+      "license": "MIT"
+    },
+    {
+      "file": "latch-local-react-1.0.0.tgz",
+      "sha256": "e8bce145fb95dd1c5f3f7bd5ccf77adac4412c2b72358e0d7206765c290e94fb",
+      "bytes": 20298,
+      "license": "MIT"
+    },
+    {
+      "file": "latch-local-test-1.0.0.tgz",
+      "sha256": "ebe1ace6d46f78b831e47fe30a9e46d144350b03f979e49e582c872e637a01f2",
+      "bytes": 27111,
+      "license": "MIT"
+    },
+    {
+      "file": "latch-local-cli-1.0.0.tgz",
+      "sha256": "1de8f16459cb4eaa4480aa667002ce24a6b04a52b6557195400c0efc81f0c504",
+      "bytes": 104980,
+      "license": "MIT"
+    }
+  ],
+  "releaseCommitCI": "required before publication",
+  "studioRuntimeVersion": "separate download; not established as v1.0.0"
+}

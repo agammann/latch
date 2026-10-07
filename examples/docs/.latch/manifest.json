@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "generatorVersion": "0.1.0",
+  "generatorVersion": "1.0.0",
   "files": {
     "src/latch.generated/integration.ts": {
       "before": null,
-      "after": "2f57173c9af79bc1d09845a88f5f38efd6074c8cbf119e9a9e216d2fd0b60e15"
+      "after": "465b4160a555317818dcca8259c6734df98ed2b91ce046f9977aaf2136a3f213"
     },
     "src/latch.generated/env.d.ts": {
       "before": null,

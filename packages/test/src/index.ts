@@ -106,16 +106,17 @@ async function ui(page: Page, assertions: UIAssertion[]) {
       );
   }
 }
-async function invoke(page: Page, call: Call | Call[], mode: string, timeout: number) {
+async function invoke(page: Page, call: Call | Call[], mode: string, timeout: number, nativeInput?: 'object' | 'json-string') {
   return page.evaluate(
-    async ({ call, mode, timeout }) => {
+    async ({ call, mode, timeout, nativeInput }) => {
       const invokeOne = async (call: Call) => {
         if (mode === 'native') {
           const mc = (document as any).modelContext;
           const tool = (await mc.getTools()).find((t: any) => t.name === call.tool);
           if (!tool) throw Error('NATIVE_TOOL_MISSING');
           try {
-            const raw = await mc.executeTool(tool, JSON.stringify(call.input));
+            // Choose the measured API form once; a rejected mutation is never retried.
+            const raw = await mc.executeTool(tool, nativeInput === 'json-string' ? JSON.stringify(call.input) : call.input);
             if (raw === null) throw Error('Native invocation navigated without a result');
             return { ok: true, result: JSON.parse(raw) };
           } catch {
@@ -158,7 +159,7 @@ async function invoke(page: Page, call: Call | Call[], mode: string, timeout: nu
       const responses = await Promise.all((Array.isArray(call) ? call : [call]).map(invokeOne));
       return Array.isArray(call) ? responses : responses[0];
     },
-    { call, mode, timeout },
+    { call, mode, timeout, nativeInput },
   );
 }
 export async function runTests(project: TestProject): Promise<Report> {
@@ -199,6 +200,8 @@ export async function runTests(project: TestProject): Promise<Report> {
     return report;
   }
   try {
+    const major = Number(report.browser.split('.')[0]);
+    const nativeInput = major === 155 ? 'object' : major === 153 || major === 154 ? 'json-string' : undefined;
     for (const t of project.tests) {
       const start = Date.now();
       const r: CaseReport = {
@@ -227,6 +230,10 @@ export async function runTests(project: TestProject): Promise<Report> {
             await page.goto(url.href);
             await page.waitForLoadState('networkidle');
             if (t.mode === 'native') {
+              if (!nativeInput) {
+                r.status = 'blocked';
+                throw Error(`Native browser ${report.browser} has no verified API form; update the compatibility record first`);
+              }
               const supported = await page.evaluate(() => {
                 const m = (document as any).modelContext;
                 return (
@@ -267,10 +274,10 @@ export async function runTests(project: TestProject): Promise<Report> {
               }
             };
             if (t.concurrent) {
-              const responses = await invoke(page, t.calls, t.mode, t.timeoutMs);
+              const responses = await invoke(page, t.calls, t.mode, t.timeoutMs, nativeInput);
               t.calls.forEach((call, index) => checkResponse(call, responses[index]));
             } else
-              for (const c of t.calls) checkResponse(c, await invoke(page, c, t.mode, t.timeoutMs));
+              for (const c of t.calls) checkResponse(c, await invoke(page, c, t.mode, t.timeoutMs, nativeInput));
             if (t.mode === 'handler') r.handler = 'tested';
             else r.nativeInvocation = 'verified';
             await ui(page, t.ui ?? []);

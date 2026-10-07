@@ -1,4 +1,12 @@
-# Latch 0.1.0 local developer release
+# Latch 1.0.0
+
+2026-10-06
+
+The v1 release covers the CLI, typed runtime contracts, local console and explicit React/Vite integration. Six matching prebuilt tarballs carry MIT licensing, third-party notices and SHA256 checksums. Install through the [v1 package guide](docs/installation.md), follow the [stability contract](docs/stability.md), and use the [current measured browser target](docs/compatibility-2026-10-06.md) for native verification. Valid 0.1.0 ownership manifests upgrade through regeneration without weakening conflict/rollback checks. Studio remains separately maintained; its runtime download is not established as the matching v1 package set.
+
+Main-branch release automation requires both platform checks, native/ordinary browser tests, package checks and a fresh consumer install before publishing the complete package set. These gates must pass on the actual release commit.
+
+## Historical 0.1.0 release notes
 
 Latch generates typed WebMCP integrations around real React callbacks and exported functions, verifies their contracts and visible effects, and preserves a reviewable installation and removal workflow. This release includes six installable local packages, an optional console, and two original synthetic example applications.
 

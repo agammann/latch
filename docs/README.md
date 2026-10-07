@@ -1,6 +1,6 @@
 # Documentation
 
-[Repository home](../README.md) · [Open Latch Studio](https://latch-studio.alx21.chatgpt.site)
+[Repository home](../README.md) Â· [Open Latch Studio](https://latch-studio.alx21.chatgpt.site)
 
 ## Getting started
 
@@ -18,7 +18,7 @@
 | ---------------------------------------------------------- | --------------------------------------------------------- |
 | Queues, committed state, scopes, cancellation, and errors  | [Runtime semantics](runtime.md)                           |
 | Regeneration, ownership, upgrades, and rollback            | [Maintenance and removal](maintenance.md)                 |
-| Browser versions, native API behavior, and measured limits | [Dated compatibility record](compatibility-2026-09-08.md) |
+| Browser versions, native API behavior, and measured limits | [Current compatibility record](compatibility-2026-10-06.md) |
 | Automated Handler checks and separate native verification  | [CI lanes](ci.md)                                         |
 
 ## Working on Latch
@@ -29,4 +29,4 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for the repository map, build commands
 
 The [September 19 acceptance check](../reports/acceptance-2026-09-19.md) covers the public Studio, downloaded packages, a fresh consumer application, browser interactions, and fixes found during that run.
 
-[Release notes](../RELEASE_NOTES.md), [changelog](../CHANGELOG.md), and [reports](../reports) describe the recorded 0.1.0 release. The [security review correction](security-review.md) and [local console visual review](visual-qa.md) retain their original scope. The [initial release checklist](../PLAN.md) is historical.
+[Release notes](../RELEASE_NOTES.md), [changelog](../CHANGELOG.md), and [reports](../reports) include v1.0.0 release notes and historical 0.1.0 evidence. See the [v1 stability contract](stability.md) and [current native compatibility record](compatibility-2026-10-06.md). The [security review correction](security-review.md) and [local console visual review](visual-qa.md) retain their original scope. The [initial release checklist](../PLAN.md) is historical.
