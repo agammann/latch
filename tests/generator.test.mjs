@@ -60,6 +60,24 @@ test('edited generated code prevents generation and rollback', () => {
   assert.throws(() => generate(r), /edited/);
   assert.throws(() => rollback(r), /changed/);
 });
+test('a valid 0.1.0 ownership manifest upgrades and keeps rollback protection', () => {
+  const r = fixture();
+  const before = fs.readFileSync(path.join(r, 'src/main.tsx'), 'utf8');
+  generate(r);
+  apply(r);
+  const output = path.join(r, 'src/latch.generated/integration.ts');
+  fs.writeFileSync(output, fs.readFileSync(output, 'utf8').replace('Latch 1.0.0.', 'Latch 0.1.0.'));
+  const manifestPath = path.join(r, '.latch/manifest.json');
+  const old = JSON.parse(fs.readFileSync(manifestPath));
+  old.generatorVersion = '0.1.0';
+  old.files['src/latch.generated/integration.ts'].after = createHash('sha256').update(fs.readFileSync(output)).digest('hex');
+  fs.writeFileSync(manifestPath, JSON.stringify(old));
+  generate(r);
+  assert.equal(JSON.parse(fs.readFileSync(manifestPath)).generatorVersion, '1.0.0');
+  assert.equal(check(r).installation, 'applied');
+  rollback(r);
+  assert.equal(fs.readFileSync(path.join(r, 'src/main.tsx'), 'utf8'), before);
+});
 test('later component edits are preserved during rollback refusal', () => {
   const r = fixture();
   generate(r);

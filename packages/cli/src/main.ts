@@ -7,7 +7,8 @@ import { inspect } from './inspect.js';
 import { safe, write } from './files.js';
 import { serve, testProject } from './service.js';
 import { formatReport } from '@latch-local/test';
-const help = `Latch 0.1.0 — Connect your site. Verify every action.
+import { VERSION } from './version.js';
+const help = `Latch ${VERSION} — Connect your site. Verify every action.
 Usage: latch <command> [--root <local project>] [--port 4545]
   init       Create versioned configuration without overwriting work
   inspect    Suggest AST candidates with evidence (never executes source)
@@ -28,7 +29,7 @@ export async function main(args = process.argv.slice(2)) {
     return;
   }
   if (command === '--version') {
-    console.log('0.1.0');
+    console.log(VERSION);
     return;
   }
   const flags = new Map<string, string>();
@@ -77,12 +78,12 @@ export async function main(args = process.argv.slice(2)) {
     return;
   } else if (command === 'doctor')
     result = {
-      version: '0.1.0',
+      version: VERSION,
       node: process.version,
       platform: process.platform,
       root,
       configuration: fs.existsSync(safe(root, 'latch.config.json')) ? 'present' : 'missing',
-      nativeTarget: 'Chrome 153 document.modelContext',
+      nativeTarget: 'Chrome 155 document.modelContext (object input)',
       requiredFlag: 'chrome://flags/#enable-webmcp-testing',
       featureDetection: 'not run (requires website)',
       nativeRegistration: 'not run',

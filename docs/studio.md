@@ -23,7 +23,7 @@ The starter values are examples. They do not establish that your handler exists 
 
 In **Test samples**, supply a representative input and the result your real handler should return. Select **Check sample values**. A successful check means the values match the schemas; it does not execute the handler.
 
-In **Project setup**, set the application's loopback development URL and installation component. Studio exports Handler tests. Native invocation must be configured and verified separately using the [compatibility record](compatibility-2026-09-08.md).
+In **Project setup**, set the application's loopback development URL and installation component. Studio exports Handler tests. Native invocation must be configured and verified separately using the [current compatibility record](compatibility-2026-10-06.md).
 
 ## 3. Save and download
 
@@ -40,7 +40,7 @@ Once every contract and sample is valid, select **Download integration**. Its ZI
 | `PACKAGE_INSTALL.md`                         | Package setup instructions.                                       |
 | `studio-draft.json`                          | An editable copy of the Studio draft.                             |
 
-Also select **Download runtime packages** in **Project setup**. That separate ZIP contains six package tarballs and `SHA256SUMS`. Keep the tarballs available while installing and maintaining the integration.
+Obtain v1.0.0 runtime packages from the [installation guide](installation.md). Studio's separately maintained **Download runtime packages** ZIP has not been established as the matching v1 package set. Keep the six matching v1 tarballs available while installing and maintaining the integration.
 
 Continue with [Installation](installation.md). Copy the configuration into your application, keep `preview/` outside application source, and let the CLI generate and own the installed files.
 

@@ -2,16 +2,23 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import assert from 'node:assert/strict';
+import { names, version } from './release-version.mjs';
 const root = process.cwd(),
-  destination = path.resolve(process.argv[2] ?? '../latch-clean-consumer');
+  destination = path.resolve(process.argv.slice(2).find(a => !a.startsWith('--')) ?? '../latch-clean-consumer');
+const chromium = process.argv.includes('--chromium');
 if (destination === root || destination.startsWith(root + path.sep) || fs.existsSync(destination))
   throw Error('Choose a new consumer folder outside the Latch development checkout');
 fs.mkdirSync(destination, { recursive: true });
-const names = ['contracts', 'browser', 'runtime', 'react', 'test', 'cli'];
+for (const n of names) {
+  const file = `latch-local-${n}-${version}.tgz`;
+  const digest = createHash('sha256').update(fs.readFileSync(path.join(root, 'artifacts', file))).digest('hex');
+  assert.equal(fs.readFileSync(path.join(root, 'artifacts', file + '.sha256'), 'utf8'), `${digest}  ${file}\n`);
+}
 const local = Object.fromEntries(
   names.map((n) => [
     `@latch-local/${n}`,
-    `file:${path.join(root, 'artifacts', `latch-local-${n}-0.1.0.tgz`).replaceAll('\\', '/')}`,
+    `file:${path.join(root, 'artifacts', `latch-local-${n}-${version}.tgz`).replaceAll('\\', '/')}`,
   ]),
 );
 const pkg = {
@@ -30,7 +37,7 @@ const pkg = {
 fs.writeFileSync(path.join(destination, 'package.json'), JSON.stringify(pkg, null, 2));
 fs.writeFileSync(
   path.join(destination, 'pnpm-workspace.yaml'),
-  'overrides:\n  vite>esbuild: 0.28.2\n' +
+  'overrides:\n  vite>esbuild: 0.28.2\n  source-map-js: 1.2.2\n' +
     Object.entries(local)
       .map(([k, v]) => `  ${JSON.stringify(k)}: ${JSON.stringify(v)}`)
       .join('\n') +
@@ -69,14 +76,16 @@ const results = {
   installedArtifacts: names.map((n) => ({
     name: n,
     sha256: createHash('sha256')
-      .update(fs.readFileSync(path.join(root, 'artifacts', `latch-local-${n}-0.1.0.tgz`)))
+      .update(fs.readFileSync(path.join(root, 'artifacts', `latch-local-${n}-${version}.tgz`)))
       .digest('hex'),
   })),
   cases: [],
 };
+const installedVersion = run([pnpm, 'exec', 'latch', '--version']);
+assert.equal(installedVersion.output.trim(), version);
 results.cases.push({
   name: 'Installed latch bin entry point',
-  ...run([pnpm, 'exec', 'latch', '--version']),
+  ...installedVersion,
 });
 const children = [];
 try {
@@ -119,6 +128,7 @@ try {
       fs.readFileSync(path.join(root, 'examples', name, 'latch.config.json')),
     );
     const port = 5273 + i;
+    if (chromium) config.browser.channel = 'chromium';
     config.baseUrl = `http://127.0.0.1:${port}`;
     fs.writeFileSync(path.join(project, 'latch.config.json'), JSON.stringify(config, null, 2));
     for (const command of ['inspect', 'generate', 'check', 'apply'])
@@ -153,9 +163,17 @@ try {
     );
     children.push(child);
     let ready = false;
+    let output = '';
+    let error = '';
+    child.stdout.on('data', b => { output += b.toString().replace(/\u001b\[[0-9;]*m/g, ''); });
+    child.stderr.on('data', b => { error += b.toString(); });
+    child.on('error', e => { error = e.message; });
     for (let n = 0; n < 100; n++) {
+      if (child.exitCode !== null || error.includes('already in use')) throw Error(`Consumer server exited: ${error}`);
       try {
-        await fetch(config.baseUrl);
+        if (!output.includes(config.baseUrl)) throw Error('Waiting for owned server');
+        const response = await fetch(config.baseUrl);
+        if (!response.ok) throw Error('Consumer server HTTP error');
         ready = true;
         break;
       } catch {

@@ -1,4 +1,4 @@
-/** Chrome 153 document API adapter, verified 2026-09-08. No legacy API fallback. */
+/** Chrome 155 document API adapter. See the dated compatibility record. */
 export interface NativeTool {
   name: string;
   description: string;
@@ -10,7 +10,7 @@ export interface NativeContext {
   getTools(): Promise<Array<{ name: string }>>;
   executeTool(
     tool: object,
-    input: string,
+    input: object,
     options?: { signal: AbortSignal },
   ): Promise<string | null>;
 }

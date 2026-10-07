@@ -5,3 +5,4 @@ onlyBuiltDependencies:
   - esbuild
 overrides:
   vite>esbuild: 0.28.2
+  source-map-js: 1.2.2

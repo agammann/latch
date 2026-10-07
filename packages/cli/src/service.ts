@@ -84,7 +84,7 @@ export async function serve(root: string, port = 4545) {
           report,
           reportStale: report?.sourceHash !== fingerprint(root),
           compatibility: {
-            target: 'Chrome 153 · Document API',
+            target: 'Chrome 155 · Document API',
             configuration: 'WebMCPTesting flag',
             native: 'Run configured native tests to verify this project',
           },

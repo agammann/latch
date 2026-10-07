@@ -11,7 +11,7 @@ Install Git, Node 22 or later, and pnpm 10.17.1 or later. The repository pins pn
 Run these commands in a terminal:
 
 ```sh
-git clone https://github.com/agammann/latch.git
+git clone --branch v1.0.0 --depth 1 https://github.com/agammann/latch.git
 cd latch
 pnpm install --frozen-lockfile --ignore-scripts
 pnpm build
@@ -30,7 +30,7 @@ From the repository root, with ports **5173** and **5174** free:
 node scripts/ci-handler.mjs
 ```
 
-The script starts both development servers, runs the configured Handler cases and their UI assertions, writes `reports/ci-catalog.json` and `reports/ci-docs.json`, and stops its servers. For the 0.1.0 examples, expect **10 catalog cases and 6 documentation cases to pass**, with no failed or blocked cases. Native cases are explicitly recorded as not run in this lane. The checked-in configurations are unchanged.
+The script starts both development servers, runs the configured Handler cases and their UI assertions, writes `reports/ci-catalog.json` and `reports/ci-docs.json`, and stops its servers. Expect **10 catalog cases and 6 documentation cases to pass**, with no failed or blocked cases. Native cases are explicitly recorded as not run in this lane. The checked-in configurations are unchanged.
 
 ## 3. Explore the catalog and local console
 
@@ -54,7 +54,7 @@ To explore the documentation example instead, run `pnpm --dir examples/docs dev`
 
 ## 4. Run native tests when your browser is ready
 
-The shipped example configurations include required native cases. Read the [dated compatibility record](compatibility-2026-09-08.md) first. With the catalog server still running and the target Chrome installation available:
+The shipped example configurations include required native cases. Read the [dated compatibility record](compatibility-2026-10-06.md) first. With the catalog server still running and the target Chrome installation available:
 
 ```sh
 node packages/cli/dist/main.js test --root examples/catalog

@@ -41,7 +41,7 @@ For documentation changes, check the commands against the actual CLI, check rela
 
 ## Native release verification
 
-The unchanged examples include native tests and require the browser described in the [dated compatibility record](docs/compatibility-2026-09-08.md). With that target available and ports 5173 and 5174 free:
+The examples include native tests and require the browser described in the [current compatibility record](docs/compatibility-2026-10-06.md). With that target available and ports 5173 and 5174 free:
 
 ```sh
 pnpm verify
@@ -65,4 +65,4 @@ Package artifacts live in ignored `artifacts/`. Transient staging lives in ignor
 
 Keep changes focused and describe the observed problem, resulting behavior, and checks performed. Changes to the generator or ownership rules need regression coverage for preservation of handwritten source. Changes to browser behavior need evidence for the specific browser and API revision claimed. Update the relevant user guide when commands or configuration change.
 
-Package names remain unpublished local identifiers. Registry publication, license selection, and public compatibility claims require separate owner decisions. The repository is currently `UNLICENSED`; this guide does not grant reuse or contribution licensing rights.
+Package names remain unpublished local identifiers. Source and packages are [MIT licensed](LICENSE), with third-party terms retained in [notices](THIRD_PARTY_NOTICES.md). Follow the [v1 stability contract](docs/stability.md); additional browser/framework compatibility claims require actual verification. Main-only release automation publishes the verified six-package set after both platform gates pass, as described in [CI](docs/ci.md).
