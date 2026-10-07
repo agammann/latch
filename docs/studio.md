@@ -40,7 +40,7 @@ Once every contract and sample is valid, select **Download integration**. Its ZI
 | `PACKAGE_INSTALL.md`                         | Package setup instructions.                                       |
 | `studio-draft.json`                          | An editable copy of the Studio draft.                             |
 
-Obtain v1.0.0 runtime packages from the [installation guide](installation.md). Studio's separately maintained **Download runtime packages** ZIP has not been established as the matching v1 package set. Keep the six matching v1 tarballs available while installing and maintaining the integration.
+Studio version 5 includes the six matching v1.0.0 packages and SHA256SUMS in **Download runtime packages**. Its actual public download was compared byte for byte with the published GitHub package set on October 7, 2026 (UTC). The [installation guide](installation.md) also provides the immutable GitHub release links. Keep the six matching tarballs available while installing and maintaining the integration.
 
 Continue with [Installation](installation.md). Copy the configuration into your application, keep `preview/` outside application source, and let the CLI generate and own the installed files.
 
@@ -59,3 +59,11 @@ The downloads passed 31 checks covering the six integration files, ZIP integrity
 An older Studio consumer archive did not match the current bundle: its test runner predates the concurrent-call fix. That mismatch remains part of the historical record; current package parity was established against the later final consumer installation.
 
 This follow-up verified the public editor and downloads. It did not execute visitor handlers or make new native WebMCP calls. The separate [October 2 verification](../reports/verification-2026-10-02.json) records the earlier native execution and consumer checks. Packages remain local tarballs, and these results do not establish compatibility with arbitrary applications or browsers.
+
+## Delivered v1 release check — October 7, 2026 (UTC)
+
+[Latch v1.0.0](https://github.com/agammann/latch/releases/tag/v1.0.0) was published at `1f8c8e5954215518db061c0ca1d8b6baa7bbb94c` after the Windows/Linux source, handler, native and fresh-consumer checks passed. The six actual downloaded package archives, their sidecars and SHA256SUMS matched all 13 published asset digests and sizes. All 66 package files were present, with version 1.0.0 and MIT licensing in each package.
+
+A new consumer outside the source workspace installed that downloaded set, exercised the installed CLI, generated and applied both examples, built production bundles without the development bridge, and passed all 18 example cases on Chrome **155.0.8059.39**. This test used Node **24.19.0** and pnpm **11.19.0**. It verifies the delivered packages in the documented React/Vite fixtures, rather than arbitrary applications or agent hosts.
+
+The separate Studio source was updated and published as version **5**. In a fresh Chromium **153.0.8010.12** browser, its public editor passed sample rejection/correction, duplicate rejection, draft download/reload/restoration, actual integration/runtime downloads, and 1440/390/320 px layout checks without horizontal overflow or application console/page errors. Its downloaded runtime ZIP contains exactly the six published package bytes and SHA256SUMS. The integration ZIP contains six files, a schema-1 configuration, a typed v1 preview and versioned MIT package instructions. Studio does not run visitor handlers; the native evidence comes from the installed consumer above.

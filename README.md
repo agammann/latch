@@ -8,7 +8,7 @@ Latch turns selected functions in an existing React/Vite application into typed 
 
 ## Choose your starting point
 
-| I want toâ€¦                                                 | Start here                                 |
+| I want toâ€¦                                               | Start here                                 |
 | ---------------------------------------------------------- | ------------------------------------------ |
 | Define contracts and download an integration in my browser | [Latch Studio guide](docs/studio.md)       |
 | Try a working application before integrating my own        | [Example quickstart](docs/quickstart.md)   |
@@ -43,7 +43,7 @@ The [September compatibility record](docs/compatibility-2026-09-08.md), [Septemb
 
 The local CLI requires **Node 22+** and **pnpm 10.17.1+**. Integration targets an existing React, TypeScript, and Vite application. The [installation guide](docs/installation.md) lists tested versions and browser setup.
 
-Version **1.0.0** uses six prebuilt package tarballs with checksums in the [GitHub release](https://github.com/agammann/latch/releases/tag/v1.0.0). The `@latch-local/*` names are local distribution identifiers; packages have not been published to a registry. The public Studio runs on OpenAI Sites. This repository contains the CLI, runtime, local console, examples, and release evidence; the Studio website source is maintained separately. Studio runtime downloads have not been verified as the matching v1 package set. The [v1 stability contract](docs/stability.md) covers the CLI, typed runtime contracts and React/Vite integration.
+Version **1.0.0** uses six prebuilt package tarballs with checksums in the [GitHub release](https://github.com/agammann/latch/releases/tag/v1.0.0). The `@latch-local/*` names are local distribution identifiers; packages have not been published to a registry. The public Studio runs on OpenAI Sites. This repository contains the CLI, runtime, local console, examples, and release evidence; the Studio website source is maintained separately. Studio version 5 runtime downloads were verified against the six published v1.0.0 packages on October 7, 2026 (UTC); see the [delivered-release check](docs/studio.md#delivered-v1-release-check-october-7-2026-utc). The [v1 stability contract](docs/stability.md) covers the CLI, typed runtime contracts and React/Vite integration.
 
 ## Documentation and project status
 
