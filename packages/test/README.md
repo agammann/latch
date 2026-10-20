@@ -1,4 +1,4 @@
-# @latch-local/test 1.0.0
+# @latch-local/test 1.0.1
 
 Part of Latch: Connect your site. Verify every action.
 

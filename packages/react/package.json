@@ -1,6 +1,6 @@
 {
   "name": "@latch-local/react",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "description": "Latch react: Connect your site. Verify every action.",
   "license": "MIT",

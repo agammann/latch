@@ -1,4 +1,4 @@
-# @latch-local/react 1.0.0
+# @latch-local/react 1.0.1
 
 Part of Latch: Connect your site. Verify every action.
 

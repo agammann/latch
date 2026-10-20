@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1
+
+- Keep project-file reads tied to the checked descriptor and reject a swapped path before generating or applying an integration.
+- Keep CI handler requests on the fixed loopback test server even when example fixture data supplies another URL.
+- Verify the exact release tag before publishing the six matching package archives.
+
 ## 1.0.0
 
 2026-10-06

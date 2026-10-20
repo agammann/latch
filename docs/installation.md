@@ -14,10 +14,10 @@ The generator compiles against your `tsconfig.json`. The tested setup uses TypeS
 
 Choose one source:
 
-1. **From GitHub:** download all six `latch-local-*-1.0.0.tgz` assets and `SHA256SUMS` from the [v1.0.0 release](https://github.com/agammann/latch/releases/tag/v1.0.0). Verify each tarball against SHA256SUMS before installing it. On PowerShell, use `Get-FileHash <tarball> -Algorithm SHA256`; on Linux, run `sha256sum -c SHA256SUMS` in the download directory.
+1. **From GitHub:** download all six `latch-local-*-1.0.1.tgz` assets and `SHA256SUMS` from the [v1.0.1 release](https://github.com/agammann/latch/releases/tag/v1.0.1). Verify each tarball against SHA256SUMS before installing it. On PowerShell, use `Get-FileHash <tarball> -Algorithm SHA256`; on Linux, run `sha256sum -c SHA256SUMS` in the download directory.
 2. **From this repository:** follow the checkout and dependency steps in the [example quickstart](quickstart.md), then run `pnpm build` and `pnpm pack:local` from the Latch repository root. The tarballs are written to `artifacts/`.
 
-Studio is maintained separately. Its runtime download is not established as the v1.0.0 package set; obtain v1 packages through GitHub or a v1 source checkout. Studio integration configurations use schema 1 and must still pass your installed CLI checks.
+Studio is maintained separately. Its runtime download is not established as the v1.0.1 package set; obtain v1 packages through GitHub or a v1 source checkout. Studio integration configurations use schema 1 and must still pass your installed CLI checks.
 
 In your application, create `vendor/latch/` and copy all six tarballs into it. Keep the `.tgz` files intact; pnpm installs them directly. The following steps assume this directory structure:
 
@@ -28,12 +28,12 @@ your-app/
   tsconfig.json
   src/
   vendor/latch/
-    latch-local-contracts-1.0.0.tgz
-    latch-local-browser-1.0.0.tgz
-    latch-local-runtime-1.0.0.tgz
-    latch-local-react-1.0.0.tgz
-    latch-local-test-1.0.0.tgz
-    latch-local-cli-1.0.0.tgz
+    latch-local-contracts-1.0.1.tgz
+    latch-local-browser-1.0.1.tgz
+    latch-local-runtime-1.0.1.tgz
+    latch-local-react-1.0.1.tgz
+    latch-local-test-1.0.1.tgz
+    latch-local-cli-1.0.1.tgz
 ```
 
 For a pnpm workspace, put the overrides in the workspace root's `pnpm-workspace.yaml` and resolve their paths relative to that root. Run package installation commands in the application package. The example above assumes a single application root.
@@ -44,12 +44,12 @@ Add these entries to your application's `pnpm-workspace.yaml`. If the file exist
 
 ```yaml
 overrides:
-  '@latch-local/contracts': file:./vendor/latch/latch-local-contracts-1.0.0.tgz
-  '@latch-local/browser': file:./vendor/latch/latch-local-browser-1.0.0.tgz
-  '@latch-local/runtime': file:./vendor/latch/latch-local-runtime-1.0.0.tgz
-  '@latch-local/react': file:./vendor/latch/latch-local-react-1.0.0.tgz
-  '@latch-local/test': file:./vendor/latch/latch-local-test-1.0.0.tgz
-  '@latch-local/cli': file:./vendor/latch/latch-local-cli-1.0.0.tgz
+  '@latch-local/contracts': file:./vendor/latch/latch-local-contracts-1.0.1.tgz
+  '@latch-local/browser': file:./vendor/latch/latch-local-browser-1.0.1.tgz
+  '@latch-local/runtime': file:./vendor/latch/latch-local-runtime-1.0.1.tgz
+  '@latch-local/react': file:./vendor/latch/latch-local-react-1.0.1.tgz
+  '@latch-local/test': file:./vendor/latch/latch-local-test-1.0.1.tgz
+  '@latch-local/cli': file:./vendor/latch/latch-local-cli-1.0.1.tgz
 ```
 
 All six overrides are required because the packages depend on one another and are not published to a registry. Do not put these overrides only in `package.json`; pnpm 11 uses the workspace YAML settings. See the [pnpm settings reference](https://pnpm.io/settings).
@@ -57,12 +57,12 @@ All six overrides are required because the packages depend on one another and ar
 Now install the browser dependencies and developer tools:
 
 ```sh
-pnpm add --ignore-scripts ./vendor/latch/latch-local-contracts-1.0.0.tgz ./vendor/latch/latch-local-browser-1.0.0.tgz ./vendor/latch/latch-local-runtime-1.0.0.tgz ./vendor/latch/latch-local-react-1.0.0.tgz
-pnpm add -D --ignore-scripts ./vendor/latch/latch-local-test-1.0.0.tgz ./vendor/latch/latch-local-cli-1.0.0.tgz
+pnpm add --ignore-scripts ./vendor/latch/latch-local-contracts-1.0.1.tgz ./vendor/latch/latch-local-browser-1.0.1.tgz ./vendor/latch/latch-local-runtime-1.0.1.tgz ./vendor/latch/latch-local-react-1.0.1.tgz
+pnpm add -D --ignore-scripts ./vendor/latch/latch-local-test-1.0.1.tgz ./vendor/latch/latch-local-cli-1.0.1.tgz
 pnpm exec latch --version
 ```
 
-The version command should print `1.0.0`. The Latch tarballs are prebuilt and need no installation scripts. These commands skip dependency lifecycle scripts for this installation; keep your existing application's build dependencies configured separately. This also avoids pnpm 11 stopping on an unapproved dependency build script. Retain the tarballs at their configured paths for future installs. Registry lookups for `@latch-local/*` usually mean an override is missing or points at the wrong directory.
+The version command should print `1.0.1`. The Latch tarballs are prebuilt and need no installation scripts. These commands skip dependency lifecycle scripts for this installation; keep your existing application's build dependencies configured separately. This also avoids pnpm 11 stopping on an unapproved dependency build script. Retain the tarballs at their configured paths for future installs. Registry lookups for `@latch-local/*` usually mean an override is missing or points at the wrong directory.
 
 ## 3. Add your configuration and mount marker
 
