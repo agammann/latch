@@ -24,7 +24,7 @@
   "dependencies": {
     "@latch-local/contracts": "workspace:*",
     "@latch-local/test": "workspace:*",
-    "typescript": "5.9.3"
+    "typescript": "7.0.2"
   },
   "bin": {
     "latch": "./dist/main.js"
