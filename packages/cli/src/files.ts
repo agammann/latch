@@ -29,8 +29,37 @@ export function safe(root: string, relative: string) {
 }
 export function read(root: string, file: string) {
   const p = safe(root, file);
-  if (fs.statSync(p).size > 1024 * 1024) throw Error(`${file}: exceeds 1 MiB limit`);
-  return fs.readFileSync(p, 'utf8');
+  const descriptor = fs.openSync(
+    p,
+    fs.constants.O_RDONLY | (fs.constants.O_NOFOLLOW || 0) | (fs.constants.O_NONBLOCK || 0),
+  );
+  try {
+    const before = fs.fstatSync(descriptor, { bigint: true });
+    if (!before.isFile() || before.size > 1024n * 1024n)
+      throw Error(`${file}: exceeds 1 MiB limit or is not a regular file`);
+    const checked = safe(root, file);
+    const current = fs.statSync(checked, { bigint: true });
+    if (current.dev !== before.dev || current.ino !== before.ino)
+      throw Error(`${file}: file changed before read`);
+    const bytes = Buffer.alloc(Number(before.size));
+    let length = 0;
+    while (length < bytes.length) {
+      const count = fs.readSync(descriptor, bytes, length, bytes.length - length, length);
+      if (!count) throw Error(`${file}: file changed during read`);
+      length += count;
+    }
+    if (fs.readSync(descriptor, Buffer.alloc(1), 0, 1, length))
+      throw Error(`${file}: exceeds 1 MiB limit`);
+    const after = fs.fstatSync(descriptor, { bigint: true });
+    const finalPath = fs.statSync(safe(root, file), { bigint: true });
+    if (after.size !== before.size || after.mtimeNs !== before.mtimeNs || after.ctimeNs !== before.ctimeNs)
+      throw Error(`${file}: file changed during read`);
+    if (finalPath.dev !== before.dev || finalPath.ino !== before.ino)
+      throw Error(`${file}: file changed during read`);
+    return bytes.toString('utf8');
+  } finally {
+    fs.closeSync(descriptor);
+  }
 }
 export function installationSource(root: string, file: unknown): string {
   if (

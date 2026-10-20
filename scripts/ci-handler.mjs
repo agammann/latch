@@ -10,6 +10,9 @@ try {
     ['docs', 5174],
   ]) {
     const c = JSON.parse(fs.readFileSync(`examples/${example}/latch.config.json`));
+    const baseUrl = `http://127.0.0.1:${port}`;
+    if (c.baseUrl !== baseUrl) throw Error(`${example}: expected the owned local server`);
+    c.baseUrl = baseUrl;
     const nativeCases = native
       ? []
       : c.tests
@@ -52,7 +55,7 @@ try {
         throw Error(`Failed to start ${example}: ${startupError.trim()}`);
       try {
         if (!started) throw Error('Waiting for owned development server');
-        const response = await fetch(c.baseUrl);
+        const response = await fetch(baseUrl);
         if (!response.ok) throw Error('Development server returned an error');
         ready = true;
         break;
