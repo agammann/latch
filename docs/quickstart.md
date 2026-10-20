@@ -11,7 +11,7 @@ Install Git, Node 22 or later, and pnpm 10.17.1 or later. The repository pins pn
 Run these commands in a terminal:
 
 ```sh
-git clone --branch v1.0.0 --depth 1 https://github.com/agammann/latch.git
+git clone --branch v1.0.1 --depth 1 https://github.com/agammann/latch.git
 cd latch
 pnpm install --frozen-lockfile --ignore-scripts
 pnpm build
