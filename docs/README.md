@@ -1,6 +1,6 @@
 # Documentation
 
-[Repository home](../README.md) Â· [Open Latch Studio](https://latch-studio.alx21.chatgpt.site)
+[Repository home](../README.md) · [Open Latch Studio](https://latch-studio.alx21.chatgpt.site)
 
 ## Getting started
 
@@ -14,12 +14,12 @@
 
 ## Operating an integration
 
-| Topic                                                      | Guide                                                     |
-| ---------------------------------------------------------- | --------------------------------------------------------- |
-| Queues, committed state, scopes, cancellation, and errors  | [Runtime semantics](runtime.md)                           |
-| Regeneration, ownership, upgrades, and rollback            | [Maintenance and removal](maintenance.md)                 |
+| Topic                                                      | Guide                                                       |
+| ---------------------------------------------------------- | ----------------------------------------------------------- |
+| Queues, committed state, scopes, cancellation, and errors  | [Runtime semantics](runtime.md)                             |
+| Regeneration, ownership, upgrades, and rollback            | [Maintenance and removal](maintenance.md)                   |
 | Browser versions, native API behavior, and measured limits | [Current compatibility record](compatibility-2026-10-06.md) |
-| Automated Handler checks and separate native verification  | [CI lanes](ci.md)                                         |
+| Automated Handler checks and separate native verification  | [CI lanes](ci.md)                                           |
 
 ## Working on Latch
 

@@ -2,13 +2,13 @@
 
 **Connect your site. Verify every action.**
 
-**[Open Latch Studio](https://latch-studio.alx21.chatgpt.site)** Â· [Documentation](docs/README.md) Â· [Try the examples](docs/quickstart.md)
+**[Open Latch Studio](https://latch-studio.alx21.chatgpt.site)** · [Documentation](docs/README.md) · [Try the examples](docs/quickstart.md)
 
 Latch turns selected functions in an existing React/Vite application into typed WebMCP tools. You define a contract, connect a real handler, and verify its results and visible behavior as your application changes.
 
 ## Choose your starting point
 
-| I want toâ€¦                                               | Start here                                 |
+| I want to…                                                 | Start here                                 |
 | ---------------------------------------------------------- | ------------------------------------------ |
 | Define contracts and download an integration in my browser | [Latch Studio guide](docs/studio.md)       |
 | Try a working application before integrating my own        | [Example quickstart](docs/quickstart.md)   |
@@ -47,7 +47,7 @@ Version **1.0.1** uses six prebuilt package tarballs with checksums in the [GitH
 
 ## Documentation and project status
 
-[Documentation index](docs/README.md) Â· [Troubleshooting](docs/troubleshooting.md) Â· [Updates and removal](docs/maintenance.md) Â· [Release notes](RELEASE_NOTES.md) Â· [Changelog](CHANGELOG.md)
+[Documentation index](docs/README.md) · [Troubleshooting](docs/troubleshooting.md) · [Updates and removal](docs/maintenance.md) · [Release notes](RELEASE_NOTES.md) · [Changelog](CHANGELOG.md)
 
 The [release reports](reports) record specific runs and browser versions. They are historical evidence, not a claim that every later revision has passed those checks. The [development guide](CONTRIBUTING.md) explains how to run current checks and keep native verification separate from ordinary Chromium tests.
 
