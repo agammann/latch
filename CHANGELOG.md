@@ -16,7 +16,7 @@
 - Upgrade valid 0.1.0 ownership manifests through regeneration while retaining source hashes and rollback checks.
 - Patch the transitive source-map-js advisory to 1.2.2 without changing React or Vite.
 
-## 0.1.0 â€” 2026-09-08
+## 0.1.0 — 2026-09-08
 
 - Initial local release: bounded runtime contracts, explicit React/exported bindings, Chrome document adapter, deterministic generation, type compilation, install diff, apply/rollback protection and AST source suggestions.
 - Local console with project status, contracts, evidence, proposed changes and runnable regression reports.

@@ -1,6 +1,6 @@
 # CI and verification lanes
 
-[Documentation index](README.md) Â· [Development guide](../CONTRIBUTING.md)
+[Documentation index](README.md) · [Development guide](../CONTRIBUTING.md)
 
 The [GitHub workflow](../.github/workflows/ci.yml) checks the dependency audit, builds the packages, runs unit tests, and exercises both examples in ordinary and native Chromium lanes on Linux and Windows. The [recorded Linux release run](https://github.com/agammann/latch/actions/runs/34552048479) is historical evidence; consult the repository's Actions page for newer revisions.
 

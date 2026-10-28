@@ -1,6 +1,6 @@
 # Install Latch in your React/Vite project
 
-[Documentation index](README.md) Â· [Binding and contract reference](integration.md)
+[Documentation index](README.md) · [Binding and contract reference](integration.md)
 
 Use this guide after downloading an integration from Studio, or when configuring Latch directly in your application. Run the commands below from **your application's root**, unless a step explicitly says to use the Latch repository.
 
