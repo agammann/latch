@@ -194,6 +194,41 @@ test('preconditions are evaluated at execution time', async () => {
   assert.deepEqual(await s.invoke('search', { q: 'x' }), { q: 'x' });
   s.dispose();
 });
+test('update rejects a missing required precondition and keeps the prior binding', async () => {
+  const guarded = { ...contract, preconditions: ['allowed'] };
+  let originalCalls = 0;
+  let replacementCalls = 0;
+  const s = createScope(
+    [
+      {
+        contract: guarded,
+        handler: (x) => {
+          originalCalls++;
+          return x;
+        },
+        preconditions: { allowed: () => true },
+      },
+    ],
+    { adapter: unsupported },
+  );
+  assert.throws(
+    () =>
+      s.update([
+        {
+          contract: guarded,
+          handler: (x) => {
+            replacementCalls++;
+            return x;
+          },
+        },
+      ]),
+    { code: 'PRECONDITION' },
+  );
+  assert.deepEqual(await s.invoke('search', { q: 'still authorized' }), { q: 'still authorized' });
+  assert.equal(originalCalls, 1);
+  assert.equal(replacementCalls, 0);
+  s.dispose();
+});
 test('unsupported browser is a status, not a fake native API', async () => {
   const s = createScope([binding((x) => x)], { adapter: unsupported });
   assert.equal((await s.ready).registration, 'unsupported');
