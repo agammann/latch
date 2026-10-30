@@ -1,4 +1,4 @@
-# @latch-local/runtime 1.0.1
+# @latch-local/runtime 1.0.2
 
 Part of Latch: Connect your site. Verify every action.
 

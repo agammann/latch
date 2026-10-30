@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.2
+
+- Reject an updated binding that omits a required precondition, preserving the previous working binding.
+
 ## 1.0.1
 
 - Keep project-file reads tied to the checked descriptor and reject a swapped path before generating or applying an integration.

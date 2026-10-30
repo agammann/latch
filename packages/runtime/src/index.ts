@@ -154,6 +154,10 @@ export function createScope(bindings: Binding[], options: ScopeOptions = {}) {
         )
       )
         throw new LatchError('BINDING', 'Contracts changed: remount the scope');
+      for (const b of next)
+        for (const p of b.contract.preconditions)
+          if (typeof b.preconditions?.[p] !== 'function')
+            throw new LatchError('PRECONDITION', `${b.contract.name}: missing precondition ${p}`);
       current = next;
     },
     dispose() {

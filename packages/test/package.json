@@ -1,6 +1,6 @@
 {
   "name": "@latch-local/test",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "description": "Latch test: Connect your site. Verify every action.",
   "license": "MIT",
