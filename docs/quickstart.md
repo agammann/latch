@@ -11,16 +11,17 @@ Install Git, Node 22 or later, and pnpm 10.17.1 or later. The repository pins pn
 Run these commands in a terminal:
 
 ```sh
-git clone --branch v1.0.1 --depth 1 https://github.com/agammann/latch.git
+git clone --depth 1 https://github.com/agammann/latch.git
 cd latch
 pnpm install --frozen-lockfile --ignore-scripts
 pnpm build
+pnpm check:examples
 pnpm exec playwright install chromium
 ```
 
 On Linux, use `pnpm exec playwright install --with-deps chromium` if browser system dependencies are missing. Installing system dependencies may require administrator access.
 
-A successful build produces the six packages under `packages/*/dist` and bundles the local console into the CLI. The example source and its generated integrations are already tracked in the checkout.
+A successful build produces the six packages under `packages/*/dist` and bundles the local console into the CLI. This quickstart uses the current main branch. The example source and matching generated integrations are tracked in the checkout; `check:examples` verifies them before running the browser checks.
 
 ## 2. Run the ordinary browser checks
 
