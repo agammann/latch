@@ -6,6 +6,7 @@
   "packageManager": "pnpm@10.17.1",
   "scripts": {
     "build": "node scripts/build.mjs",
+    "check:examples": "node scripts/check-examples.mjs",
     "test": "node --test tests/*.test.mjs",
     "verify": "node scripts/verify.mjs",
     "verify:consumer": "node scripts/consumer.mjs",
