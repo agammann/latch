@@ -140,7 +140,7 @@ importers:
         version: link:../runtime
       react:
         specifier: '>=18.2.0 <20'
-        version: 19.2.4
+        version: 19.3.1
 
   packages/runtime:
     dependencies:
