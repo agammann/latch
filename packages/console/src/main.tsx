@@ -106,6 +106,9 @@ function App() {
           <>
             <div className="project-label">Project</div>
             <h2 className="project-name">{data.project}</h2>
+            {data.checked.compilerWarning ? (
+              <p role="status" className="notice">{data.checked.compilerWarning}</p>
+            ) : null}
             {page === 'Overview' && (
               <>
                 <section>

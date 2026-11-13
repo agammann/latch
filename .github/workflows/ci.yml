@@ -33,6 +33,7 @@ jobs:
       - run: pnpm check:examples
       - run: pnpm test
       - run: pnpm exec playwright install --with-deps chromium
+      - run: node scripts/ci-console-compiler.mjs
       - run: node scripts/ci-handler.mjs
       - run: node scripts/ci-handler.mjs --native
       - run: pnpm exec vite build examples/catalog

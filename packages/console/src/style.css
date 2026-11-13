@@ -228,6 +228,14 @@ select {
 .error {
   color: #a12631;
 }
+.notice {
+  color: #674800;
+  background: #fff8e7;
+  border: 1px solid #dec788;
+  border-radius: 5px;
+  padding: 12px 16px;
+  overflow-wrap: anywhere;
+}
 p {
   line-height: 1.6;
   color: #526176;
