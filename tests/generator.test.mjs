@@ -190,3 +190,60 @@ test('a syntactically valid stored hook must match the configured installation p
   assert.throws(() => apply(r), /plan changed/);
   assert.equal(fs.readFileSync(path.join(r, 'src/main.tsx'), 'utf8'), record.installation.before);
 });
+
+test('noCheck is rejected before an incompatible integration can be written', () => {
+  for (const inherited of [false, true]) {
+    const r = fixture();
+    const configPath = path.join(r, 'latch.config.json');
+    const config = JSON.parse(fs.readFileSync(configPath));
+    config.tools[0].resultSchema.properties.query = { type: 'number' };
+    fs.writeFileSync(configPath, JSON.stringify(config));
+    const tsconfigPath = path.join(r, 'tsconfig.json');
+    const tsconfig = JSON.parse(fs.readFileSync(tsconfigPath));
+    if (inherited) {
+      fs.writeFileSync(path.join(r, 'tsconfig.base.json'), JSON.stringify({ compilerOptions: { noCheck: true } }));
+      tsconfig.extends = './tsconfig.base.json';
+    } else tsconfig.compilerOptions.noCheck = true;
+    fs.writeFileSync(tsconfigPath, JSON.stringify(tsconfig));
+    const mainPath = path.join(r, 'src/main.tsx');
+    const before = fs.readFileSync(mainPath, 'utf8');
+    assert.throws(() => generate(r), /noCheck/);
+    assert.equal(fs.readFileSync(mainPath, 'utf8'), before);
+    assert.equal(fs.existsSync(path.join(r, 'src/latch.generated/integration.ts')), false);
+    assert.equal(fs.existsSync(path.join(r, '.latch/manifest.json')), false);
+  }
+});
+
+test('noCheck blocks check and apply without modifying an existing integration', () => {
+  const r = fixture();
+  generate(r);
+  const mainPath = path.join(r, 'src/main.tsx');
+  const integrationPath = path.join(r, 'src/latch.generated/integration.ts');
+  const manifestPath = path.join(r, '.latch/manifest.json');
+  const before = [mainPath, integrationPath, manifestPath].map((p) => fs.readFileSync(p, 'utf8'));
+  const tsconfigPath = path.join(r, 'tsconfig.json');
+  const tsconfig = JSON.parse(fs.readFileSync(tsconfigPath));
+  tsconfig.compilerOptions.noCheck = true;
+  fs.writeFileSync(tsconfigPath, JSON.stringify(tsconfig));
+  for (const operation of [check, apply]) assert.throws(() => operation(r), /noCheck/);
+  assert.deepEqual([mainPath, integrationPath, manifestPath].map((p) => fs.readFileSync(p, 'utf8')), before);
+});
+
+test('noCheck false still rejects an incompatible handler', () => {
+  const r = fixture();
+  const configPath = path.join(r, 'latch.config.json');
+  const config = JSON.parse(fs.readFileSync(configPath));
+  const validResult = config.tools[0].resultSchema.properties.query;
+  config.tools[0].resultSchema.properties.query = { type: 'number' };
+  fs.writeFileSync(configPath, JSON.stringify(config));
+  const tsconfigPath = path.join(r, 'tsconfig.json');
+  const tsconfig = JSON.parse(fs.readFileSync(tsconfigPath));
+  tsconfig.compilerOptions.noCheck = false;
+  fs.writeFileSync(tsconfigPath, JSON.stringify(tsconfig));
+  assert.throws(() => generate(r), /not assignable/);
+  assert.equal(fs.existsSync(path.join(r, 'src/latch.generated/integration.ts')), false);
+  config.tools[0].resultSchema.properties.query = validResult;
+  fs.writeFileSync(configPath, JSON.stringify(config));
+  assert.doesNotThrow(() => generate(r));
+  assert.equal(check(r).generatedTypes, 'compiled');
+});

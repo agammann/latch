@@ -179,6 +179,8 @@ export function compile(root: string, overlay: Record<string, string> = {}) {
   );
   if (config.errors.length)
     throw Error(ts.flattenDiagnosticMessageText(config.errors[0].messageText, '\n'));
+  if (config.options.noCheck)
+    throw Error('tsconfig.json: noCheck disables semantic validation; remove it or set it to false');
   const host = ts.createCompilerHost(config.options);
   const originals = {
     read: host.readFile,
