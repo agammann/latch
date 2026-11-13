@@ -19,11 +19,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
         with:
           version: 10.17.1
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: 22
           cache: pnpm
@@ -41,7 +41,7 @@ jobs:
         run: node scripts/pack.mjs
       - run: node scripts/audit-artifacts.mjs
       - run: pnpm verify:consumer ../latch-clean-consumer --chromium
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: matrix.os == 'ubuntu-latest'
         with:
           name: latch-packages
@@ -51,29 +51,112 @@ jobs:
             artifacts/latch-local-*-${{ steps.package.outputs.version }}.tgz.sha256
             artifacts/SHA256SUMS
           if-no-files-found: error
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
           name: latch-reports-${{ matrix.os }}
           overwrite: true
           path: reports/
-  publish:
+  artifact-transfer:
     needs: handler-and-unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Download release artifact (first attempt)
+        id: download1
+        continue-on-error: true
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: latch-packages
+          path: release-artifacts
+      - name: Wait before second attempt
+        if: steps.download1.outcome == 'failure'
+        run: sleep 10
+      - name: Download release artifact (second attempt)
+        id: download2
+        if: steps.download1.outcome == 'failure'
+        continue-on-error: true
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: latch-packages
+          path: release-artifacts
+      - name: Wait before final attempt
+        if: steps.download2.outcome == 'failure'
+        run: sleep 20
+      - name: Download release artifact (final attempt)
+        if: steps.download2.outcome == 'failure'
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: latch-packages
+          path: release-artifacts
+      - name: Verify transferred checksums
+        working-directory: release-artifacts
+        run: sha256sum -c SHA256SUMS
+      - name: Exercise release script without writes
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const fs = require('node:fs');
+            const assert = require('node:assert/strict');
+            const publish = require('./scripts/release.cjs');
+            const version = JSON.parse(fs.readFileSync('package.json', 'utf8')).version;
+            const mock = { rest: { repos: { listReleases: () => { throw new Error('Unexpected API call'); } } }, paginate: async () => [{ tag_name: 'v' + version, draft: false }] };
+            const logs = [];
+            await publish({ github: mock, context: { eventName: 'workflow_dispatch', ref: 'refs/heads/main', sha: context.sha, repo: context.repo }, core: { info: message => logs.push(message) } });
+            assert.ok(logs.some(message => message.includes('already published; leaving it unchanged')));
+  artifact-missing-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe a nonexistent artifact
+        id: missing
+        continue-on-error: true
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: latch-nonexistent-transfer-guard
+      - name: Reject an unexpected missing-artifact result
+        if: always() && steps.missing.outcome != 'failure'
+        run: exit 1
+  publish:
+    needs: [handler-and-unit, artifact-transfer, artifact-missing-guard]
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+      - name: Download release artifact (first attempt)
+        id: download1
+        continue-on-error: true
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: latch-packages
           path: release-artifacts
-      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+      - name: Wait before second attempt
+        if: steps.download1.outcome == 'failure'
+        run: sleep 10
+      - name: Download release artifact (second attempt)
+        id: download2
+        if: steps.download1.outcome == 'failure'
+        continue-on-error: true
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: latch-packages
+          path: release-artifacts
+      - name: Wait before final attempt
+        if: steps.download2.outcome == 'failure'
+        run: sleep 20
+      - name: Download release artifact (final attempt)
+        if: steps.download2.outcome == 'failure'
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: latch-packages
+          path: release-artifacts
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |
             const publish = require('./scripts/release.cjs');
