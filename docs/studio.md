@@ -23,7 +23,7 @@ The starter values are examples. They do not establish that your handler exists 
 
 In **Test samples**, supply a representative input and the result your real handler should return. Select **Check sample values**. A successful check means the values match the schemas; it does not execute the handler.
 
-In **Project setup**, set the application's loopback development URL and installation component. Studio exports Handler tests. Native invocation must be configured and verified separately using the [current compatibility record](compatibility-2026-10-06.md).
+In **Project setup**, set the application's loopback development URL and installation component. Studio exports Handler tests. Native invocation must be configured and verified separately using the [current compatibility record](compatibility-2026-11-13.md).
 
 ## 3. Save and download
 

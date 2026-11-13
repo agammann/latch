@@ -55,7 +55,7 @@ To explore the documentation example instead, run `pnpm --dir examples/docs dev`
 
 ## 4. Run native tests when your browser is ready
 
-The shipped example configurations include required native cases. Read the [dated compatibility record](compatibility-2026-10-06.md) first. With the catalog server still running and the target Chrome installation available:
+The shipped example configurations include required native cases. Read the [dated compatibility record](compatibility-2026-11-13.md) first. With the catalog server still running and the target Chrome installation available:
 
 ```sh
 node packages/cli/dist/main.js test --root examples/catalog

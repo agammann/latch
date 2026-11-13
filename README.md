@@ -35,7 +35,7 @@ No account or API key is required. Editing and generation happen in the browser.
 | Handler and UI tests              | The validated wrapper returns expected results and configured UI assertions pass against your running development app. |
 | Native tests                      | A compatible browser registers, discovers, and invokes the tools, with cleanup checked where configured.               |
 
-Native WebMCP support is experimental. The current target is Chrome **155.0.8059.39** with `WebMCPTesting` enabled and object inputs to `document.modelContext.executeTool`. See the [October 6 compatibility record](docs/compatibility-2026-10-06.md) for the measured API forms and scope. Native absence or blocked execution produces a failing check; ordinary application UI remains available when WebMCP is unsupported.
+Native WebMCP support is experimental. The measured targets include Chrome **155.0.8059.39** and Playwright's Chromium **156.0.8078.4**, with `WebMCPTesting` enabled and object inputs to `document.modelContext.executeTool`. See the [current compatibility record](docs/compatibility-2026-11-13.md) for the measured API forms and scope. Native absence or blocked execution produces a failing check; ordinary application UI remains available when WebMCP is unsupported.
 
 The [September compatibility record](docs/compatibility-2026-09-08.md), [September acceptance check](reports/acceptance-2026-09-19.md), and [October 2 verification](reports/verification-2026-10-02.json) retain their original Chrome 153/154 and Chromium 153 evidence. Run the [current verification commands](docs/ci.md) for the revision you are using.
 

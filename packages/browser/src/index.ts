@@ -1,4 +1,4 @@
-/** Chrome 155 document API adapter. See the dated compatibility record. */
+/** Chrome 155/Chromium 156 document API adapter. See the dated compatibility record. */
 export interface NativeTool {
   name: string;
   description: string;

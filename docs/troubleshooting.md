@@ -13,7 +13,7 @@
 | `pnpm` is not recognized                              | Install pnpm and reopen the terminal. Confirm `node --version` and `pnpm --version` before the setup steps.                                                                              |
 | `latch` is not recognized                             | Run `pnpm exec latch` from the application where the CLI package is installed. A global installation is not required.                                                                    |
 | `ERR_PNPM_IGNORED_BUILDS` during package installation | The prebuilt Latch packages need no install scripts. Use the documented `pnpm add --ignore-scripts` commands. Configure build scripts needed by your existing application separately.    |
-| `playwright` is not recognized in a consumer app      | Add `playwright@1.58.2` as a direct development dependency before using `pnpm exec playwright install chromium`, as described in Installation.                                           |
+| `playwright` is not recognized in a consumer app      | Add `playwright@1.64.1` as a direct development dependency before using `pnpm exec playwright install chromium`, as described in Installation.                                           |
 | Port already in use                                   | Stop the process you started on that port, or deliberately update the application origin and configuration together. The supplied scripts use strict ports and will not silently switch. |
 
 ## Integration and tests
