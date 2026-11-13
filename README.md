@@ -31,7 +31,7 @@ No account or API key is required. Editing and generation happen in the browser.
 | Check                             | What it establishes                                                                                                    |
 | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | Studio contract and sample checks | Schemas and example values are valid. Your handler has not run.                                                        |
-| CLI `generate` and `check`        | Explicit mappings resolve and the generated integration passes TypeScript checks in your application.                  |
+| CLI `generate` and `check`        | Explicit mappings resolve and the generated integration passes Latch's bundled TypeScript checks using your application configuration. |
 | Handler and UI tests              | The validated wrapper returns expected results and configured UI assertions pass against your running development app. |
 | Native tests                      | A compatible browser registers, discovers, and invokes the tools, with cleanup checked where configured.               |
 

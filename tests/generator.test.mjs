@@ -247,3 +247,58 @@ test('noCheck false still rejects an incompatible handler', () => {
   assert.doesNotThrow(() => generate(r));
   assert.equal(check(r).generatedTypes, 'compiled');
 });
+
+test('reports the bundled compiler and warns about a different project compiler without loading it', () => {
+  const r = fixture();
+  const packageDir = path.join(r, 'workspace-typescript');
+  fs.mkdirSync(packageDir, { recursive: true });
+  fs.writeFileSync(path.join(packageDir, 'package.json'), JSON.stringify({ name: 'typescript', version: '7.0.2', main: 'index.js' }));
+  fs.writeFileSync(path.join(packageDir, 'index.js'), 'throw new Error("project compiler must not be loaded");');
+  fs.mkdirSync(path.join(r, 'node_modules'), { recursive: true });
+  fs.symlinkSync(packageDir, path.join(r, 'node_modules/typescript'), 'junction');
+  const warnings = [];
+  const previous = console.warn;
+  console.warn = (message) => warnings.push(message);
+  try {
+    const generated = generate(r);
+    const checked = check(r);
+    assert.equal(generated.typescriptCompiler, '5.9.3');
+    assert.equal(checked.typescriptCompiler, '5.9.3');
+    assert.equal(generated.compilerWarning, warnings[0]);
+    assert.equal(checked.compilerWarning, warnings[1]);
+  } finally { console.warn = previous; }
+  assert.equal(warnings.length, 2);
+  for (const warning of warnings) assert.match(warning, /TypeScript 5\.9\.3.*TypeScript 7\.0\.2/);
+});
+
+test('finds the matching compiler in an ancestor workspace', () => {
+  const r = fixture();
+  const warnings = [];
+  const previous = console.warn;
+  console.warn = (message) => warnings.push(message);
+  try {
+    const generated = generate(r);
+    assert.equal(generated.typescriptCompiler, '5.9.3');
+    assert.equal(generated.compilerWarning, undefined);
+  }
+  finally { console.warn = previous; }
+  assert.deepEqual(warnings, []);
+});
+
+test('warns when project compiler metadata cannot be identified', () => {
+  const r = fixture();
+  const packageDir = path.join(r, 'node_modules/typescript');
+  fs.mkdirSync(packageDir, { recursive: true });
+  fs.writeFileSync(path.join(packageDir, 'package.json'), JSON.stringify({ name: 'typescript' }));
+  const warnings = [];
+  const previous = console.warn;
+  console.warn = (message) => warnings.push(message);
+  try {
+    const generated = generate(r);
+    assert.equal(generated.typescriptCompiler, '5.9.3');
+    assert.equal(generated.compilerWarning, warnings[0]);
+  }
+  finally { console.warn = previous; }
+  assert.equal(warnings.length, 1);
+  assert.match(warnings[0], /TypeScript 5\.9\.3.*could not be determined/);
+});
