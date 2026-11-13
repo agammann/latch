@@ -106,12 +106,12 @@ Choose a browser setup:
 | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
 | Installed Google Chrome, ordinary Handler tests | `"browser": { "channel": "chrome", "native": false }`                                                |
 | Playwright Chromium, ordinary Handler tests     | Install Chromium as shown below, then set `"browser": { "channel": "chromium", "native": false }`    |
-| Native WebMCP verification                      | Follow the separate [compatibility record](compatibility-2026-10-06.md) and configure a native test. |
+| Native WebMCP verification                      | Follow the separate [compatibility record](compatibility-2026-11-13.md) and configure a native test. |
 
 For Chromium in a consumer application, add the CLI directly so `pnpm exec playwright` is available:
 
 ```sh
-pnpm add -D --ignore-scripts playwright@1.63.0
+pnpm add -D --ignore-scripts playwright@1.64.1
 pnpm exec playwright install chromium
 ```
 

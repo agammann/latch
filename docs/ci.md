@@ -26,7 +26,7 @@ After the same build and browser installation, run `node scripts/ci-handler.mjs 
 
 ## Native release lane
 
-Use the target Chrome installation described in the [compatibility record](compatibility-2026-10-06.md), keep the unchanged example configurations, and run `pnpm verify`. Retain reports that record the actual browser version. If Chrome or its API is unavailable, the native case must remain blocked with a nonzero exit. A passing Handler lane does not substitute for this evidence.
+Use the target Chrome installation described in the [compatibility record](compatibility-2026-11-13.md), keep the unchanged example configurations, and run `pnpm verify`. Retain reports that record the actual browser version. If Chrome or its API is unavailable, the native case must remain blocked with a nonzero exit. A passing Handler lane does not substitute for this evidence.
 
 Full verification also runs the intentional regression demonstration. That script requires the documentation development server on port 5174 when run separately as `pnpm regression:demo`. It detects a wrong handler result shape, verifies the corrected mapping, and restores the original source and configuration in `finally`.
 
