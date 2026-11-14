@@ -3850,7 +3850,7 @@ Repository: https://github.com/websockets/ws
 
 ## typescript6@6.0.2 and typescript7@7.0.2
 
-Declared license: Apache-2.0. The TypeScript 6 third-party notices are identical to those already included for TypeScript 5.9.3. TypeScript 7 and its native Windows binary contain the following license and notice text.
+Declared license: Apache-2.0. The TypeScript 6 third-party notices are identical to those already included for TypeScript 5.9.3. TypeScript 7 and its native platform binaries contain the following license and notice text.
 
 LICENSE
 

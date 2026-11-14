@@ -24,7 +24,7 @@ const typescript = path.join(root, 'node_modules/typescript');
 fs.mkdirSync(typescript, { recursive: true });
 const manifest = path.join(typescript, 'package.json');
 fs.writeFileSync(manifest, JSON.stringify({ name: 'typescript', version: '6.0.2' }));
-generate(root);
+await generate(root);
 const { server, url } = await serve(root, 0);
 let browser;
 try {

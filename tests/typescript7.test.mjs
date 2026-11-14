@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
 import { compileNative7 } from '../packages/cli/dist/ts7.js';
 
 const base = path.resolve('work/tests');
@@ -10,20 +11,32 @@ fs.mkdirSync(base, { recursive: true });
 const fixture = () => fs.mkdtempSync(path.join(base, 'typescript7-'));
 const compiler = path.resolve('packages/cli/node_modules/typescript7/bin/tsc');
 
-test('native 7 validation rejects incompatible virtual files without writes', () => {
+test('native 7 validation rejects incompatible virtual files without writes', async () => {
   const root = fixture();
   fs.mkdirSync(path.join(root, 'src'));
   fs.writeFileSync(path.join(root, 'tsconfig.json'), JSON.stringify({compilerOptions:{types:[],noEmit:true},include:['src']}));
   const source = path.join(root, 'src/main.ts');
   fs.writeFileSync(source, 'export const original = 1;');
   const before = fs.readFileSync(source, 'utf8');
-  assert.doesNotThrow(() => compileNative7(root, {}));
-  assert.throws(() => compileNative7(root, { 'src/new/integration.ts': 'export const value: number = "incorrect";' }), /not assignable/);
+  await assert.doesNotReject(() => compileNative7(root, {}));
+  await assert.rejects(() => compileNative7(root, { 'src/new/integration.ts': 'export const value: number = "incorrect";' }), /not assignable/);
   assert.equal(fs.readFileSync(source, 'utf8'), before);
   assert.equal(fs.existsSync(path.join(root, 'src/new')), false);
 });
 
-test('native 7 checks every configured root extension', () => {
+test('native 7 checks the virtual source when it corrects an existing error', async () => {
+  const root = fixture();
+  fs.mkdirSync(path.join(root, 'src'));
+  fs.writeFileSync(path.join(root, 'tsconfig.json'), JSON.stringify({compilerOptions:{types:[],noEmit:true},include:['src']}));
+  const source = path.join(root, 'src/index.ts');
+  const invalid = 'export const value: number = "incorrect";';
+  fs.writeFileSync(source, invalid);
+  await assert.rejects(() => compileNative7(root, {}), /not assignable/);
+  await assert.doesNotReject(() => compileNative7(root, { 'src/index.ts': 'export const value: number = 1;' }));
+  assert.equal(fs.readFileSync(source, 'utf8'), invalid);
+});
+
+test('native 7 checks every configured root extension', async () => {
   for (const [file, source, options] of [
     ['bad.js', '/** @type {number} */ const value = "bad";', {allowJs:true,checkJs:true}],
     ['bad.jsx', '/** @type {number} */ const value = "bad";', {allowJs:true,checkJs:true,jsx:'preserve'}],
@@ -36,11 +49,40 @@ test('native 7 checks every configured root extension', () => {
     fs.writeFileSync(path.join(root, 'src', file), source);
     const native = spawnSync(process.execPath, [compiler, '--project', root], {encoding:'utf8'});
     assert.match(native.stdout, /TS2322/, file);
-    assert.throws(() => compileNative7(root, {}), /not assignable/, file);
+    await assert.rejects(() => compileNative7(root, {}), /not assignable/, file);
   }
 });
 
-test('native 7 honors inherited paths and never writes trace, build info, or plugin output', () => {
+test('native 7 preserves original emit-layout diagnostics without writing output', async () => {
+  const root = fixture();
+  const reference = fixture();
+  fs.mkdirSync(path.join(root, 'src'));
+  fs.mkdirSync(path.join(reference, 'src'));
+  const source = path.join(root, 'src/index.ts');
+  fs.writeFileSync(source, 'export const value: number = 1;');
+  fs.writeFileSync(path.join(reference, 'src/index.ts'), 'export const value: number = 1;');
+  const config = {compilerOptions:{types:[],declaration:true,emitDeclarationOnly:true,outDir:'dist'},include:['src']};
+  const configFile = path.join(root, 'tsconfig.json');
+  const referenceConfig = path.join(reference, 'tsconfig.json');
+  fs.writeFileSync(configFile, JSON.stringify(config));
+  fs.writeFileSync(referenceConfig, JSON.stringify(config));
+  const cli = spawnSync(process.execPath, [compiler, '--project', reference], {encoding:'utf8'});
+  assert.notEqual(cli.status, 0);
+  assert.match(cli.stdout, /TS5011/);
+  await assert.rejects(() => compileNative7(root, {}), /rootDir/);
+  assert.equal(fs.existsSync(path.join(root, 'dist')), false);
+  assert.equal(fs.readFileSync(source, 'utf8'), 'export const value: number = 1;');
+
+  config.compilerOptions.rootDir = 'src';
+  fs.writeFileSync(configFile, JSON.stringify(config));
+  fs.writeFileSync(referenceConfig, JSON.stringify(config));
+  await assert.doesNotReject(() => compileNative7(root, {}));
+  assert.equal(fs.existsSync(path.join(root, 'dist')), false);
+  const valid = spawnSync(process.execPath, [compiler, '--project', reference], {encoding:'utf8'});
+  assert.equal(valid.status, 0, valid.stdout + valid.stderr);
+});
+
+test('native 7 honors inherited paths and never writes trace, build info, or plugin output', async () => {
   const root = fixture();
   const project = path.join(root, 'project');
   const output = path.join(root, 'outside-output');
@@ -54,17 +96,17 @@ test('native 7 honors inherited paths and never writes trace, build info, or plu
   fs.writeFileSync(path.join(project, 'tsconfig.json'), JSON.stringify(config));
   fs.writeFileSync(path.join(project, 'src/helper.ts'), 'export const value: number = 7;');
   fs.writeFileSync(path.join(project, 'src/index.ts'), 'import { value } from "@internal/helper"; export const result: number = value;');
-  assert.doesNotThrow(() => compileNative7(project, {}));
+  await assert.doesNotReject(() => compileNative7(project, {}));
   assert.equal(fs.existsSync(output), false);
   assert.equal(fs.existsSync(marker), false);
   config.references = [{path:'./missing-reference'}];
   fs.writeFileSync(path.join(project, 'tsconfig.json'), JSON.stringify(config));
-  assert.throws(() => compileNative7(project, {}));
+  await assert.rejects(() => compileNative7(project, {}));
   assert.equal(fs.existsSync(output), false);
   assert.equal(fs.existsSync(marker), false);
 });
 
-test('native 7 agrees with the CLI for built and unbuilt project references', () => {
+test('native 7 agrees with the CLI for built and unbuilt project references', async () => {
   const root = fixture();
   const app = path.join(root, 'app');
   const lib = path.join(root, 'lib');
@@ -77,50 +119,98 @@ test('native 7 agrees with the CLI for built and unbuilt project references', ()
   const before = spawnSync(process.execPath, [compiler, '--project', app, '--noEmit'], {encoding:'utf8'});
   assert.notEqual(before.status, 0);
   assert.match(before.stdout, /TS6305/);
-  assert.throws(() => compileNative7(app, {}), /has not been built/);
+  await assert.rejects(() => compileNative7(app, {}), /has not been built/);
   const build = spawnSync(process.execPath, [compiler, '--build', lib], {encoding:'utf8'});
   assert.equal(build.status, 0, build.stdout + build.stderr);
   const after = spawnSync(process.execPath, [compiler, '--project', app, '--noEmit'], {encoding:'utf8'});
   assert.equal(after.status, 0, after.stdout + after.stderr);
-  assert.doesNotThrow(() => compileNative7(app, {}));
+  await assert.doesNotReject(() => compileNative7(app, {}));
 });
 
-test('native supervisor fails closed and reaps children on timeout or worker death', () => {
-  // Copy the compiled workers beneath the CLI so normal package resolution is
-  // preserved. Only the copied timeout is shortened for this regression test.
+test('direct owner fails closed and reaps children on timeout or worker death', { timeout: 30_000 }, async () => {
   const base = path.resolve('packages/cli/work/tests');
-  fs.mkdirSync(base, {recursive:true});
+  fs.mkdirSync(base, { recursive: true });
   for (const mode of ['timeout', 'worker-death']) {
-    const root = fs.mkdtempSync(path.join(base, `lifecycle-${mode}-`));
+    const root = fs.mkdtempSync(path.join(base, `owner-${mode}-`));
     const dist = path.join(root, 'dist');
     const project = path.join(root, 'project');
     fs.mkdirSync(dist);
-    fs.mkdirSync(path.join(project, 'src'), {recursive:true});
-    fs.writeFileSync(path.join(project, 'tsconfig.json'), JSON.stringify({compilerOptions:{types:[]},include:['src']}));
+    fs.mkdirSync(path.join(project, 'src'), { recursive: true });
+    fs.writeFileSync(path.join(project, 'tsconfig.json'), JSON.stringify({ compilerOptions: { types: [] }, include: ['src'] }));
     fs.writeFileSync(path.join(project, 'src/index.ts'), 'export const value = 1;');
-    for (const name of ['files.js', 'ts7-pipe-worker.js'])
+    for (const name of ['files.js', 'fs-observations.js', 'ts7-pipe-worker.js'])
       fs.copyFileSync(path.resolve('packages/cli/dist', name), path.join(dist, name));
     const nativePidFile = path.join(root, 'native-pid');
     const workerPidFile = path.join(root, 'worker-pid');
-    let source = fs.readFileSync(path.resolve('packages/cli/dist/ts7-supervisor.js'), 'utf8');
-    assert.match(source, /const worker = fork\(/);
+    let source = fs.readFileSync(path.resolve('packages/cli/dist/ts7.js'), 'utf8');
     assert.match(source, /const nativeClosed =/);
+    assert.match(source, /const workerClosed =/);
     assert.match(source, /60_000\);/);
-    source = source.replace('const worker = fork(', `native.once('spawn', () => fs.writeFileSync(${JSON.stringify(nativePidFile)}, String(native.pid)));\nconst worker = fork(`);
-    source = source.replace('const nativeClosed =', `worker.once('spawn', () => { fs.writeFileSync(${JSON.stringify(workerPidFile)}, String(worker.pid)); ${mode === 'worker-death' ? "worker.kill('SIGKILL');" : ''} });\nconst nativeClosed =`);
-    if (mode === 'timeout') source = source.replace('60_000);', '1);');
-    const supervisor = path.join(dist, 'ts7-supervisor.js');
-    fs.writeFileSync(supervisor, source);
-    const run = spawnSync(process.execPath, [supervisor], {input:JSON.stringify({root:project,overlay:{}}),encoding:'utf8',timeout:15000});
-    assert.equal(run.status, 0, run.stderr);
-    const result = JSON.parse(run.stdout);
-    assert.equal(result.ok, false);
-    assert.match(result.error, mode === 'timeout' ? /timed out/ : /exited unexpectedly|worker failed/);
+    assert.match(source, /worker\.send\(\{ root, overlay \}\);/);
+    source = source.replace('const nativeClosed =', `native.once('spawn', () => fs.writeFileSync(${JSON.stringify(nativePidFile)}, String(native.pid)));\nconst nativeClosed =`);
+    source = source.replace('const workerClosed =', `worker.once('spawn', () => { fs.writeFileSync(${JSON.stringify(workerPidFile)}, String(worker.pid)); ${mode === 'worker-death' ? "worker.kill('SIGKILL');" : ''} });\nconst workerClosed =`);
+    if (mode === 'timeout') {
+      source = source.replace('60_000);', '1_000);');
+      source = source.replace('worker.send({ root, overlay });', ';');
+    }
+    fs.writeFileSync(path.join(dist, 'ts7.js'), source);
+    const { compileNative7: testCompile } = await import(pathToFileURL(path.join(dist, 'ts7.js')).href);
+    await assert.rejects(() => testCompile(project, {}), mode === 'timeout' ? /timed out/ : /exited unexpectedly|worker failed/);
     for (const file of [nativePidFile, workerPidFile]) {
       const pid = Number(fs.readFileSync(file, 'utf8'));
       assert.throws(() => process.kill(pid, 0), error => error.code === 'ESRCH');
       if (process.platform === 'linux') assert.equal(fs.existsSync(`/proc/${pid}`), false);
     }
     assert.deepEqual(fs.readdirSync(project).sort(), ['src', 'tsconfig.json']);
+  }
+});
+
+test('a refused child termination is bounded and blocks further validation until reaped', { timeout: 30_000, skip: process.platform === 'win32' }, async () => {
+  const base = path.resolve('packages/cli/work/tests');
+  fs.mkdirSync(base, { recursive: true });
+  const root = fs.mkdtempSync(path.join(base, 'owner-refusal-'));
+  const dist = path.join(root, 'dist');
+  const project = path.join(root, 'project');
+  fs.mkdirSync(dist);
+  fs.mkdirSync(project);
+  fs.writeFileSync(path.join(project, 'tsconfig.json'), JSON.stringify({ compilerOptions: { types: [], noEmit: true }, files: ['index.ts'] }));
+  fs.writeFileSync(path.join(project, 'index.ts'), 'export const value: number = 1;');
+  for (const name of ['files.js', 'fs-observations.js', 'ts7-pipe-worker.js'])
+    fs.copyFileSync(path.resolve('packages/cli/dist', name), path.join(dist, name));
+  let source = fs.readFileSync(path.resolve('packages/cli/dist/ts7.js'), 'utf8');
+  const anchor = "const nativeClosed = new Promise(resolve => native.once('close', () => { nativeDidClose = true; resolve(); }));";
+  assert.ok(source.includes(anchor) && source.includes('60_000'));
+  source = source.replace(anchor, anchor + `
+    if (!globalThis.__latchRefusalChild) {
+      native.once('spawn', () => {
+        const originalKill = native.kill.bind(native);
+        originalKill('SIGSTOP');
+        globalThis.__latchRefusalChild = { child: native, stop: () => originalKill('SIGKILL') };
+        native.kill = () => { const error = Error('synthetic permission refusal'); error.code = 'EPERM'; throw error; };
+      });
+    }`);
+  source = source.replace('60_000', '1500');
+  fs.writeFileSync(path.join(dist, 'ts7.js'), source);
+  const { compileNative7: testCompile } = await import(pathToFileURL(path.join(dist, 'ts7.js')).href);
+  try {
+    const start = Date.now();
+    await assert.rejects(() => testCompile(project, {}), /cleanup failed/);
+    assert.ok(Date.now() - start < 10_000, 'cleanup must finish within its bounded grace period');
+    const owned = globalThis.__latchRefusalChild;
+    assert.ok(owned?.child.pid);
+    await assert.rejects(() => testCompile(project, {}), /previous TypeScript compiler is still shutting down/);
+    assert.deepEqual(fs.readdirSync(project).sort(), ['index.ts', 'tsconfig.json']);
+    const closed = new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(Error('owned compiler did not close')), 5_000);
+      owned.child.once('close', () => { clearTimeout(timer); resolve(); });
+    });
+    owned.stop();
+    await closed;
+    await assert.doesNotReject(() => testCompile(project, {}));
+    assert.deepEqual(fs.readdirSync(project).sort(), ['index.ts', 'tsconfig.json']);
+  } finally {
+    const owned = globalThis.__latchRefusalChild;
+    if (owned && owned.child.exitCode === null && owned.child.signalCode === null) owned.stop();
+    delete globalThis.__latchRefusalChild;
   }
 });

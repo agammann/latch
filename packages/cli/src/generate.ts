@@ -1,13 +1,55 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import ts from 'typescript';
-import { bindingCompiler, projectVersion } from './compiler.js';
+import { bindingCompiler, compilerSnapshot, projectVersion } from './compiler.js';
 import { compileNative7 } from './ts7.js';
+import { verifyObservations } from './fs-observations.js';
 import { loadConfig, schemaType, type Config } from './config.js';
 import { hash, installationSource, json, read, safe, write } from './files.js';
 import { VERSION } from './version.js';
 const dir = 'src/latch.generated';
 const marker = '// @latch:mount';
+const pending = new Map<string, { tail: Promise<void>; count: number }>();
+
+// Serialize mutations and validations within this process. The snapshots below
+// also detect edits made by other processes while validation awaits.
+async function withProjectLock<T>(root: string, action: () => Promise<T> | T): Promise<T> {
+  const resolved = fs.realpathSync(root);
+  const key = process.platform === 'win32' ? resolved.toLowerCase() : resolved;
+  const previous = pending.get(key);
+  if ((previous?.count ?? 0) >= 4) throw Error('Project validation is busy; try again');
+  let release!: () => void;
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  const tail = previous ? previous.tail.then(() => gate) : gate;
+  const entry = { tail, count: (previous?.count ?? 0) + 1 };
+  pending.set(key, entry);
+  if (previous) await previous.tail;
+  try { return await action(); }
+  finally {
+    release();
+    const current = pending.get(key);
+    if (current === entry) pending.delete(key);
+    else if (current) current.count--;
+  }
+}
+
+// These are all files this operation will read as control data or overwrite.
+// In particular, a new file appearing during validation must not be replaced.
+function inputSnapshot(root: string, c: Config) {
+  const files = new Set([
+    'latch.config.json', 'tsconfig.json', c.installation.file,
+    ...c.tools.map(tool => tool.binding.module),
+    `${dir}/integration.ts`, `${dir}/env.d.ts`,
+    '.latch/manifest.json', '.latch/installation.diff', '.latch/tests.json', '.latch/INSTALL.md',
+  ]);
+  return JSON.stringify([compilerSnapshot(root), ...[...files].sort().map(file => {
+    const full = safe(root, file);
+    if (!fs.existsSync(full)) return [file, null];
+    const stat = fs.statSync(full, { bigint: true });
+    return [file, stat.dev.toString(), stat.ino.toString(), stat.size.toString(),
+      stat.mtimeNs.toString(), stat.ctimeNs.toString(), hash(read(root, file))];
+  })]);
+}
 type Entry = { before: string | null; after: string };
 interface Ledger {
   version: 1;
@@ -176,8 +218,7 @@ export function compile(root: string, overlay: Record<string, string> = {}) {
       : undefined;
   if (compilerWarning) console.warn(compilerWarning);
   if (project === '7.0.2') {
-    compileNative7(root, overlay);
-    return { compilerVersion, compilerWarning };
+    return compileNative7(root, overlay).then(observations => ({ compilerVersion, compilerWarning, observations }));
   }
   const projectFile = safe(root, 'tsconfig.json');
   if (!fs.existsSync(projectFile))
@@ -230,7 +271,7 @@ export function compile(root: string, overlay: Record<string, string> = {}) {
         })
         .join('\n'),
     );
-  return { compilerVersion, compilerWarning };
+  return { compilerVersion, compilerWarning, observations: undefined };
 }
 export function checkBindings(root: string, c: Config) {
   const ts = bindingCompiler(projectVersion(root));
@@ -274,7 +315,7 @@ export function checkBindings(root: string, c: Config) {
     }
   }
 }
-export function generate(root: string) {
+async function generateUnlocked(root: string) {
   const c = loadConfig(root);
   checkBindings(root, c);
   const previous = ledger(root);
@@ -295,8 +336,13 @@ export function generate(root: string) {
     if (fs.existsSync(safe(root, file)) && !previous.files[file])
       throw Error(`${file}: unowned file exists; move it or choose another project`);
   }
+  const beforeValidation = inputSnapshot(root, c);
   // Compile a virtual installation first, so incompatible mappings cannot replace working wrappers.
-  const { compilerVersion, compilerWarning } = compile(root, { ...files, [installation.file]: installation.after });
+  const operation = compile(root, { ...files, [installation.file]: installation.after });
+  const { compilerVersion, compilerWarning, observations } = operation instanceof Promise ? await operation : operation;
+  if (compilerVersion === '7.0.2') verifyObservations(observations);
+  if (inputSnapshot(root, c) !== beforeValidation)
+    throw Error('Project changed during validation; no generated files were written');
   for (const [file, content] of Object.entries(files)) write(root, file, content);
   const next: Ledger = { version: 1, generatorVersion: VERSION, files: {}, installation };
   for (const [file, content] of Object.entries(files))
@@ -328,7 +374,9 @@ export function generate(root: string) {
     ...(compilerWarning ? { compilerWarning } : {}),
   };
 }
-export function check(root: string) {
+export function generate(root: string) { return withProjectLock(root, () => generateUnlocked(root)); }
+
+async function checkUnlocked<T = undefined>(root: string, onValidated?: () => T) {
   const c = loadConfig(root);
   checkBindings(root, c);
   const l = ledger(root);
@@ -344,8 +392,13 @@ export function check(root: string) {
   const p = installPlan(root, c, l);
   if (!l.installation || l.installation.after !== p.after)
     throw Error('Installation plan changed; run latch generate');
-  const { compilerVersion, compilerWarning } = compile(root, { [p.file]: p.after });
-  return {
+  const beforeValidation = inputSnapshot(root, c);
+  const operation = compile(root, { [p.file]: p.after });
+  const { compilerVersion, compilerWarning, observations } = operation instanceof Promise ? await operation : operation;
+  if (compilerVersion === '7.0.2') verifyObservations(observations);
+  if (inputSnapshot(root, c) !== beforeValidation)
+    throw Error('Project changed during validation; run latch check again');
+  const result = {
     contract: 'validated',
     bindings: 'validated',
     generatedTypes: 'compiled',
@@ -355,21 +408,36 @@ export function check(root: string) {
     nativeRegistration: 'not run',
     nativeInvocation: 'not run',
   };
+  return { result, value: onValidated?.() };
 }
-export function apply(root: string) {
-  check(root);
-  const l = ledger(root);
-  if (!l.installation) throw Error('Run latch generate first');
-  const p = installPlan(root, loadConfig(root), l);
-  if (p.after !== l.installation.after)
-    throw Error('Installation plan changed; run latch generate');
-  const actual = read(root, p.file);
-  if (actual === p.after) return 'Already applied';
-  if (actual !== p.before) throw Error('Installation conflict: file changed');
-  write(root, p.file, p.after);
-  return `Applied ${p.file}`;
+export function check(root: string) { return withProjectLock(root, async () => (await checkUnlocked(root)).result); }
+// Capture related state in the same turn as the final validation recheck so
+// service callers cannot pair validated results with a later project version.
+export function checkAndCapture<T>(root: string, capture: () => T) {
+  return withProjectLock(root, () => checkUnlocked(root, capture));
 }
-export function rollback(root: string) {
+
+async function applyUnlocked(root: string) {
+  const beforeCheck = inputSnapshot(root, loadConfig(root));
+  const { value } = await checkUnlocked(root, () => {
+    if (inputSnapshot(root, loadConfig(root)) !== beforeCheck)
+      throw Error('Project changed during validation; installation was not applied');
+    const l = ledger(root);
+    if (!l.installation) throw Error('Run latch generate first');
+    const p = installPlan(root, loadConfig(root), l);
+    if (p.after !== l.installation.after)
+      throw Error('Installation plan changed; run latch generate');
+    const actual = read(root, p.file);
+    if (actual === p.after) return 'Already applied';
+    if (actual !== p.before) throw Error('Installation conflict: file changed');
+    write(root, p.file, p.after);
+    return `Applied ${p.file}`;
+  });
+  return value;
+}
+export function apply(root: string) { return withProjectLock(root, () => applyUnlocked(root)); }
+
+function rollbackUnlocked(root: string) {
   const l = ledger(root);
   for (const [file, e] of Object.entries(l.files))
     if (!fs.existsSync(safe(root, file)) || hash(read(root, file)) !== e.after)
@@ -389,3 +457,4 @@ export function rollback(root: string) {
     if (fs.existsSync(safe(root, `.latch/${file}`))) fs.unlinkSync(safe(root, `.latch/${file}`));
   return 'Rolled back owned integration and installation changes; configuration and reports retained';
 }
+export function rollback(root: string) { return withProjectLock(root, () => rollbackUnlocked(root)); }

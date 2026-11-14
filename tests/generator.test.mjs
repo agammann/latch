@@ -39,32 +39,32 @@ function fixture() {
   return root;
 }
 // Workspace package aliases are resolved through root dependencies, installed by pnpm for these isolated fixtures.
-test('generation is idempotent; apply and rollback preserve original source', () => {
+test('generation is idempotent; apply and rollback preserve original source', async () => {
   const r = fixture();
   const before = fs.readFileSync(path.join(r, 'src/main.tsx'), 'utf8');
-  generate(r);
+  await generate(r);
   const first = fs.readFileSync(path.join(r, 'src/latch.generated/integration.ts'), 'utf8');
-  generate(r);
+  await generate(r);
   assert.equal(fs.readFileSync(path.join(r, 'src/latch.generated/integration.ts'), 'utf8'), first);
-  apply(r);
-  assert.equal(check(r).installation, 'applied');
-  apply(r);
-  rollback(r);
+  await apply(r);
+  assert.equal((await check(r)).installation, 'applied');
+  await apply(r);
+  await rollback(r);
   assert.equal(fs.readFileSync(path.join(r, 'src/main.tsx'), 'utf8'), before);
   assert.equal(fs.existsSync(path.join(r, 'src/latch.generated/integration.ts')), false);
 });
-test('edited generated code prevents generation and rollback', () => {
+test('edited generated code prevents generation and rollback', async () => {
   const r = fixture();
-  generate(r);
+  await generate(r);
   fs.appendFileSync(path.join(r, 'src/latch.generated/integration.ts'), '// handwritten');
-  assert.throws(() => generate(r), /edited/);
-  assert.throws(() => rollback(r), /changed/);
+  await assert.rejects(() => generate(r), /edited/);
+  await assert.rejects(() => rollback(r), /changed/);
 });
-test('a valid 0.1.0 ownership manifest upgrades and keeps rollback protection', () => {
+test('a valid 0.1.0 ownership manifest upgrades and keeps rollback protection', async () => {
   const r = fixture();
   const before = fs.readFileSync(path.join(r, 'src/main.tsx'), 'utf8');
-  generate(r);
-  apply(r);
+  await generate(r);
+  await apply(r);
   const output = path.join(r, 'src/latch.generated/integration.ts');
   fs.writeFileSync(output, fs.readFileSync(output, 'utf8').replace('Latch 1.0.2.', 'Latch 0.1.0.'));
   const manifestPath = path.join(r, '.latch/manifest.json');
@@ -72,39 +72,39 @@ test('a valid 0.1.0 ownership manifest upgrades and keeps rollback protection', 
   old.generatorVersion = '0.1.0';
   old.files['src/latch.generated/integration.ts'].after = createHash('sha256').update(fs.readFileSync(output)).digest('hex');
   fs.writeFileSync(manifestPath, JSON.stringify(old));
-  generate(r);
+  await generate(r);
   assert.equal(JSON.parse(fs.readFileSync(manifestPath)).generatorVersion, '1.0.2');
-  assert.equal(check(r).installation, 'applied');
-  rollback(r);
+  assert.equal((await check(r)).installation, 'applied');
+  await rollback(r);
   assert.equal(fs.readFileSync(path.join(r, 'src/main.tsx'), 'utf8'), before);
 });
-test('later component edits are preserved during rollback refusal', () => {
+test('later component edits are preserved during rollback refusal', async () => {
   const r = fixture();
-  generate(r);
-  apply(r);
+  await generate(r);
+  await apply(r);
   fs.appendFileSync(path.join(r, 'src/main.tsx'), '\n// user change');
-  assert.throws(() => rollback(r), /later edits/);
+  await assert.rejects(() => rollback(r), /later edits/);
   assert.match(fs.readFileSync(path.join(r, 'src/main.tsx'), 'utf8'), /user change/);
 });
-test('invalid exported mapping fails without fake success generation', () => {
+test('invalid exported mapping fails without fake success generation', async () => {
   const r = fixture();
   const p = path.join(r, 'latch.config.json');
   const c = JSON.parse(fs.readFileSync(p));
   c.tools[0].binding.export = 'missingHandler';
   fs.writeFileSync(p, JSON.stringify(c));
-  assert.throws(() => generate(r), /not found/);
+  await assert.rejects(() => generate(r), /not found/);
   assert.equal(fs.existsSync(path.join(r, 'src/latch.generated/integration.ts')), false);
 });
-test('type-incompatible mapping does not write a broken integration', () => {
+test('type-incompatible mapping does not write a broken integration', async () => {
   const r = fixture();
   const p = path.join(r, 'latch.config.json');
   const c = JSON.parse(fs.readFileSync(p));
   c.tools[0].resultSchema.properties.query = { type: 'number' };
   fs.writeFileSync(p, JSON.stringify(c));
-  assert.throws(() => generate(r), /not assignable/);
+  await assert.rejects(() => generate(r), /not assignable/);
   assert.equal(fs.existsSync(path.join(r, 'src/latch.generated/integration.ts')), false);
 });
-test('inspection excludes secrets, huge files, dependencies and traversal', () => {
+test('inspection excludes secrets, huge files, dependencies and traversal', async () => {
   const r = fixture();
   fs.writeFileSync(path.join(r, 'src/secrets.ts'), 'export function stolen(){}');
   fs.writeFileSync(path.join(r, 'src/huge.ts'), ' '.repeat(300000) + 'export function huge(){}');
@@ -115,7 +115,7 @@ test('inspection excludes secrets, huge files, dependencies and traversal', () =
   assert.ok(!entries.some((e) => ['stolen', 'huge'].includes(e.name)));
   assert.ok(entries.every((e) => e.unresolved.length > 0));
 });
-test('symlink or junction escape is refused', () => {
+test('symlink or junction escape is refused', async () => {
   const r = fixture();
   const dest = path.resolve('packages');
   fs.symlinkSync(dest, path.join(r, 'linked'), 'junction');
@@ -123,9 +123,9 @@ test('symlink or junction escape is refused', () => {
   assert.ok(!inspect(r).some((e) => e.file.startsWith('linked/')));
 });
 
-test('crafted installation metadata cannot alter local Git configuration', () => {
+test('crafted installation metadata cannot alter local Git configuration', async () => {
   const r = fixture();
-  generate(r);
+  await generate(r);
   fs.mkdirSync(path.join(r, '.git'));
   const target = path.join(r, '.git/config');
   const original = '[core]\n  repositoryformatversion = 0\n';
@@ -135,15 +135,15 @@ test('crafted installation metadata cannot alter local Git configuration', () =>
   record.installation = { file: '.git/config', before: 'replacement', after: original };
   fs.writeFileSync(ledgerPath, JSON.stringify(record));
   for (const command of [generate, check, apply, rollback]) {
-    assert.throws(() => command(r), /application TypeScript/);
+    await assert.rejects(() => command(r), /application TypeScript/);
     assert.equal(fs.readFileSync(target, 'utf8'), original);
     assert.ok(fs.existsSync(path.join(r, 'src/latch.generated/integration.ts')));
   }
 });
 
-test('forged ownership keys and restoration bodies fail before any deletion', () => {
+test('forged ownership keys and restoration bodies fail before any deletion', async () => {
   const r = fixture();
-  generate(r);
+  await generate(r);
   const ledgerPath = path.join(r, '.latch/manifest.json');
   const record = JSON.parse(fs.readFileSync(ledgerPath));
   const target = 'src/main.tsx';
@@ -153,32 +153,32 @@ test('forged ownership keys and restoration bodies fail before any deletion', ()
     after: createHash('sha256').update(original).digest('hex'),
   };
   fs.writeFileSync(ledgerPath, JSON.stringify(record));
-  assert.throws(() => rollback(r), /ownership manifest/);
+  await assert.rejects(() => rollback(r), /ownership manifest/);
   assert.equal(fs.readFileSync(path.join(r, target), 'utf8'), original);
   delete record.files[target];
   record.files['src/latch.generated/integration.ts'].before = 'replacement';
   fs.writeFileSync(ledgerPath, JSON.stringify(record));
-  assert.throws(() => rollback(r), /ownership entry/);
+  await assert.rejects(() => rollback(r), /ownership entry/);
   assert.ok(fs.existsSync(path.join(r, 'src/latch.generated/env.d.ts')));
 });
 
-test('unreviewed installation source is rejected by check, apply and rollback', () => {
+test('unreviewed installation source is rejected by check, apply and rollback', async () => {
   const r = fixture();
-  generate(r);
+  await generate(r);
   const original = fs.readFileSync(path.join(r, 'src/main.tsx'), 'utf8');
   const ledgerPath = path.join(r, '.latch/manifest.json');
   const record = JSON.parse(fs.readFileSync(ledgerPath));
   record.installation.after += '\nconsole.log("unreviewed");';
   fs.writeFileSync(ledgerPath, JSON.stringify(record));
   for (const command of [check, apply, rollback]) {
-    assert.throws(() => command(r), /installation transition/);
+    await assert.rejects(() => command(r), /installation transition/);
     assert.equal(fs.readFileSync(path.join(r, 'src/main.tsx'), 'utf8'), original);
   }
 });
 
-test('a syntactically valid stored hook must match the configured installation plan', () => {
+test('a syntactically valid stored hook must match the configured installation plan', async () => {
   const r = fixture();
-  generate(r);
+  await generate(r);
   const ledgerPath = path.join(r, '.latch/manifest.json');
   const record = JSON.parse(fs.readFileSync(ledgerPath));
   record.installation.after = record.installation.after.replace(
@@ -186,12 +186,12 @@ test('a syntactically valid stored hook must match the configured installation p
     'useProjectTools({"extra": searchDocs});',
   );
   fs.writeFileSync(ledgerPath, JSON.stringify(record));
-  assert.throws(() => check(r), /plan changed/);
-  assert.throws(() => apply(r), /plan changed/);
+  await assert.rejects(() => check(r), /plan changed/);
+  await assert.rejects(() => apply(r), /plan changed/);
   assert.equal(fs.readFileSync(path.join(r, 'src/main.tsx'), 'utf8'), record.installation.before);
 });
 
-test('noCheck is rejected before an incompatible integration can be written', () => {
+test('noCheck is rejected before an incompatible integration can be written', async () => {
   for (const inherited of [false, true]) {
     const r = fixture();
     const configPath = path.join(r, 'latch.config.json');
@@ -207,16 +207,16 @@ test('noCheck is rejected before an incompatible integration can be written', ()
     fs.writeFileSync(tsconfigPath, JSON.stringify(tsconfig));
     const mainPath = path.join(r, 'src/main.tsx');
     const before = fs.readFileSync(mainPath, 'utf8');
-    assert.throws(() => generate(r), /noCheck/);
+    await assert.rejects(() => generate(r), /noCheck/);
     assert.equal(fs.readFileSync(mainPath, 'utf8'), before);
     assert.equal(fs.existsSync(path.join(r, 'src/latch.generated/integration.ts')), false);
     assert.equal(fs.existsSync(path.join(r, '.latch/manifest.json')), false);
   }
 });
 
-test('noCheck blocks check and apply without modifying an existing integration', () => {
+test('noCheck blocks check and apply without modifying an existing integration', async () => {
   const r = fixture();
-  generate(r);
+  await generate(r);
   const mainPath = path.join(r, 'src/main.tsx');
   const integrationPath = path.join(r, 'src/latch.generated/integration.ts');
   const manifestPath = path.join(r, '.latch/manifest.json');
@@ -225,11 +225,11 @@ test('noCheck blocks check and apply without modifying an existing integration',
   const tsconfig = JSON.parse(fs.readFileSync(tsconfigPath));
   tsconfig.compilerOptions.noCheck = true;
   fs.writeFileSync(tsconfigPath, JSON.stringify(tsconfig));
-  for (const operation of [check, apply]) assert.throws(() => operation(r), /noCheck/);
+  for (const operation of [check, apply]) await assert.rejects(() => operation(r), /noCheck/);
   assert.deepEqual([mainPath, integrationPath, manifestPath].map((p) => fs.readFileSync(p, 'utf8')), before);
 });
 
-test('noCheck false still rejects an incompatible handler', () => {
+test('noCheck false still rejects an incompatible handler', async () => {
   const r = fixture();
   const configPath = path.join(r, 'latch.config.json');
   const config = JSON.parse(fs.readFileSync(configPath));
@@ -240,15 +240,15 @@ test('noCheck false still rejects an incompatible handler', () => {
   const tsconfig = JSON.parse(fs.readFileSync(tsconfigPath));
   tsconfig.compilerOptions.noCheck = false;
   fs.writeFileSync(tsconfigPath, JSON.stringify(tsconfig));
-  assert.throws(() => generate(r), /not assignable/);
+  await assert.rejects(() => generate(r), /not assignable/);
   assert.equal(fs.existsSync(path.join(r, 'src/latch.generated/integration.ts')), false);
   config.tools[0].resultSchema.properties.query = validResult;
   fs.writeFileSync(configPath, JSON.stringify(config));
-  assert.doesNotThrow(() => generate(r));
-  assert.equal(check(r).generatedTypes, 'compiled');
+  await assert.doesNotReject(() => generate(r));
+  assert.equal((await check(r)).generatedTypes, 'compiled');
 });
 
-test('reports the bundled compiler and warns about a different project compiler without loading it', () => {
+test('reports the bundled compiler and warns about a different project compiler without loading it', async () => {
   const r = fixture();
   const packageDir = path.join(r, 'workspace-typescript');
   fs.mkdirSync(packageDir, { recursive: true });
@@ -260,8 +260,8 @@ test('reports the bundled compiler and warns about a different project compiler 
   const previous = console.warn;
   console.warn = (message) => warnings.push(message);
   try {
-    const generated = generate(r);
-    const checked = check(r);
+    const generated = await generate(r);
+    const checked = await check(r);
     assert.equal(generated.typescriptCompiler, '5.9.3');
     assert.equal(checked.typescriptCompiler, '5.9.3');
     assert.equal(generated.compilerWarning, warnings[0]);
@@ -271,7 +271,7 @@ test('reports the bundled compiler and warns about a different project compiler 
   for (const warning of warnings) assert.match(warning, /TypeScript 5\.9\.3.*TypeScript 6\.0\.2/);
 });
 
-test('validates a TypeScript 7 project with real native TypeScript 7 diagnostics', () => {
+test('validates a TypeScript 7 project with real native TypeScript 7 diagnostics', async () => {
   const r = fixture();
   const packageDir = path.join(r, 'node_modules/typescript');
   fs.mkdirSync(packageDir, { recursive: true });
@@ -279,24 +279,24 @@ test('validates a TypeScript 7 project with real native TypeScript 7 diagnostics
   fs.writeFileSync(path.join(packageDir, 'index.js'), 'throw new Error("project compiler must not be loaded");');
   const source = path.join(r, 'src/ts7-unicode.ts');
   fs.writeFileSync(source, 'type Head<S extends string> = S extends `${infer H}${infer T}` ? H : never; export const x: Head<"\\u{1F600}abc"> = "\\uD83D";');
-  assert.throws(() => generate(r), /not assignable/);
+  await assert.rejects(() => generate(r), /not assignable/);
   assert.equal(fs.existsSync(path.join(r, 'src/latch.generated/integration.ts')), false);
   fs.writeFileSync(source, 'export const x = "valid";');
-  const generated = generate(r);
-  const checked = check(r);
+  const generated = await generate(r);
+  const checked = await check(r);
   assert.equal(generated.typescriptCompiler, '7.0.2');
   assert.equal(checked.typescriptCompiler, '7.0.2');
   assert.equal(generated.compilerWarning, undefined);
   assert.equal(checked.compilerWarning, undefined);
 });
 
-test('finds the matching compiler in an ancestor workspace', () => {
+test('finds the matching compiler in an ancestor workspace', async () => {
   const r = fixture();
   const warnings = [];
   const previous = console.warn;
   console.warn = (message) => warnings.push(message);
   try {
-    const generated = generate(r);
+    const generated = await generate(r);
     assert.equal(generated.typescriptCompiler, '7.0.2');
     assert.equal(generated.compilerWarning, undefined);
   }
@@ -304,7 +304,7 @@ test('finds the matching compiler in an ancestor workspace', () => {
   assert.deepEqual(warnings, []);
 });
 
-test('warns when project compiler metadata cannot be identified', () => {
+test('warns when project compiler metadata cannot be identified', async () => {
   const r = fixture();
   const packageDir = path.join(r, 'node_modules/typescript');
   fs.mkdirSync(packageDir, { recursive: true });
@@ -313,7 +313,7 @@ test('warns when project compiler metadata cannot be identified', () => {
   const previous = console.warn;
   console.warn = (message) => warnings.push(message);
   try {
-    const generated = generate(r);
+    const generated = await generate(r);
     assert.equal(generated.typescriptCompiler, '5.9.3');
     assert.equal(generated.compilerWarning, warnings[0]);
   }

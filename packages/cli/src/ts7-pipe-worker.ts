@@ -5,6 +5,7 @@ import { createRequire } from 'node:module';
 import ts5 from 'typescript';
 import { API, DiagnosticCategory, type Diagnostic } from 'typescript7/unstable/async';
 import { safe } from './files.js';
+import { digest, sample, type Observation, type ObservationKind } from './fs-observations.js';
 
 type Input = { root: string; overlay: Record<string, string> };
 type RpcConnection = {
@@ -24,10 +25,42 @@ const canonical = (p: string) => {
 };
 const virtualFiles = new Map<string, { path: string; content: string }>();
 const virtualDirectories = new Map<string, { files: Set<string>; directories: Set<string> }>();
-const denied: string[] = [];
+let denied: string | undefined;
+let observationFailure: string | undefined;
+const observations = new Map<string, Observation>();
+let observationBytes = 0;
+let observedContentBytes = 0;
+let readPermits = 4;
+const readWaiters: Array<() => void> = [];
+async function limitedRead(file: string) {
+  if (readPermits) readPermits--;
+  else await new Promise<void>(resolve => readWaiters.push(resolve));
+  try { return await readBounded(file); }
+  finally {
+    const next = readWaiters.shift();
+    if (next) next(); else readPermits++;
+  }
+}
+function observe(kind: ObservationKind, file: string, value: string) {
+  const absolute = path.resolve(file);
+  const key = `${kind}:${canonical(absolute)}`;
+  const previous = observations.get(key);
+  if (previous) {
+    if (previous.value !== value) observationFailure ??= 'Project dependencies changed during validation; run Latch again';
+    return;
+  }
+  observationBytes += Buffer.byteLength(absolute) + Buffer.byteLength(value);
+  if (observations.size >= 100_000 || observationBytes > 32 * 1024 * 1024) {
+    observationFailure ??= 'TypeScript filesystem observation limit exceeded';
+    return;
+  }
+  observations.set(key, { kind, path: absolute, value });
+}
 function missing(e: unknown, file: string) {
   const code = (e as NodeJS.ErrnoException)?.code;
-  if (code !== 'ENOENT' && code !== 'ENOTDIR') denied.push(`${file}: ${code ?? 'unreadable'}`);
+  if (e instanceof Error && /changed during validation|(?:validation|observation) limit/.test(e.message))
+    observationFailure ??= e.message;
+  else if (code !== 'ENOENT' && code !== 'ENOTDIR') denied ??= `${file}: ${code ?? 'unreadable'}`;
 }
 function addVirtual(file: string, content: string) {
   const full = path.normalize(path.resolve(file));
@@ -48,19 +81,58 @@ for (const [file, content] of Object.entries(input.overlay)) {
   addVirtual(safe(root, file), content);
 }
 function checkDenied() {
-  if (denied.length) throw Error(`TypeScript validation could not read ${denied[0]}`);
+  if (observationFailure) throw Error(observationFailure);
+  if (denied) throw Error(`TypeScript validation could not read ${denied}`);
 }
 async function stat(file: string) {
   try { return await fs.promises.stat(file); } catch (e) { missing(e, file); return undefined; }
+}
+async function readBounded(file: string): Promise<Buffer> {
+  const descriptor = await fs.promises.open(file, fs.constants.O_RDONLY | (fs.constants.O_NONBLOCK || 0));
+  try {
+    const before = await descriptor.stat({ bigint: true });
+    if (!before.isFile() || before.size > 32n * 1024n * 1024n)
+      throw Error('TypeScript source is not a regular file or exceeds the validation limit');
+    const chunks: Buffer[] = [];
+    let size = 0;
+    while (true) {
+      const buffer = Buffer.alloc(64 * 1024);
+      const { bytesRead } = await descriptor.read(buffer, 0, buffer.length, null);
+      if (!bytesRead) break;
+      size += bytesRead;
+      if (size > 32 * 1024 * 1024) throw Error('TypeScript source exceeds the validation limit');
+      chunks.push(buffer.subarray(0, bytesRead));
+    }
+    const after = await descriptor.stat({ bigint: true });
+    const current = await fs.promises.stat(file, { bigint: true });
+    if (before.dev !== after.dev || before.ino !== after.ino || before.size !== after.size ||
+        before.mtimeNs !== after.mtimeNs || before.ctimeNs !== after.ctimeNs ||
+        current.dev !== before.dev || current.ino !== before.ino || current.size !== before.size ||
+        current.mtimeNs !== before.mtimeNs || current.ctimeNs !== before.ctimeNs)
+      throw Error('Project dependency changed during validation; run Latch again');
+    return Buffer.concat(chunks, size);
+  } finally { await descriptor.close(); }
 }
 // Concrete results for every callback prevent fallback to the native host FS.
 const vfs = {
   async readFile(file: string): Promise<string | null> {
     const item = virtualFiles.get(canonical(file));
     if (item) return item.content;
-    if (!(await stat(file))?.isFile()) return null;
+    const info = await stat(file);
+    const isFile = !!info?.isFile();
+    observe('file', file, String(isFile));
+    if (!isFile) return null;
+    if ((info?.size ?? 0) > 32 * 1024 * 1024) {
+      observationFailure ??= 'TypeScript source exceeds the validation limit';
+      return null;
+    }
     try {
-      const bytes = await fs.promises.readFile(file);
+      const bytes = await limitedRead(file);
+      if (bytes.length > 32 * 1024 * 1024) throw Error('TypeScript source exceeds the validation limit');
+      const contentKey = `content:${canonical(path.resolve(file))}`;
+      if (!observations.has(contentKey)) observedContentBytes += bytes.length;
+      if (observedContentBytes > 512 * 1024 * 1024) throw Error('TypeScript input revalidation limit exceeded');
+      observe('content', file, digest(bytes));
       if (bytes[0] === 0xff && bytes[1] === 0xfe) return bytes.subarray(2).toString('utf16le');
       if (bytes[0] === 0xfe && bytes[1] === 0xff) {
         const data = Buffer.from(bytes.subarray(2));
@@ -68,27 +140,41 @@ const vfs = {
         return data.swap16().toString('utf16le');
       }
       return bytes.toString('utf8').replace(/^\uFEFF/, '');
-    } catch (e) { missing(e, file); return null; }
+    } catch (e) {
+      if (['ENOENT', 'ENOTDIR'].includes((e as NodeJS.ErrnoException)?.code ?? ''))
+        observe('file', file, 'false');
+      missing(e, file);
+      return null;
+    }
   },
-  async fileExists(file: string) { return virtualFiles.has(canonical(file)) || !!(await stat(file))?.isFile(); },
-  async directoryExists(dir: string) { return virtualDirectories.has(canonical(dir)) || !!(await stat(dir))?.isDirectory(); },
+  async fileExists(file: string) {
+    if (virtualFiles.has(canonical(file))) return true;
+    const value = !!(await stat(file))?.isFile();
+    observe('file', file, String(value));
+    return value;
+  },
+  async directoryExists(dir: string) {
+    if (virtualDirectories.has(canonical(dir))) return true;
+    const value = !!(await stat(dir))?.isDirectory();
+    observe('directory', dir, String(value));
+    return value;
+  },
   async getAccessibleEntries(dir: string) {
     const files = new Map<string, string>(), directories = new Map<string, string>();
     const add = (set: Map<string, string>, name: string) => {
       const key = ts5.sys.useCaseSensitiveFileNames ? name : name.toLowerCase();
       if (!set.has(key)) set.set(key, name);
     };
-    try {
-      for (const entry of await fs.promises.readdir(dir, { withFileTypes: true })) {
-        if (entry.isFile()) add(files, entry.name);
-        else if (entry.isDirectory()) add(directories, entry.name);
-        else if (entry.isSymbolicLink()) {
-          const info = await stat(path.join(dir, entry.name));
-          if (info?.isFile()) add(files, entry.name);
-          else if (info?.isDirectory()) add(directories, entry.name);
-        }
-      }
-    } catch (e) { missing(e, dir); }
+    let listing: string;
+    try { listing = await sample('entries', dir); }
+    catch (e) {
+      missing(e, dir);
+      listing = JSON.stringify({ exists: false, files: [], directories: [] });
+    }
+    observe('entries', dir, listing);
+    const real = JSON.parse(listing) as { files: string[]; directories: string[] };
+    for (const name of real.files) add(files, name);
+    for (const name of real.directories) add(directories, name);
     const virtual = virtualDirectories.get(canonical(dir));
     for (const name of virtual?.files ?? []) add(files, name);
     for (const name of virtual?.directories ?? []) add(directories, name);
@@ -96,7 +182,9 @@ const vfs = {
   },
   async realpath(file: string) {
     if (virtualFiles.has(canonical(file)) || virtualDirectories.has(canonical(file))) return path.resolve(file);
-    try { return await fs.promises.realpath(file); } catch (e) { missing(e, file); return path.resolve(file); }
+    const value = await sample('realpath', file);
+    observe('realpath', file, value);
+    return value.slice(2);
   },
 };
 function errors(diagnostics: readonly Diagnostic[]) { return diagnostics.filter(d => d.category === DiagnosticCategory.Error); }
@@ -144,6 +232,9 @@ async function run() {
   const actual = initial.getProject(projectFile);
   if (!actual) throw Error('Cannot open tsconfig.json for TypeScript validation');
   await failDiagnostics(await actual.program.getConfigFileParsingDiagnostics());
+  // Do not hide actual-project emit-layout diagnostics by forcing noEmit in
+  // the virtual overlay configuration.
+  await failDiagnostics(await actual.program.getProgramDiagnostics());
   checkDenied();
   const parsed = await api.parseConfigFile(projectFile);
   checkDenied();
@@ -190,6 +281,6 @@ async function run() {
   await failDiagnostics([...unique.values()]);
   checkDenied();
 }
-try { await run(); process.send?.({ ok: true }); }
+try { await run(); process.send?.({ ok: true, observations: [...observations.values()] }); }
 catch (e) { process.send?.({ ok: false, error: e instanceof Error ? e.message : 'TypeScript validation failed' }); }
 await new Promise(() => {});

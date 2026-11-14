@@ -13,7 +13,7 @@ const config = JSON.parse(originalConfig);
 config.tests = [config.tests[0]];
 const results = [];
 try {
-  check(root);
+  await check(root);
   let report = await runTests(config);
   if (report.failed || report.blocked) throw Error('Baseline must pass');
   results.push({ phase: 'passing contract', report });
@@ -34,15 +34,15 @@ try {
   const corrected = JSON.parse(originalConfig);
   corrected.tools[0].binding.export = 'searchDocsCompatible';
   fs.writeFileSync(configFile, JSON.stringify(corrected, null, 2) + '\n');
-  generate(root);
-  check(root);
+  await generate(root);
+  await check(root);
   report = await runTests(config);
   if (report.failed || report.blocked) throw Error('Corrected mapping must pass');
   results.push({ phase: 'corrected mapping to searchDocsCompatible adapter', report });
 } finally {
   fs.writeFileSync(file, original);
   fs.writeFileSync(configFile, originalConfig);
-  generate(root);
+  await generate(root);
 }
 fs.mkdirSync('reports', { recursive: true });
 fs.writeFileSync('reports/intentional-regression.json', JSON.stringify(results, null, 2) + '\n');
