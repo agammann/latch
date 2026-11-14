@@ -70,7 +70,7 @@ export async function serve(root: string, port = 4545) {
           return {
             project: c.project,
             config: c,
-            evidence: inspect(root),
+            evidence: inspect(root, c),
             changes: fs.existsSync(safe(root, '.latch/installation.diff'))
               ? read(root, '.latch/installation.diff')
               : 'Run latch generate to prepare changes',

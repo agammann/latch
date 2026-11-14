@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { generate, check, apply, rollback } from './generate.js';
 import { inspect } from './inspect.js';
+import { inspectionCompiler } from './config.js';
 import { safe, write } from './files.js';
 import { serve, testProject } from './service.js';
 import { formatReport } from '@latch-local/test';
@@ -63,7 +64,8 @@ export async function main(args = process.argv.slice(2)) {
     );
     result =
       'Created latch.config.json. Add an explicit handler mapping, contract and test; add // @latch:mount inside its owning component. See docs/integration.md. Empty mappings intentionally fail check.';
-  } else if (command === 'inspect') result = inspect(root);
+  } else if (command === 'inspect') result = inspect(root, fs.existsSync(safe(root, 'latch.config.json'))
+    ? { typescriptCompiler: inspectionCompiler(root) } : undefined);
   else if (command === 'generate') result = await generate(root);
   else if (command === 'check') result = await check(root);
   else if (command === 'apply') result = await apply(root);

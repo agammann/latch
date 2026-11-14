@@ -35,6 +35,13 @@ async function withProjectLock<T>(root: string, action: () => Promise<T> | T): P
 
 // These are all files this operation will read as control data or overwrite.
 // In particular, a new file appearing during validation must not be replaced.
+function fileSnapshot(root: string, file: string) {
+  const full = safe(root, file);
+  if (!fs.existsSync(full)) return [file, null];
+  const stat = fs.statSync(full, { bigint: true });
+  return [file, stat.dev.toString(), stat.ino.toString(), stat.size.toString(),
+    stat.mtimeNs.toString(), stat.ctimeNs.toString(), hash(read(root, file))];
+}
 function inputSnapshot(root: string, c: Config) {
   const files = new Set([
     'latch.config.json', 'tsconfig.json', c.installation.file,
@@ -42,13 +49,7 @@ function inputSnapshot(root: string, c: Config) {
     `${dir}/integration.ts`, `${dir}/env.d.ts`,
     '.latch/manifest.json', '.latch/installation.diff', '.latch/tests.json', '.latch/INSTALL.md',
   ]);
-  return JSON.stringify([compilerSnapshot(root), ...[...files].sort().map(file => {
-    const full = safe(root, file);
-    if (!fs.existsSync(full)) return [file, null];
-    const stat = fs.statSync(full, { bigint: true });
-    return [file, stat.dev.toString(), stat.ino.toString(), stat.size.toString(),
-      stat.mtimeNs.toString(), stat.ctimeNs.toString(), hash(read(root, file))];
-  })]);
+  return JSON.stringify([compilerSnapshot(root), ...[...files].sort().map(file => fileSnapshot(root, file))]);
 }
 type Entry = { before: string | null; after: string };
 interface Ledger {
@@ -208,16 +209,16 @@ function installPlan(root: string, c: Config, old: Ledger) {
     before.replace(marker, `useProjectTools({${refs}}); ${marker}`);
   return { file, before, after };
 }
-export function compile(root: string, overlay: Record<string, string> = {}) {
+export function compile(root: string, overlay: Record<string, string> = {}, explicitCompiler?: Config['typescriptCompiler']) {
   const project = projectVersion(root);
-  const compilerVersion = project === '7.0.2' ? '7.0.2' : ts.version;
+  const compilerVersion = explicitCompiler === '7.0.2' || project === '7.0.2' ? '7.0.2' : ts.version;
   const compilerWarning = !project
     ? `Latch validates with TypeScript ${compilerVersion}; the application's TypeScript version could not be determined. Run the application's own type check as well.`
     : project !== compilerVersion
       ? `Latch validates with TypeScript ${compilerVersion}, but the application resolves TypeScript ${project}. Run the application's own type check as well.`
       : undefined;
   if (compilerWarning) console.warn(compilerWarning);
-  if (project === '7.0.2') {
+  if (compilerVersion === '7.0.2') {
     return compileNative7(root, overlay).then(observations => ({ compilerVersion, compilerWarning, observations }));
   }
   const projectFile = safe(root, 'tsconfig.json');
@@ -274,7 +275,7 @@ export function compile(root: string, overlay: Record<string, string> = {}) {
   return { compilerVersion, compilerWarning, observations: undefined };
 }
 export function checkBindings(root: string, c: Config) {
-  const ts = bindingCompiler(projectVersion(root));
+  const ts = bindingCompiler(c.typescriptCompiler ?? projectVersion(root));
   for (const tool of c.tools) {
     const src = ts.createSourceFile(
       tool.binding.module,
@@ -316,7 +317,11 @@ export function checkBindings(root: string, c: Config) {
   }
 }
 async function generateUnlocked(root: string) {
+  const configBefore = JSON.stringify(fileSnapshot(root, 'latch.config.json'));
   const c = loadConfig(root);
+  const beforeValidation = inputSnapshot(root, c);
+  if (JSON.stringify(fileSnapshot(root, 'latch.config.json')) !== configBefore)
+    throw Error('Project changed during validation; no generated files were written');
   checkBindings(root, c);
   const previous = ledger(root);
   const files = render(root, c);
@@ -336,9 +341,8 @@ async function generateUnlocked(root: string) {
     if (fs.existsSync(safe(root, file)) && !previous.files[file])
       throw Error(`${file}: unowned file exists; move it or choose another project`);
   }
-  const beforeValidation = inputSnapshot(root, c);
   // Compile a virtual installation first, so incompatible mappings cannot replace working wrappers.
-  const operation = compile(root, { ...files, [installation.file]: installation.after });
+  const operation = compile(root, { ...files, [installation.file]: installation.after }, c.typescriptCompiler);
   const { compilerVersion, compilerWarning, observations } = operation instanceof Promise ? await operation : operation;
   if (compilerVersion === '7.0.2') verifyObservations(observations);
   if (inputSnapshot(root, c) !== beforeValidation)
@@ -377,7 +381,11 @@ async function generateUnlocked(root: string) {
 export function generate(root: string) { return withProjectLock(root, () => generateUnlocked(root)); }
 
 async function checkUnlocked<T = undefined>(root: string, onValidated?: () => T) {
+  const configBefore = JSON.stringify(fileSnapshot(root, 'latch.config.json'));
   const c = loadConfig(root);
+  const beforeValidation = inputSnapshot(root, c);
+  if (JSON.stringify(fileSnapshot(root, 'latch.config.json')) !== configBefore)
+    throw Error('Project changed during validation; run latch check again');
   checkBindings(root, c);
   const l = ledger(root);
   const expected = render(root, c);
@@ -392,8 +400,7 @@ async function checkUnlocked<T = undefined>(root: string, onValidated?: () => T)
   const p = installPlan(root, c, l);
   if (!l.installation || l.installation.after !== p.after)
     throw Error('Installation plan changed; run latch generate');
-  const beforeValidation = inputSnapshot(root, c);
-  const operation = compile(root, { [p.file]: p.after });
+  const operation = compile(root, { [p.file]: p.after }, c.typescriptCompiler);
   const { compilerVersion, compilerWarning, observations } = operation instanceof Promise ? await operation : operation;
   if (compilerVersion === '7.0.2') verifyObservations(observations);
   if (inputSnapshot(root, c) !== beforeValidation)

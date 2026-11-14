@@ -1,5 +1,6 @@
 import ts from 'typescript';
 import { bindingCompiler, projectVersion } from './compiler.js';
+import type { Config } from './config.js';
 import { sources, read } from './files.js';
 export interface Candidate {
   file: string;
@@ -11,8 +12,8 @@ export interface Candidate {
   unresolved: string[];
   adapterRequirements: string[];
 }
-export function inspect(root: string): Candidate[] {
-  const ts = bindingCompiler(projectVersion(root));
+export function inspect(root: string, config?: Pick<Config, 'typescriptCompiler'>): Candidate[] {
+  const ts = bindingCompiler(config?.typescriptCompiler ?? projectVersion(root));
   const found: Candidate[] = [];
   for (const file of sources(root)) {
     const source = ts.createSourceFile(

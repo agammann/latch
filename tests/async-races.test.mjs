@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { spawnSync } from 'node:child_process';
 
 const base = path.resolve('work/tests');
 fs.mkdirSync(base, { recursive: true });
@@ -209,6 +210,128 @@ test('a compiler junction retargeted between checks selects its new version', { 
   fs.unlinkSync(link);
   fs.symlinkSync(v7, link, 'junction');
   assert.equal((await check(root)).typescriptCompiler, '7.0.2');
+});
+
+test('explicit native compiler validates side-by-side TypeScript 7 projects', { timeout: 30_000 }, async () => {
+  const root = fixture();
+  const packageDir = path.join(root, 'node_modules/typescript');
+  fs.mkdirSync(packageDir, { recursive: true });
+  fs.writeFileSync(path.join(packageDir, 'package.json'), JSON.stringify({ name: 'typescript', version: '5.9.3' }));
+  const configFile = path.join(root, 'latch.config.json');
+  const config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
+  const baseFile = path.join(root, 'base.json');
+  const baseConfig = JSON.parse(fs.readFileSync(baseFile, 'utf8'));
+  delete baseConfig.compilerOptions.noEmit;
+  Object.assign(baseConfig.compilerOptions, { declaration: true, emitDeclarationOnly: true, outDir: 'dist' });
+  fs.writeFileSync(baseFile, JSON.stringify(baseConfig));
+  const { generate, check, apply } = await import('../packages/cli/dist/generate.js');
+  assert.equal((await generate(root)).typescriptCompiler, '5.9.3');
+  const manifestFile = path.join(root, '.latch/manifest.json');
+  const generatedFile = path.join(root, 'src/latch.generated/integration.ts');
+  const originalManifest = fs.readFileSync(manifestFile);
+  const originalGenerated = fs.readFileSync(generatedFile);
+  config.typescriptCompiler = '7.0.2';
+  fs.writeFileSync(configFile, JSON.stringify(config));
+  await assert.rejects(() => generate(root), /rootDir/);
+  assert.deepEqual(fs.readFileSync(manifestFile), originalManifest);
+  assert.deepEqual(fs.readFileSync(generatedFile), originalGenerated);
+  baseConfig.compilerOptions.rootDir = 'src';
+  fs.writeFileSync(baseFile, JSON.stringify(baseConfig));
+  assert.equal((await generate(root)).typescriptCompiler, '7.0.2');
+  assert.equal((await check(root)).typescriptCompiler, '7.0.2');
+  await assert.doesNotReject(() => apply(root));
+  config.typescriptCompiler = '7.1.0';
+  fs.writeFileSync(configFile, JSON.stringify(config));
+  await assert.rejects(() => check(root), /typescriptCompiler must be 7\.0\.2/);
+});
+
+test('changing the explicit compiler during validation cannot produce output', { timeout: 30_000 }, async () => {
+  const root = fixture();
+  const packageDir = path.join(root, 'node_modules/typescript');
+  fs.mkdirSync(packageDir, { recursive: true });
+  fs.writeFileSync(path.join(packageDir, 'package.json'), JSON.stringify({ name: 'typescript', version: '5.9.3' }));
+  const configFile = path.join(root, 'latch.config.json');
+  const config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
+  config.typescriptCompiler = '7.0.2';
+  fs.writeFileSync(configFile, JSON.stringify(config));
+  await changeDuringValidation(root, path.join(root, 'src/library.ts'), 'content', () => {
+    delete config.typescriptCompiler;
+    fs.writeFileSync(configFile, JSON.stringify(config));
+  });
+  assert.equal(fs.existsSync(path.join(root, '.latch/manifest.json')), false);
+  assert.equal(fs.existsSync(path.join(root, 'src/latch.generated/integration.ts')), false);
+});
+
+test('config changes after loading but before preflight are rejected', { timeout: 30_000 }, async () => {
+  for (const action of ['generate', 'check']) {
+    const root = fixture();
+    const normal = await import('../packages/cli/dist/generate.js');
+    if (action === 'check') await normal.generate(root);
+    const manifest = path.join(root, '.latch/manifest.json');
+    const original = fs.existsSync(manifest) ? fs.readFileSync(manifest) : undefined;
+    const configFile = path.join(root, 'latch.config.json');
+    const changed = JSON.parse(fs.readFileSync(configFile, 'utf8'));
+    changed.typescriptCompiler = '7.0.2';
+    fs.mkdirSync('packages/cli/work', { recursive: true });
+    const directory = fs.mkdtempSync(path.resolve('packages/cli/work/preflight-dist-'));
+    fs.cpSync('packages/cli/dist', directory, { recursive: true });
+    const file = path.join(directory, 'generate.js');
+    let source = fs.readFileSync(file, 'utf8');
+    const anchor = 'const c = loadConfig(root);';
+    assert.ok(source.includes(anchor));
+    source = source.replaceAll(anchor, anchor + ` fs.writeFileSync(${JSON.stringify(configFile)}, ${JSON.stringify(JSON.stringify(changed))});`);
+    fs.writeFileSync(file, source);
+    const module = await import(pathToFileURL(file).href);
+    await assert.rejects(() => module[action](root), /changed during validation/);
+    if (original) assert.deepEqual(fs.readFileSync(manifest), original);
+    else assert.equal(fs.existsSync(manifest), false);
+  }
+});
+
+test('CLI and console inspection honor the validated compiler selection', { timeout: 30_000 }, async () => {
+  const root = fixture();
+  const packageDir = path.join(root, 'node_modules/typescript');
+  fs.mkdirSync(packageDir, { recursive: true });
+  fs.writeFileSync(path.join(packageDir, 'package.json'), JSON.stringify({ name: 'typescript', version: '5.9.3' }));
+  const configFile = path.join(root, 'latch.config.json');
+  const config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
+  config.typescriptCompiler = '7.0.2';
+  fs.writeFileSync(configFile, JSON.stringify(config));
+  fs.mkdirSync('packages/cli/work', { recursive: true });
+  const directory = fs.mkdtempSync(path.resolve('packages/cli/work/inspect-dist-'));
+  fs.cpSync('packages/cli/dist', directory, { recursive: true });
+  const marker = path.join(directory, 'parser-selection');
+  const inspectFile = path.join(directory, 'inspect.js');
+  let source = fs.readFileSync(inspectFile, 'utf8');
+  const anchor = 'const ts = bindingCompiler(config?.typescriptCompiler ?? projectVersion(root));';
+  assert.ok(source.includes(anchor));
+  source = "import fsForTest from 'node:fs';\n" + source.replace(anchor, anchor + ` fsForTest.appendFileSync(${JSON.stringify(marker)}, String(config?.typescriptCompiler ?? projectVersion(root)) + '\\n');`);
+  fs.writeFileSync(inspectFile, source);
+  const cli = path.join(directory, 'main.js');
+  const run = () => spawnSync(process.execPath, [cli, 'inspect', '--root', root], { encoding: 'utf8' });
+  assert.equal(run().status, 0);
+  assert.equal(fs.readFileSync(marker, 'utf8'), '7.0.2\n');
+  const { serve } = await import(pathToFileURL(path.join(directory, 'service.js')).href);
+  const { server, url } = await serve(root, 0);
+  try {
+    const response = await fetch(url + '/api/project').then(result => result.json());
+    assert.ok(response.checked.error, 'an ungenerated project should report validation failure');
+    assert.ok(Array.isArray(response.evidence));
+    assert.equal(fs.readFileSync(marker, 'utf8'), '7.0.2\n7.0.2\n');
+  } finally { await new Promise(resolve => server.close(resolve)); }
+  const held = path.join(root, 'held-config.json');
+  fs.renameSync(configFile, held);
+  try {
+    assert.equal(run().status, 0, 'inspection remains available before configuration');
+    assert.equal(fs.readFileSync(marker, 'utf8'), '7.0.2\n7.0.2\n5.9.3\n');
+  } finally { fs.renameSync(held, configFile); }
+  config.tools = [];
+  fs.writeFileSync(configFile, JSON.stringify(config));
+  assert.equal(run().status, 0, 'inspection remains available for an incomplete init configuration');
+  assert.equal(fs.readFileSync(marker, 'utf8'), '7.0.2\n7.0.2\n5.9.3\n7.0.2\n');
+  config.typescriptCompiler = 'unsupported';
+  fs.writeFileSync(configFile, JSON.stringify(config));
+  assert.notEqual(run().status, 0, 'malformed configuration must not silently select another parser');
 });
 
 test('a TypeScript package junction retarget during validation is detected', { timeout: 30_000 }, async () => {
