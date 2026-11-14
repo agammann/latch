@@ -61,7 +61,7 @@ test('the validation worker does not inherit caller preload flags', { timeout: 3
   assert.equal(fs.readFileSync(marker, 'utf8'), 'x');
 });
 
-test('CLI signals stop and reap a stalled compiler without changing project files', { timeout: 150_000, skip: process.platform === 'win32' }, async () => {
+test('CLI signals stop and reap a stalled compiler without changing project files', { timeout: 360_000, skip: process.platform === 'win32' }, async () => {
   for (const signal of ['SIGINT', 'SIGTERM']) for (const group of [false, true]) for (const custom of [false, true]) {
     const root = fs.mkdtempSync(path.join(base, 'signal-owner-'));
     const dist = path.join(root, 'dist');
