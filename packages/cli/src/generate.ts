@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { createRequire } from 'node:module';
 import ts from 'typescript';
+import { bindingCompiler, projectVersion } from './compiler.js';
+import { compileNative7 } from './ts7.js';
 import { loadConfig, schemaType, type Config } from './config.js';
 import { hash, installationSource, json, read, safe, write } from './files.js';
 import { VERSION } from './version.js';
@@ -166,24 +167,18 @@ function installPlan(root: string, c: Config, old: Ledger) {
   return { file, before, after };
 }
 export function compile(root: string, overlay: Record<string, string> = {}) {
-  // Resolve metadata from the application rather than Latch's own dependency.
-  // Read it as data; the application's compiler code is never loaded here.
-  let projectVersion: string | undefined;
-  try {
-    const requireFromProject = createRequire(path.join(root, 'package.json'));
-    const packageFile = requireFromProject.resolve('typescript/package.json');
-    const manifest: unknown = JSON.parse(fs.readFileSync(packageFile, 'utf8'));
-    if (manifest && typeof manifest === 'object' && 'name' in manifest && 'version' in manifest &&
-        manifest.name === 'typescript' && typeof manifest.version === 'string' && manifest.version.length <= 80 &&
-        /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(manifest.version))
-      projectVersion = manifest.version;
-  } catch { /* A project can use a compiler that Node's package resolver cannot identify. */ }
-  const compilerWarning = !projectVersion
-    ? `Latch validates with TypeScript ${ts.version}; the application's TypeScript version could not be determined. Run the application's own type check as well.`
-    : projectVersion !== ts.version
-      ? `Latch validates with TypeScript ${ts.version}, but the application resolves TypeScript ${projectVersion}. Run the application's own type check as well.`
+  const project = projectVersion(root);
+  const compilerVersion = project === '7.0.2' ? '7.0.2' : ts.version;
+  const compilerWarning = !project
+    ? `Latch validates with TypeScript ${compilerVersion}; the application's TypeScript version could not be determined. Run the application's own type check as well.`
+    : project !== compilerVersion
+      ? `Latch validates with TypeScript ${compilerVersion}, but the application resolves TypeScript ${project}. Run the application's own type check as well.`
       : undefined;
   if (compilerWarning) console.warn(compilerWarning);
+  if (project === '7.0.2') {
+    compileNative7(root, overlay);
+    return { compilerVersion, compilerWarning };
+  }
   const projectFile = safe(root, 'tsconfig.json');
   if (!fs.existsSync(projectFile))
     throw Error('tsconfig.json required for generated type validation');
@@ -235,9 +230,10 @@ export function compile(root: string, overlay: Record<string, string> = {}) {
         })
         .join('\n'),
     );
-  return compilerWarning;
+  return { compilerVersion, compilerWarning };
 }
 export function checkBindings(root: string, c: Config) {
+  const ts = bindingCompiler(projectVersion(root));
   for (const tool of c.tools) {
     const src = ts.createSourceFile(
       tool.binding.module,
@@ -300,7 +296,7 @@ export function generate(root: string) {
       throw Error(`${file}: unowned file exists; move it or choose another project`);
   }
   // Compile a virtual installation first, so incompatible mappings cannot replace working wrappers.
-  const compilerWarning = compile(root, { ...files, [installation.file]: installation.after });
+  const { compilerVersion, compilerWarning } = compile(root, { ...files, [installation.file]: installation.after });
   for (const [file, content] of Object.entries(files)) write(root, file, content);
   const next: Ledger = { version: 1, generatorVersion: VERSION, files: {}, installation };
   for (const [file, content] of Object.entries(files))
@@ -328,7 +324,7 @@ export function generate(root: string) {
     files: Object.keys(files),
     installation: installation.file,
     status: 'Generated and type-checked; run latch apply',
-    typescriptCompiler: ts.version,
+    typescriptCompiler: compilerVersion,
     ...(compilerWarning ? { compilerWarning } : {}),
   };
 }
@@ -348,12 +344,12 @@ export function check(root: string) {
   const p = installPlan(root, c, l);
   if (!l.installation || l.installation.after !== p.after)
     throw Error('Installation plan changed; run latch generate');
-  const compilerWarning = compile(root, { [p.file]: p.after });
+  const { compilerVersion, compilerWarning } = compile(root, { [p.file]: p.after });
   return {
     contract: 'validated',
     bindings: 'validated',
     generatedTypes: 'compiled',
-    typescriptCompiler: ts.version,
+    typescriptCompiler: compilerVersion,
     ...(compilerWarning ? { compilerWarning } : {}),
     installation: read(root, p.file) === p.after ? 'applied' : 'pending',
     nativeRegistration: 'not run',

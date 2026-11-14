@@ -252,7 +252,7 @@ test('reports the bundled compiler and warns about a different project compiler 
   const r = fixture();
   const packageDir = path.join(r, 'workspace-typescript');
   fs.mkdirSync(packageDir, { recursive: true });
-  fs.writeFileSync(path.join(packageDir, 'package.json'), JSON.stringify({ name: 'typescript', version: '7.0.2', main: 'index.js' }));
+  fs.writeFileSync(path.join(packageDir, 'package.json'), JSON.stringify({ name: 'typescript', version: '6.0.2', main: 'index.js' }));
   fs.writeFileSync(path.join(packageDir, 'index.js'), 'throw new Error("project compiler must not be loaded");');
   fs.mkdirSync(path.join(r, 'node_modules'), { recursive: true });
   fs.symlinkSync(packageDir, path.join(r, 'node_modules/typescript'), 'junction');
@@ -268,7 +268,26 @@ test('reports the bundled compiler and warns about a different project compiler 
     assert.equal(checked.compilerWarning, warnings[1]);
   } finally { console.warn = previous; }
   assert.equal(warnings.length, 2);
-  for (const warning of warnings) assert.match(warning, /TypeScript 5\.9\.3.*TypeScript 7\.0\.2/);
+  for (const warning of warnings) assert.match(warning, /TypeScript 5\.9\.3.*TypeScript 6\.0\.2/);
+});
+
+test('validates a TypeScript 7 project with real native TypeScript 7 diagnostics', () => {
+  const r = fixture();
+  const packageDir = path.join(r, 'node_modules/typescript');
+  fs.mkdirSync(packageDir, { recursive: true });
+  fs.writeFileSync(path.join(packageDir, 'package.json'), JSON.stringify({ name: 'typescript', version: '7.0.2', main: 'index.js' }));
+  fs.writeFileSync(path.join(packageDir, 'index.js'), 'throw new Error("project compiler must not be loaded");');
+  const source = path.join(r, 'src/ts7-unicode.ts');
+  fs.writeFileSync(source, 'type Head<S extends string> = S extends `${infer H}${infer T}` ? H : never; export const x: Head<"\\u{1F600}abc"> = "\\uD83D";');
+  assert.throws(() => generate(r), /not assignable/);
+  assert.equal(fs.existsSync(path.join(r, 'src/latch.generated/integration.ts')), false);
+  fs.writeFileSync(source, 'export const x = "valid";');
+  const generated = generate(r);
+  const checked = check(r);
+  assert.equal(generated.typescriptCompiler, '7.0.2');
+  assert.equal(checked.typescriptCompiler, '7.0.2');
+  assert.equal(generated.compilerWarning, undefined);
+  assert.equal(checked.compilerWarning, undefined);
 });
 
 test('finds the matching compiler in an ancestor workspace', () => {
@@ -278,7 +297,7 @@ test('finds the matching compiler in an ancestor workspace', () => {
   console.warn = (message) => warnings.push(message);
   try {
     const generated = generate(r);
-    assert.equal(generated.typescriptCompiler, '5.9.3');
+    assert.equal(generated.typescriptCompiler, '7.0.2');
     assert.equal(generated.compilerWarning, undefined);
   }
   finally { console.warn = previous; }
