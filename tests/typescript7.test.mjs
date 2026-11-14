@@ -191,7 +191,9 @@ test('a refused child termination is bounded and blocks further validation until
         native.kill = () => { const error = Error('synthetic permission refusal'); error.code = 'EPERM'; throw error; };
       });
     }`);
-  source = source.replace('60_000', '1500');
+  // Only the deliberately stopped first compiler needs a shortened timeout;
+  // the recovery validation must retain its normal budget on slower runners.
+  source = source.replace('60_000', '(globalThis.__latchRefusalChild ? 60_000 : 1500)');
   fs.writeFileSync(path.join(dist, 'ts7.js'), source);
   const { compileNative7: testCompile } = await import(pathToFileURL(path.join(dist, 'ts7.js')).href);
   try {
