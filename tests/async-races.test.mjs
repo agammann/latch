@@ -178,6 +178,39 @@ test('a nearer TypeScript package appearing during validation is detected', { ti
   assert.equal(fs.existsSync(path.join(root, '.latch/manifest.json')), false);
 });
 
+test('a closer compiler installed between checks is selected without a stale resolver cache', { timeout: 30_000 }, async () => {
+  const template = fixture();
+  const parent = fs.mkdtempSync(path.join(base, 'compiler-selection-'));
+  const root = path.join(parent, 'project');
+  fs.cpSync(template, root, { recursive: true });
+  const ancestor = path.join(parent, 'node_modules/typescript');
+  fs.mkdirSync(ancestor, { recursive: true });
+  fs.writeFileSync(path.join(ancestor, 'package.json'), JSON.stringify({ name: 'typescript', version: '5.9.3' }));
+  const { generate, check } = await import('../packages/cli/dist/generate.js');
+  assert.equal((await generate(root)).typescriptCompiler, '5.9.3');
+  const local = path.join(root, 'node_modules/typescript');
+  fs.mkdirSync(local, { recursive: true });
+  fs.writeFileSync(path.join(local, 'package.json'), JSON.stringify({ name: 'typescript', version: '7.0.2', exports: { '.': './index.js' } }));
+  assert.equal((await check(root)).typescriptCompiler, '7.0.2');
+});
+
+test('a compiler junction retargeted between checks selects its new version', { timeout: 30_000 }, async () => {
+  const root = fixture();
+  const v5 = path.join(root, 'compiler-five');
+  const v7 = path.join(root, 'compiler-seven');
+  fs.mkdirSync(v5); fs.mkdirSync(v7);
+  fs.writeFileSync(path.join(v5, 'package.json'), JSON.stringify({ name: 'typescript', version: '5.9.3' }));
+  fs.writeFileSync(path.join(v7, 'package.json'), JSON.stringify({ name: 'typescript', version: '7.0.2' }));
+  fs.mkdirSync(path.join(root, 'node_modules'));
+  const link = path.join(root, 'node_modules/typescript');
+  fs.symlinkSync(v5, link, 'junction');
+  const { generate, check } = await import('../packages/cli/dist/generate.js');
+  assert.equal((await generate(root)).typescriptCompiler, '5.9.3');
+  fs.unlinkSync(link);
+  fs.symlinkSync(v7, link, 'junction');
+  assert.equal((await check(root)).typescriptCompiler, '7.0.2');
+});
+
 test('a TypeScript package junction retarget during validation is detected', { timeout: 30_000 }, async () => {
   const root = fixture();
   const v7 = path.join(root, 'typescript-seven');
