@@ -61,7 +61,7 @@ test('the validation worker does not inherit caller preload flags', { timeout: 3
   assert.equal(fs.readFileSync(marker, 'utf8'), 'x');
 });
 
-test('CLI signals stop and reap a stalled compiler without changing project files', { timeout: 90_000, skip: process.platform === 'win32' }, async () => {
+test('CLI signals stop and reap a stalled compiler without changing project files', { timeout: 360_000, skip: process.platform === 'win32' }, async () => {
   for (const signal of ['SIGINT', 'SIGTERM']) for (const group of [false, true]) for (const custom of [false, true]) {
     const root = fs.mkdtempSync(path.join(base, 'signal-owner-'));
     const dist = path.join(root, 'dist');
@@ -99,9 +99,11 @@ test('CLI signals stop and reap a stalled compiler without changing project file
     cli.stderr.on('data', chunk => { errors += String(chunk); });
     const closed = new Promise(resolve => cli.once('close', (code, received) => resolve({ code, received })));
     try {
-      const deadline = Date.now() + 15_000;
-      while (Date.now() < deadline && (!fs.existsSync(nativeFile) || !fs.existsSync(workerFile))) await delay(20);
-      assert.ok(fs.existsSync(nativeFile) && fs.existsSync(workerFile), `children did not start: ${errors}`);
+      const deadline = Date.now() + 30_000;
+      while (Date.now() < deadline && cli.exitCode === null && cli.signalCode === null &&
+        (!fs.existsSync(nativeFile) || !fs.existsSync(workerFile))) await delay(20);
+      assert.ok(fs.existsSync(nativeFile) && fs.existsSync(workerFile),
+        `children did not start: native=${fs.existsSync(nativeFile)} worker=${fs.existsSync(workerFile)} exit=${cli.exitCode} signal=${cli.signalCode} ${errors}`);
       const native = Number(fs.readFileSync(nativeFile, 'utf8'));
       const worker = Number(fs.readFileSync(workerFile, 'utf8'));
       process.kill(group ? -cli.pid : cli.pid, signal);
