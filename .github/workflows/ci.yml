@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest, macos-15-intel]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     steps:
@@ -30,6 +30,7 @@ jobs:
       - run: pnpm install --frozen-lockfile --ignore-scripts
       - run: pnpm audit --audit-level=low
       - run: pnpm build
+      - run: node scripts/check-typescript7-platform.mjs
       - run: pnpm check:examples
       - run: pnpm test
       - run: pnpm exec playwright install --with-deps chromium
@@ -42,6 +43,7 @@ jobs:
         run: node scripts/pack.mjs
       - run: node scripts/audit-artifacts.mjs
       - run: pnpm verify:consumer ../latch-clean-consumer --chromium
+      - run: pnpm verify:consumer ../latch-clean-consumer7 --chromium --typescript7
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: matrix.os == 'ubuntu-latest'
         with:

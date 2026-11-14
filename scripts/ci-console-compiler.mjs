@@ -23,8 +23,8 @@ fs.writeFileSync(path.join(root, 'tsconfig.json'), JSON.stringify({
 const typescript = path.join(root, 'node_modules/typescript');
 fs.mkdirSync(typescript, { recursive: true });
 const manifest = path.join(typescript, 'package.json');
-fs.writeFileSync(manifest, JSON.stringify({ name: 'typescript', version: '7.0.2' }));
-generate(root);
+fs.writeFileSync(manifest, JSON.stringify({ name: 'typescript', version: '6.0.2' }));
+await generate(root);
 const { server, url } = await serve(root, 0);
 let browser;
 try {
@@ -38,12 +38,12 @@ try {
   await page.goto(url);
   assert.equal(new URL(page.url()).origin, url);
   await page.getByRole('heading', { name: 'Project overview' }).waitFor();
-  const notice = page.getByRole('status').filter({ hasText: "application resolves TypeScript 7.0.2" });
+  const notice = page.getByRole('status').filter({ hasText: "application resolves TypeScript 6.0.2" });
   await notice.waitFor();
   assert.match(await notice.innerText(), /Latch validates with TypeScript 5\.9\.3/);
   if (process.env.LATCH_CONSOLE_QA_SCREENSHOT)
     await page.screenshot({ path: process.env.LATCH_CONSOLE_QA_SCREENSHOT });
-  fs.writeFileSync(manifest, JSON.stringify({ name: 'typescript', version: '5.9.3' }));
+  fs.writeFileSync(manifest, JSON.stringify({ name: 'typescript', version: '7.0.2' }));
   await page.getByRole('button', { name: 'Refresh' }).click();
   await notice.waitFor({ state: 'hidden' });
   fs.writeFileSync(manifest, JSON.stringify({ name: 'typescript' }));

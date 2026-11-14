@@ -7,6 +7,7 @@ import { names, version } from './release-version.mjs';
 const root = process.cwd(),
   destination = path.resolve(process.argv.slice(2).find(a => !a.startsWith('--')) ?? '../latch-clean-consumer');
 const chromium = process.argv.includes('--chromium');
+const typescriptVersion = process.argv.includes('--typescript7') ? '7.0.2' : '5.9.3';
 if (destination === root || destination.startsWith(root + path.sep) || fs.existsSync(destination))
   throw Error('Choose a new consumer folder outside the Latch development checkout');
 fs.mkdirSync(destination, { recursive: true });
@@ -27,7 +28,7 @@ const pkg = {
   type: 'module',
   dependencies: { ...local, react: '19.2.4', 'react-dom': '19.2.4' },
   devDependencies: {
-    typescript: '5.9.3',
+    typescript: typescriptVersion,
     vite: '7.3.5',
     '@types/react': '19.2.14',
     '@types/react-dom': '19.2.3',
@@ -72,6 +73,7 @@ const results = {
   formatVersion: 1,
   platform: process.platform,
   node: process.version,
+  typescriptVersion,
   installation: 'passed',
   installedArtifacts: names.map((n) => ({
     name: n,
@@ -131,11 +133,15 @@ try {
     if (chromium) config.browser.channel = 'chromium';
     config.baseUrl = `http://127.0.0.1:${port}`;
     fs.writeFileSync(path.join(project, 'latch.config.json'), JSON.stringify(config, null, 2));
-    for (const command of ['inspect', 'generate', 'check', 'apply'])
+    for (const command of ['inspect', 'generate', 'check', 'apply']) {
+      const result = run([cli, command, '--root', project]);
+      if (command === 'generate' || command === 'check')
+        assert.equal(JSON.parse(result.output).typescriptCompiler, typescriptVersion);
       results.cases.push({
         name: `${name}: installed CLI ${command}`,
-        ...run([cli, command, '--root', project]),
+        ...result,
       });
+    }
     results.cases.push({
       name: `${name}: production consumer build`,
       ...run([path.join(destination, 'node_modules/vite/bin/vite.js'), 'build', project]),
@@ -199,7 +205,7 @@ try {
 }
 fs.mkdirSync(path.join(root, 'reports'), { recursive: true });
 fs.writeFileSync(
-  path.join(root, 'reports/clean-consumer.json'),
+  path.join(root, typescriptVersion === '7.0.2' ? 'reports/clean-consumer-typescript7.json' : 'reports/clean-consumer.json'),
   JSON.stringify(results, null, 2) + '\n',
 );
 console.log(`Clean consumer verified at ${destination}`);

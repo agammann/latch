@@ -5,7 +5,7 @@ import { randomBytes } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { loadConfig } from './config.js';
 import { inspect } from './inspect.js';
-import { check } from './generate.js';
+import { checkAndCapture } from './generate.js';
 import { hash, json, read, safe, write, sources } from './files.js';
 import { runTests, formatReport } from '@latch-local/test';
 export function fingerprint(root: string) {
@@ -16,9 +16,9 @@ export function fingerprint(root: string) {
   );
 }
 export async function testProject(root: string) {
-  check(root);
-  const c = loadConfig(root);
-  const sourceHash = fingerprint(root);
+  const { value } = await checkAndCapture(root, () => ({ c: loadConfig(root), sourceHash: fingerprint(root) }));
+  if (!value) throw Error('Project state could not be captured');
+  const { c, sourceHash } = value;
   const report = await runTests(c);
   const extended = { ...report, sourceHash };
   write(root, '.latch/report.json', JSON.stringify(extended, null, 2) + '\n');
@@ -62,27 +62,37 @@ export async function serve(root: string, port = 4545) {
     }
     try {
       if (req.method === 'GET' && req.url === '/api/project') {
-        const c = loadConfig(root);
+        const capture = () => {
+          const c = loadConfig(root);
+          const report = fs.existsSync(safe(root, '.latch/report.json'))
+            ? json(root, '.latch/report.json')
+            : null;
+          return {
+            project: c.project,
+            config: c,
+            evidence: inspect(root, c),
+            changes: fs.existsSync(safe(root, '.latch/installation.diff'))
+              ? read(root, '.latch/installation.diff')
+              : 'Run latch generate to prepare changes',
+            report,
+            reportStale: report?.sourceHash !== fingerprint(root),
+          };
+        };
         let checked: any;
+        let captured: ReturnType<typeof capture>;
         try {
-          checked = check(root);
+          const result = await checkAndCapture(root, capture);
+          checked = result.result;
+          if (!result.value) throw Error('Project state could not be captured');
+          captured = result.value;
         } catch (e) {
           checked = { error: e instanceof Error ? e.message : 'Validation failed' };
+          captured = capture();
         }
-        const report = fs.existsSync(safe(root, '.latch/report.json'))
-          ? json(root, '.latch/report.json')
-          : null;
         send(200, {
           token,
-          project: c.project,
-          config: c,
+          ...captured,
           checked,
-          evidence: inspect(root),
-          changes: fs.existsSync(safe(root, '.latch/installation.diff'))
-            ? read(root, '.latch/installation.diff')
-            : 'Run latch generate to prepare changes',
-          report,
-          reportStale: report?.sourceHash !== fingerprint(root),
           compatibility: {
             target: 'Chrome 155 · Document API',
             configuration: 'WebMCPTesting flag',

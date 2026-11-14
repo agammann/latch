@@ -4,10 +4,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { generate, check, apply, rollback } from './generate.js';
 import { inspect } from './inspect.js';
+import { inspectionCompiler } from './config.js';
 import { safe, write } from './files.js';
 import { serve, testProject } from './service.js';
 import { formatReport } from '@latch-local/test';
 import { VERSION } from './version.js';
+import { stopActiveCompilers } from './ts7.js';
 const help = `Latch ${VERSION} — Connect your site. Verify every action.
 Usage: latch <command> [--root <local project>] [--port 4545]
   init       Create versioned configuration without overwriting work
@@ -62,11 +64,12 @@ export async function main(args = process.argv.slice(2)) {
     );
     result =
       'Created latch.config.json. Add an explicit handler mapping, contract and test; add // @latch:mount inside its owning component. See docs/integration.md. Empty mappings intentionally fail check.';
-  } else if (command === 'inspect') result = inspect(root);
-  else if (command === 'generate') result = generate(root);
-  else if (command === 'check') result = check(root);
-  else if (command === 'apply') result = apply(root);
-  else if (command === 'rollback') result = rollback(root);
+  } else if (command === 'inspect') result = inspect(root, fs.existsSync(safe(root, 'latch.config.json'))
+    ? { typescriptCompiler: inspectionCompiler(root) } : undefined);
+  else if (command === 'generate') result = await generate(root);
+  else if (command === 'check') result = await check(root);
+  else if (command === 'apply') result = await apply(root);
+  else if (command === 'rollback') result = await rollback(root);
   else if (command === 'test') {
     const report = await testProject(root);
     console.log(formatReport(report));
@@ -93,12 +96,45 @@ export async function main(args = process.argv.slice(2)) {
   else if (command === 'migrate') {
     if (flags.get('--to') !== '1')
       throw Error('Only configuration v1 is supported; no incompatible migration exists yet');
-    result = check(root);
+    result = await check(root);
   } else throw Error(`Unknown command ${command}; use latch --help`);
   console.log(typeof result === 'string' ? result : JSON.stringify(result, null, 2));
 }
-if (process.argv[1] && fs.realpathSync(process.argv[1]) === fileURLToPath(import.meta.url))
+if (process.argv[1] && fs.realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  // Only the executable installs signal handlers; importing the package into a
+  // host application must not change that application's signal behavior.
+  let handlingSignal = false;
+  const signals: Array<'SIGINT' | 'SIGTERM'> = ['SIGINT', 'SIGTERM'];
+  const handlers = new Map<'SIGINT' | 'SIGTERM', () => void>();
+  for (const signal of signals) {
+    const handler = () => {
+      if (handlingSignal) return;
+      handlingSignal = true;
+      const hasOtherListeners = process.listeners(signal).some(listener => listener !== handler);
+      void stopActiveCompilers().then(clean => {
+        if (!clean) console.error('Latch: TypeScript validation process is still shutting down');
+      }).catch(() => {
+        console.error('Latch: could not stop TypeScript validation cleanly');
+      }).finally(() => {
+        // A host-installed listener retains control of termination. Keep our
+        // cleanup handlers for later signals if that host keeps running.
+        const stillHasOtherListeners = process.listeners(signal).some(listener => listener !== handler);
+        if (hasOtherListeners || stillHasOtherListeners) {
+          handlingSignal = false;
+          return;
+        }
+        for (const [name, registered] of handlers) process.removeListener(name, registered);
+        if (process.listenerCount(signal) === 0) {
+          try { process.kill(process.pid, signal); }
+          catch { process.exitCode = signal === 'SIGINT' ? 130 : 143; }
+        }
+      });
+    };
+    handlers.set(signal, handler);
+    process.on(signal, handler);
+  }
   main().catch((e) => {
     console.error(`Latch: ${e instanceof Error ? e.message : 'Operation failed'}`);
     process.exitCode = 1;
   });
+}

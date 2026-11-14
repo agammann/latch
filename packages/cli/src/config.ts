@@ -8,6 +8,7 @@ export interface Tool extends Contract {
 export interface Config extends TestProject {
   version: 1;
   project: string;
+  typescriptCompiler?: '7.0.2';
   installation: { file: string };
   tools: Tool[];
 }
@@ -21,6 +22,13 @@ function keys(obj: any, allowed: string[], label: string) {
     throw Error(`${label}: invalid object or unsupported field`);
 }
 const text = (s: any) => typeof s === 'string' && s.length > 0 && s.length <= 2000;
+export function inspectionCompiler(root: string): Config['typescriptCompiler'] {
+  const c = json(root, 'latch.config.json');
+  if (!c || typeof c !== 'object' || Array.isArray(c)) throw Error('configuration: invalid object');
+  if (c.typescriptCompiler !== undefined && c.typescriptCompiler !== '7.0.2')
+    throw Error('typescriptCompiler must be 7.0.2 when specified');
+  return c.typescriptCompiler;
+}
 function selector(s: any) {
   keys(s, ['testId', 'label', 'role', 'name'], 'selector');
   if (
@@ -60,12 +68,14 @@ export function loadConfig(root: string): Config {
   const c = json(root, 'latch.config.json');
   keys(
     c,
-    ['version', 'project', 'baseUrl', 'browser', 'installation', 'tools', 'tests'],
+    ['version', 'project', 'typescriptCompiler', 'baseUrl', 'browser', 'installation', 'tools', 'tests'],
     'configuration',
   );
   if (c.version !== 1)
     throw Error(`Unsupported config version ${c.version}; run latch migrate --to 1 for guidance`);
   if (!text(c.project)) throw Error('Project name required');
+  if (c.typescriptCompiler !== undefined && c.typescriptCompiler !== '7.0.2')
+    throw Error('typescriptCompiler must be 7.0.2 when specified');
   const base = assertLocal(c.baseUrl);
   if (base.href !== base.origin + '/') throw Error('baseUrl must be an origin without a path');
   keys(c.browser, ['channel', 'native'], 'browser');

@@ -4,5 +4,6 @@ packages:
 onlyBuiltDependencies:
   - esbuild
 overrides:
+  rolldown>@rolldown/pluginutils: 1.1.0
   vite>esbuild: 0.28.2
   source-map-js: 1.2.2
