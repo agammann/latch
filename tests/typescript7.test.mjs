@@ -147,8 +147,9 @@ test('direct owner fails closed and reaps children on timeout or worker death', 
     assert.match(source, /const workerClosed =/);
     assert.match(source, /60_000\);/);
     assert.match(source, /worker\.send\(\{ root, overlay \}\);/);
-    source = source.replace('const nativeClosed =', `native.once('spawn', () => fs.writeFileSync(${JSON.stringify(nativePidFile)}, String(native.pid)));\nconst nativeClosed =`);
-    source = source.replace('const workerClosed =', `worker.once('spawn', () => { fs.writeFileSync(${JSON.stringify(workerPidFile)}, String(worker.pid)); ${mode === 'worker-death' ? "worker.kill('SIGKILL');" : ''} });\nconst workerClosed =`);
+    globalThis.__latchChildProbe = { nativePidFile, workerPidFile, mode };
+    source = source.replace('const nativeClosed =', "native.once('spawn', () => fs.writeFileSync(globalThis.__latchChildProbe.nativePidFile, String(native.pid)));\nconst nativeClosed =");
+    source = source.replace('const workerClosed =', "worker.once('spawn', () => { fs.writeFileSync(globalThis.__latchChildProbe.workerPidFile, String(worker.pid)); if (globalThis.__latchChildProbe.mode === 'worker-death') worker.kill('SIGKILL'); });\nconst workerClosed =");
     if (mode === 'timeout') {
       source = source.replace('60_000);', '1_000);');
       source = source.replace('worker.send({ root, overlay });', ';');
@@ -162,6 +163,7 @@ test('direct owner fails closed and reaps children on timeout or worker death', 
       if (process.platform === 'linux') assert.equal(fs.existsSync(`/proc/${pid}`), false);
     }
     assert.deepEqual(fs.readdirSync(project).sort(), ['src', 'tsconfig.json']);
+    delete globalThis.__latchChildProbe;
   }
 });
 

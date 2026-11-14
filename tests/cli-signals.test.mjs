@@ -84,14 +84,16 @@ test('CLI signals stop and reap a stalled compiler without changing project file
     const nativeAnchor = "const nativeClosed = new Promise(resolve => native.once('close', () => { nativeDidClose = true; resolve(); }));";
     const workerAnchor = "const workerClosed = new Promise(resolve => worker.once('close', () => { workerDidClose = true; resolve(); }));";
     assert.ok(source.includes(nativeAnchor) && source.includes(workerAnchor));
-    source = source.replace(nativeAnchor, nativeAnchor + ` native.once('spawn', () => { native.kill('SIGSTOP'); fs.writeFileSync(${JSON.stringify(nativeFile)}, String(native.pid)); });`);
-    source = source.replace(workerAnchor, workerAnchor + ` worker.once('spawn', () => fs.writeFileSync(${JSON.stringify(workerFile)}, String(worker.pid)));`);
+    source = source.replace(nativeAnchor, nativeAnchor + " native.once('spawn', () => { native.kill('SIGSTOP'); fs.writeFileSync(process.env.LATCH_TEST_NATIVE_PID_FILE, String(native.pid)); });");
+    source = source.replace(workerAnchor, workerAnchor + " worker.once('spawn', () => fs.writeFileSync(process.env.LATCH_TEST_WORKER_PID_FILE, String(worker.pid)));");
     fs.writeFileSync(module, source);
     const customMarker = path.join(root, 'custom');
     const preload = path.join(root, 'preload.cjs');
-    fs.writeFileSync(preload, `process.on(${JSON.stringify(signal)}, () => require('node:fs').appendFileSync(${JSON.stringify(customMarker)}, 'x')); setInterval(() => {}, 1000);`);
+    fs.writeFileSync(preload, "process.on(process.env.LATCH_TEST_SIGNAL, () => require('node:fs').appendFileSync(process.env.LATCH_TEST_SIGNAL_MARKER, 'x')); setInterval(() => {}, 1000);");
     const cli = spawn(process.execPath, [...(custom ? ['--require', preload] : []), path.join(dist, 'main.js'), 'generate', '--root', project], {
-      detached: true, stdio: ['ignore', 'ignore', 'pipe'],
+      detached: true, stdio: ['ignore', 'ignore', 'pipe'], env: { ...process.env,
+        LATCH_TEST_SIGNAL: signal, LATCH_TEST_SIGNAL_MARKER: customMarker,
+        LATCH_TEST_NATIVE_PID_FILE: nativeFile, LATCH_TEST_WORKER_PID_FILE: workerFile },
     });
     let errors = '';
     cli.stderr.on('data', chunk => { errors += String(chunk); });

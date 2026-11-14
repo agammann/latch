@@ -8,6 +8,10 @@ import { spawnSync } from 'node:child_process';
 
 const base = path.resolve('work/tests');
 fs.mkdirSync(base, { recursive: true });
+function createIfMissing(file, contents) {
+  try { fs.writeFileSync(file, contents, { flag: 'wx' }); }
+  catch (error) { if (error.code !== 'EEXIST') throw error; }
+}
 const fixture = () => {
   const root = fs.mkdtempSync(path.join(base, 'async-race-'));
   fs.cpSync('examples/docs', root, {
@@ -136,9 +140,9 @@ test('a file disappearing between stat and open fails closed even if restored', 
     assert.equal(fs.existsSync(path.join(root, '.latch/manifest.json')), false);
     assert.equal(fs.existsSync(path.join(root, 'src/latch.generated/integration.ts')), false);
   } finally {
-    if (!fs.existsSync(target)) fs.writeFileSync(target, original);
-    if (!fs.existsSync(release)) fs.writeFileSync(release, 'go');
-    if (!fs.existsSync(restored)) fs.writeFileSync(restored, 'go');
+    createIfMissing(target, original);
+    createIfMissing(release, 'go');
+    createIfMissing(restored, 'go');
   }
 });
 
@@ -379,7 +383,7 @@ test('same-project validations are serialized', { timeout: 30_000 }, async () =>
     assert.equal(a.error, undefined);
     assert.equal(b.error, undefined);
     assert.equal(fs.readFileSync(ready, 'utf8'), 'xx');
-  } finally { if (!fs.existsSync(release)) fs.writeFileSync(release, 'release'); }
+  } finally { createIfMissing(release, 'release'); }
 });
 
 test('apply refuses a concurrently edited installation file', { timeout: 30_000 }, async () => {
@@ -429,13 +433,16 @@ test('capture observes the checked state before queued edits for TypeScript 5 an
     let source = fs.readFileSync(file, 'utf8');
     const anchor = 'return { result, value: onValidated?.() };';
     assert.ok(source.includes(anchor));
-    source = source.replace(anchor, `queueMicrotask(() => fs.writeFileSync(${JSON.stringify(config)}, ${JSON.stringify(JSON.stringify(changed))}));\n${anchor}`);
+    source = source.replace(anchor, 'queueMicrotask(() => globalThis.__latchCaptureEdit());\n' + anchor);
     fs.writeFileSync(file, source);
     const { checkAndCapture } = await import(pathToFileURL(file).href);
-    const captured = await checkAndCapture(root, () => JSON.parse(fs.readFileSync(config, 'utf8')));
-    assert.equal(captured.result.generatedTypes, 'compiled');
-    assert.equal(captured.value.project, original.project);
-    assert.equal(JSON.parse(fs.readFileSync(config, 'utf8')).project, changed.project);
+    globalThis.__latchCaptureEdit = () => fs.writeFileSync(config, JSON.stringify(changed));
+    try {
+      const captured = await checkAndCapture(root, () => JSON.parse(fs.readFileSync(config, 'utf8')));
+      assert.equal(captured.result.generatedTypes, 'compiled');
+      assert.equal(captured.value.project, original.project);
+      assert.equal(JSON.parse(fs.readFileSync(config, 'utf8')).project, changed.project);
+    } finally { delete globalThis.__latchCaptureEdit; }
   }
 });
 
@@ -471,7 +478,7 @@ test('queued project requests capture the version checked and report validation 
     assert.equal(b.project, 'new-project');
     assert.equal(b.checked.generatedTypes, 'compiled');
   } finally {
-    if (!fs.existsSync(release)) fs.writeFileSync(release, 'release');
+    createIfMissing(release, 'release');
     await new Promise(resolve => server.close(resolve));
     delete globalThis.__latchGetCount;
   }
