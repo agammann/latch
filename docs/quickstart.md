@@ -6,7 +6,7 @@ This path runs complete example applications and tests their handlers in ordinar
 
 ## 1. Prepare the checkout
 
-Install Git, Node 22 or later, and pnpm 10.17.1 or later. The repository pins pnpm 10.17.1. Check that `node --version` and `pnpm --version` work before continuing.
+Install Git, Node 22.12 or later, and pnpm 10.17.1 or later. The repository pins pnpm 10.17.1. Check that `node --version` and `pnpm --version` work before continuing.
 
 Run these commands in a terminal:
 

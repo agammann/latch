@@ -28,12 +28,12 @@ No account or API key is required. Editing and generation happen in the browser.
 
 ## What is verified
 
-| Check                             | What it establishes                                                                                                    |
-| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Studio contract and sample checks | Schemas and example values are valid. Your handler has not run.                                                        |
+| Check                             | What it establishes                                                                                                                    |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Studio contract and sample checks | Schemas and example values are valid. Your handler has not run.                                                                        |
 | CLI `generate` and `check`        | Explicit mappings resolve and the generated integration passes Latch's bundled TypeScript checks using your application configuration. |
-| Handler and UI tests              | The validated wrapper returns expected results and configured UI assertions pass against your running development app. |
-| Native tests                      | A compatible browser registers, discovers, and invokes the tools, with cleanup checked where configured.               |
+| Handler and UI tests              | The validated wrapper returns expected results and configured UI assertions pass against your running development app.                 |
+| Native tests                      | A compatible browser registers, discovers, and invokes the tools, with cleanup checked where configured.                               |
 
 Native WebMCP support is experimental. The measured targets include Chrome **155.0.8059.39** and Playwright's Chromium **156.0.8078.4**, with `WebMCPTesting` enabled and object inputs to `document.modelContext.executeTool`. See the [current compatibility record](docs/compatibility-2026-11-13.md) for the measured API forms and scope. Native absence or blocked execution produces a failing check; ordinary application UI remains available when WebMCP is unsupported.
 
@@ -41,9 +41,9 @@ The [September compatibility record](docs/compatibility-2026-09-08.md), [Septemb
 
 ## Requirements and distribution
 
-The local CLI requires **Node 22+** and **pnpm 10.17.1+**. Integration targets an existing React, TypeScript, and Vite application. The [installation guide](docs/installation.md) lists tested versions and browser setup.
+The local CLI requires **Node 22+** and **pnpm 10.17.1+**. Building this checkout and its Vite examples requires Node 22.12 or later; the prebuilt CLI runtime keeps its Node 22+ contract. Integration targets an existing React, TypeScript, and Vite application. The [installation guide](docs/installation.md) lists tested versions and browser setup.
 
-Version **1.0.2** uses six prebuilt package tarballs with checksums in the [GitHub release](https://github.com/agammann/latch/releases/tag/v1.0.2). The `@latch-local/*` names are local distribution identifiers; packages have not been published to a registry. The public Studio runs on OpenAI Sites. This repository contains the CLI, runtime, local console, examples, and release evidence; the Studio website source is maintained separately. Studio version 5 runtime downloads were verified against the six published v1.0.0 packages on October 7, 2026 (UTC); see the [delivered-release check](docs/studio.md#delivered-v1-release-check-october-7-2026-utc). The [v1 stability contract](docs/stability.md) covers the CLI, typed runtime contracts and React/Vite integration.
+Version **1.1.0** uses six prebuilt package tarballs with checksums in the [GitHub release](https://github.com/agammann/latch/releases/tag/v1.1.0). The `@latch-local/*` names are local distribution identifiers; packages have not been published to a registry. The public Studio runs on OpenAI Sites. This repository contains the CLI, runtime, local console, examples, and release evidence; the Studio website source is maintained separately. Studio version 5 runtime downloads were verified against the six published v1.0.0 packages on October 7, 2026 (UTC); see the [delivered-release check](docs/studio.md#delivered-v1-release-check-october-7-2026-utc). The [v1 stability contract](docs/stability.md) covers the CLI, typed runtime contracts and React/Vite integration.
 
 ## Documentation and project status
 

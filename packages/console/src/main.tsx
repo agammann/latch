@@ -176,9 +176,9 @@ function App() {
                   <section>
                     <h2>Compatibility</h2>
                     <dl>
-                      <dt>Document API target</dt>
+                      <dt>Native API target</dt>
                       <dd>{data.compatibility.target}</dd>
-                      <dt>Configuration</dt>
+                      <dt>Native requirement</dt>
                       <dd>{data.compatibility.configuration}</dd>
                       <dt>Recorded browser</dt>
                       <dd>{report?.browser ?? 'Not run'}</dd>

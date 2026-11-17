@@ -6,6 +6,7 @@ import { createHash } from 'node:crypto';
 import { generate, apply, rollback, check } from '../packages/cli/dist/generate.js';
 import { inspect } from '../packages/cli/dist/inspect.js';
 import { safe } from '../packages/cli/dist/files.js';
+const releaseVersion = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url))).version;
 const base = path.resolve('work/tests');
 fs.mkdirSync(base, { recursive: true });
 function fixture() {
@@ -66,14 +67,15 @@ test('a valid 0.1.0 ownership manifest upgrades and keeps rollback protection', 
   await generate(r);
   await apply(r);
   const output = path.join(r, 'src/latch.generated/integration.ts');
-  fs.writeFileSync(output, fs.readFileSync(output, 'utf8').replace('Latch 1.0.2.', 'Latch 0.1.0.'));
+  fs.writeFileSync(output, fs.readFileSync(output, 'utf8').replace(`Latch ${releaseVersion}.`, 'Latch 0.1.0.'));
+  assert.match(fs.readFileSync(output, 'utf8'), /Latch 0\.1\.0\./);
   const manifestPath = path.join(r, '.latch/manifest.json');
   const old = JSON.parse(fs.readFileSync(manifestPath));
   old.generatorVersion = '0.1.0';
   old.files['src/latch.generated/integration.ts'].after = createHash('sha256').update(fs.readFileSync(output)).digest('hex');
   fs.writeFileSync(manifestPath, JSON.stringify(old));
   await generate(r);
-  assert.equal(JSON.parse(fs.readFileSync(manifestPath)).generatorVersion, '1.0.2');
+  assert.equal(JSON.parse(fs.readFileSync(manifestPath)).generatorVersion, releaseVersion);
   assert.equal((await check(r)).installation, 'applied');
   await rollback(r);
   assert.equal(fs.readFileSync(path.join(r, 'src/main.tsx'), 'utf8'), before);

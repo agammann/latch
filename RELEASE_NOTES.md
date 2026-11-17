@@ -1,3 +1,9 @@
+# Latch 1.1.0
+
+This minor release delivers the existing TypeScript 7.0.2 validation and compiler reporting work in one matching six-package set. It retains schema 1, documented CLI/runtime contracts, source ownership and rollback rules, and the measured Chromium 156/Chrome 155 native targets. Unstable compiler APIs, bounded observations, and unsupported browsers remain explicit limits.
+
+The checkout requires Node 22.12 or later for Vite builds; the prebuilt CLI runtime retains Node 22+. All four existing platform gates, native/ordinary tests and fresh TypeScript 5.9/7 consumers must pass on the exact release commit before publication. The separately maintained Studio and its runtime downloads have their own provenance.
+
 # Latch 1.0.0
 
 2026-10-06

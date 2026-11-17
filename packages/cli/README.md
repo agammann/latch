@@ -1,4 +1,4 @@
-# @latch-local/cli 1.0.2
+# @latch-local/cli 1.1.0
 
 Part of Latch: Connect your site. Verify every action.
 

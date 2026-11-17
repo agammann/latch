@@ -6,9 +6,9 @@ Use this guide after downloading an integration from Studio, or when configuring
 
 ## Before you begin
 
-You need Node 22+, pnpm 10.17.1+, and an existing React/TypeScript/Vite project that already builds. Keep React, React DOM, TypeScript, their type declarations, and Vite in that project's dependencies. Latch does not create an application or replace your build configuration.
+You need Node 22.12 or later for the documented React/Vite workflow, pnpm 10.17.1+, and an existing React/TypeScript/Vite project that already builds. Keep React, React DOM, TypeScript, their type declarations, and Vite in that project's dependencies. Latch does not create an application or replace your build configuration.
 
-The generator compiles against your `tsconfig.json` using a bundled compiler, not the compiler installed by your application. This checkout selects the bundled native TypeScript 7.0.2 when your project resolves exactly 7.0.2; otherwise it uses bundled TypeScript 5.9.3 and warns if the project's version differs or cannot be identified. TypeScript 7 validation uses an exact-pinned, unstable TypeScript API; binding discovery uses the TypeScript 6.0.2 parser. A custom build may use a different compiler even when the resolved package matches, so run your application's own type check after applying the integration. The published v1.0.2 packages do not include the version reporting or TypeScript 7 support. Remove `noCheck: true` or set it to `false`, including in inherited configurations, so semantic validation runs. This checkout rejects `noCheck: true` during generation, checking, and application; the already-published v1.0.2 packages do not include that guard. Generated code uses `import.meta.env` and top level await; use Vite client types and an ES2022 or newer build target if your application's configuration requires those settings explicitly. Other frameworks and bundlers are not covered by this release.
+The generator compiles against your `tsconfig.json` using a bundled compiler, not the compiler installed by your application. This checkout selects the bundled native TypeScript 7.0.2 when your project resolves exactly 7.0.2; otherwise it uses bundled TypeScript 5.9.3 and warns if the project's version differs or cannot be identified. TypeScript 7 validation uses an exact-pinned, unstable TypeScript API; binding discovery uses the TypeScript 6.0.2 parser. A custom build may use a different compiler even when the resolved package matches, so run your application's own type check after applying the integration. The v1.1.0 packages include this compiler selection and version reporting. Older v1.0.2 packages predate those features. Remove `noCheck: true` or set it to `false`, including in inherited configurations, so semantic validation runs. This checkout rejects `noCheck: true` during generation, checking, and application; older v1.0.2 packages do not include that guard. Generated code uses `import.meta.env` and top level await; use Vite client types and an ES2022 or newer build target if your application's configuration requires those settings explicitly. Other frameworks and bundlers are not covered by this release.
 
 If your application uses TypeScript 7.0.2 through a separate `tsgo` package while the `typescript` package resolves to another version, set `"typescriptCompiler": "7.0.2"` at the top level of `latch.config.json` to select Latch's bundled native validator. Check the reported `typescriptCompiler` and run the application's own type check; this option does not inspect or execute the application's `tsgo` binary and does not support other TypeScript 7 versions.
 
@@ -18,10 +18,10 @@ TypeScript 7 validation observes and rechecks filesystem inputs before changing 
 
 Choose one source:
 
-1. **From GitHub:** download all six `latch-local-*-1.0.2.tgz` assets and `SHA256SUMS` from the [v1.0.2 release](https://github.com/agammann/latch/releases/tag/v1.0.2). Verify each tarball against SHA256SUMS before installing it. On PowerShell, use `Get-FileHash <tarball> -Algorithm SHA256`; on Linux, run `sha256sum -c SHA256SUMS` in the download directory.
+1. **From GitHub:** download all six `latch-local-*-1.1.0.tgz` assets and `SHA256SUMS` from the [v1.1.0 release](https://github.com/agammann/latch/releases/tag/v1.1.0). Verify each tarball against SHA256SUMS before installing it. On PowerShell, use `Get-FileHash <tarball> -Algorithm SHA256`; on Linux, run `sha256sum -c SHA256SUMS` in the download directory.
 2. **From this repository:** follow the checkout and dependency steps in the [example quickstart](quickstart.md), then run `pnpm build` and `pnpm pack:local` from the Latch repository root. The tarballs are written to `artifacts/`.
 
-Studio is maintained separately. Its runtime download is not established as the v1.0.2 package set; obtain v1 packages through GitHub or a v1 source checkout. Studio integration configurations use schema 1 and must still pass your installed CLI checks.
+Studio is maintained separately. It displays the included runtime package version. Install all six tarballs from the same version; use the GitHub release or matching source checkout for the current v1.1.0 set. Dated Studio download checks are recorded in the Studio guide. Studio integration configurations use schema 1 and must still pass your installed CLI checks.
 
 In your application, create `vendor/latch/` and copy all six tarballs into it. Keep the `.tgz` files intact; pnpm installs them directly. The following steps assume this directory structure:
 
@@ -32,12 +32,12 @@ your-app/
   tsconfig.json
   src/
   vendor/latch/
-    latch-local-contracts-1.0.2.tgz
-    latch-local-browser-1.0.2.tgz
-    latch-local-runtime-1.0.2.tgz
-    latch-local-react-1.0.2.tgz
-    latch-local-test-1.0.2.tgz
-    latch-local-cli-1.0.2.tgz
+    latch-local-contracts-1.1.0.tgz
+    latch-local-browser-1.1.0.tgz
+    latch-local-runtime-1.1.0.tgz
+    latch-local-react-1.1.0.tgz
+    latch-local-test-1.1.0.tgz
+    latch-local-cli-1.1.0.tgz
 ```
 
 For a pnpm workspace, put the overrides in the workspace root's `pnpm-workspace.yaml` and resolve their paths relative to that root. Run package installation commands in the application package. The example above assumes a single application root.
@@ -48,12 +48,12 @@ Add these entries to your application's `pnpm-workspace.yaml`. If the file exist
 
 ```yaml
 overrides:
-  '@latch-local/contracts': file:./vendor/latch/latch-local-contracts-1.0.2.tgz
-  '@latch-local/browser': file:./vendor/latch/latch-local-browser-1.0.2.tgz
-  '@latch-local/runtime': file:./vendor/latch/latch-local-runtime-1.0.2.tgz
-  '@latch-local/react': file:./vendor/latch/latch-local-react-1.0.2.tgz
-  '@latch-local/test': file:./vendor/latch/latch-local-test-1.0.2.tgz
-  '@latch-local/cli': file:./vendor/latch/latch-local-cli-1.0.2.tgz
+  '@latch-local/contracts': file:./vendor/latch/latch-local-contracts-1.1.0.tgz
+  '@latch-local/browser': file:./vendor/latch/latch-local-browser-1.1.0.tgz
+  '@latch-local/runtime': file:./vendor/latch/latch-local-runtime-1.1.0.tgz
+  '@latch-local/react': file:./vendor/latch/latch-local-react-1.1.0.tgz
+  '@latch-local/test': file:./vendor/latch/latch-local-test-1.1.0.tgz
+  '@latch-local/cli': file:./vendor/latch/latch-local-cli-1.1.0.tgz
 ```
 
 All six overrides are required because the packages depend on one another and are not published to a registry. Do not put these overrides only in `package.json`; pnpm 11 uses the workspace YAML settings. See the [pnpm settings reference](https://pnpm.io/settings).
@@ -61,12 +61,12 @@ All six overrides are required because the packages depend on one another and ar
 Now install the browser dependencies and developer tools:
 
 ```sh
-pnpm add --ignore-scripts ./vendor/latch/latch-local-contracts-1.0.2.tgz ./vendor/latch/latch-local-browser-1.0.2.tgz ./vendor/latch/latch-local-runtime-1.0.2.tgz ./vendor/latch/latch-local-react-1.0.2.tgz
-pnpm add -D --ignore-scripts ./vendor/latch/latch-local-test-1.0.2.tgz ./vendor/latch/latch-local-cli-1.0.2.tgz
+pnpm add --ignore-scripts ./vendor/latch/latch-local-contracts-1.1.0.tgz ./vendor/latch/latch-local-browser-1.1.0.tgz ./vendor/latch/latch-local-runtime-1.1.0.tgz ./vendor/latch/latch-local-react-1.1.0.tgz
+pnpm add -D --ignore-scripts ./vendor/latch/latch-local-test-1.1.0.tgz ./vendor/latch/latch-local-cli-1.1.0.tgz
 pnpm exec latch --version
 ```
 
-The version command should print `1.0.2`. The Latch tarballs are prebuilt and need no installation scripts. These commands skip dependency lifecycle scripts for this installation; keep your existing application's build dependencies configured separately. This also avoids pnpm 11 stopping on an unapproved dependency build script. Retain the tarballs at their configured paths for future installs. Registry lookups for `@latch-local/*` usually mean an override is missing or points at the wrong directory.
+The version command should print `1.1.0`. The Latch tarballs are prebuilt and need no installation scripts. These commands skip dependency lifecycle scripts for this installation; keep your existing application's build dependencies configured separately. This also avoids pnpm 11 stopping on an unapproved dependency build script. Retain the tarballs at their configured paths for future installs. Registry lookups for `@latch-local/*` usually mean an override is missing or points at the wrong directory.
 
 ## 3. Add your configuration and mount marker
 

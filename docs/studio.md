@@ -40,7 +40,7 @@ Once every contract and sample is valid, select **Download integration**. Its ZI
 | `PACKAGE_INSTALL.md`                         | Package setup instructions.                                       |
 | `studio-draft.json`                          | An editable copy of the Studio draft.                             |
 
-Studio version 5 includes the six matching v1.0.0 packages and SHA256SUMS in **Download runtime packages**. Its actual public download was compared byte for byte with the published GitHub package set on October 7, 2026 (UTC). The [installation guide](installation.md) also provides the immutable GitHub release links. Keep the six matching tarballs available while installing and maintaining the integration.
+**Download runtime packages** displays its package version and includes six matching tarballs plus SHA256SUMS. Keep all six installed packages on the same version; the current GitHub set is linked in the installation guide. The dated Studio version 5 download was compared byte for byte with the published v1.0.0 package set on October 7, 2026 (UTC). The [installation guide](installation.md) also provides the immutable GitHub release links. Keep the six matching tarballs available while installing and maintaining the integration.
 
 Continue with [Installation](installation.md). Copy the configuration into your application, keep `preview/` outside application source, and let the CLI generate and own the installed files.
 

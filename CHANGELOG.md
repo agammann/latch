@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0
+
+- Deliver the previously unreleased TypeScript 7.0.2 validator, explicit compiler selection and version reporting, while retaining the TypeScript 5.9.3 fallback and TypeScript 6 binding parser. The exact native compiler API and filesystem observation limits remain documented.
+- Reject `noCheck: true` and preserve observed compiler/project inputs through validation before generation or application. Keep configuration/ownership schema 1 and existing source conflict/rollback protections.
+- Deliver the measured Chromium 156 object-input native target without adding unmeasured browser versions or mutation retries. Verify package consumers with TypeScript 5.9 and 7 across the four platform release gates.
+- Align the six-package delivery at 1.1.0, preserve immutable v1.0.2 assets, and clarify the Node 22.12 checkout/Vite build minimum separately from the prebuilt CLI Node 22 runtime contract. Correct current Studio parity wording while retaining dated history.
+- Label the console's static native API/flag requirements separately from its recorded browser and Handler/native test results.
+
 ## 1.0.2
 
 - Reject an updated binding that omits a required precondition, preserving the previous working binding.
