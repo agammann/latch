@@ -41,7 +41,7 @@ For documentation changes, check the commands against the actual CLI, check rela
 
 ## Native release verification
 
-The examples include native tests and require the browser described in the [current compatibility record](docs/compatibility-2026-11-13.md). With that target available and ports 5173 and 5174 free:
+The examples include native tests and require the browser described in the [current compatibility record](docs/compatibility-2026-11-24.md). With that target available and ports 5173 and 5174 free:
 
 ```sh
 pnpm verify

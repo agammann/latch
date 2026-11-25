@@ -179,7 +179,7 @@ export async function runTests(project: TestProject): Promise<Report> {
     browser = await chromium.launch({
       channel: project.browser.channel === 'chrome' ? 'chrome' : undefined,
       headless: true,
-      args: project.browser.native ? ['--enable-features=WebMCPTesting'] : [],
+      args: project.browser.native ? ['--enable-features=WebMCP,WebMCPTesting'] : [],
     });
     report.browser = browser.version();
   } catch {
@@ -201,7 +201,12 @@ export async function runTests(project: TestProject): Promise<Report> {
   }
   try {
     const major = Number(report.browser.split('.')[0]);
-    const nativeInput = major === 155 || major === 156 ? 'object' : major === 153 || major === 154 ? 'json-string' : undefined;
+    const nativeInput =
+      major === 155 || major === 156 || report.browser === '159.0.8154.6'
+        ? 'object'
+        : major === 153 || major === 154
+          ? 'json-string'
+          : undefined;
     for (const t of project.tests) {
       const start = Date.now();
       const r: CaseReport = {

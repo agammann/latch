@@ -22,11 +22,11 @@ The workflow uploads the report directory even when a check fails. This ordinary
 
 ## Native Chromium CI lane
 
-After the same build and browser installation, run `node scripts/ci-handler.mjs --native`. This runs all 11 catalog and 7 documentation cases with `WebMCPTesting` enabled, including both required native cases. It writes `reports/ci-native-catalog.json` and `reports/ci-native-docs.json`. Both configurations are derived in memory; the shipped examples remain unchanged. A missing browser API or any blocked case produces a nonzero exit. No native API is simulated.
+After the same build and browser installation, run `node scripts/ci-handler.mjs --native`. This runs all 11 catalog and 7 documentation cases with `--enable-features=WebMCP,WebMCPTesting`, including both required native cases. It writes `reports/ci-native-catalog.json` and `reports/ci-native-docs.json`. Both configurations are derived in memory; the shipped examples remain unchanged. A missing browser API or any blocked case produces a nonzero exit. No native API is simulated.
 
 ## Native release lane
 
-Use the target Chrome installation described in the [compatibility record](compatibility-2026-11-13.md), keep the unchanged example configurations, and run `pnpm verify`. Retain reports that record the actual browser version. If Chrome or its API is unavailable, the native case must remain blocked with a nonzero exit. A passing Handler lane does not substitute for this evidence.
+Use the measured browser target specified in the example configurations and described in the [compatibility record](compatibility-2026-11-24.md), keep the unchanged example configurations, and run `pnpm verify`. Retain reports that record the actual browser version. If Chrome or its API is unavailable, the native case must remain blocked with a nonzero exit. A passing Handler lane does not substitute for this evidence.
 
 Full verification also runs the intentional regression demonstration. That script requires the documentation development server on port 5174 when run separately as `pnpm regression:demo`. It detects a wrong handler result shape, verifies the corrected mapping, and restores the original source and configuration in `finally`.
 
